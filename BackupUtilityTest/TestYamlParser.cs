@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BackupUtilityTest
 {
     [TestClass]
-    public class UnitTest1
+    public class TestYamlParser
     {
         [TestMethod]
         public void TestMethod1()

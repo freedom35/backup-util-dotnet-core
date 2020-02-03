@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 
+using BackupUtilityCore.YAML;
+
 namespace BackupUtilityCore
 {
     sealed class Program
@@ -100,7 +102,7 @@ namespace BackupUtilityCore
             if (args.Contains("-c"))
             {
                 // Create file using defaults.
-                new BackupSettings().SaveToFile(settingsFile);
+                CreateBackupSettings().SaveToFile(settingsFile);
 
                 // Report that file created.
                 Console.WriteLine($"Config file created: {settingsFile}");
@@ -117,12 +119,20 @@ namespace BackupUtilityCore
 
         static BackupSettings ParseSettings(string settingsFile)
         {
-            BackupSettings backupSettings = new BackupSettings();
+            BackupSettings backupSettings = CreateBackupSettings();
 
             // Attempt to load file
             backupSettings.LoadFromFile(settingsFile);
 
             return backupSettings;
+        }
+
+        static BackupSettings CreateBackupSettings()
+        {
+            // Type from settings?
+            YamlBackupSettings backupSettings = new YamlBackupSettings();
+
+            return new BackupSettings(backupSettings);
         }
     }
 }
