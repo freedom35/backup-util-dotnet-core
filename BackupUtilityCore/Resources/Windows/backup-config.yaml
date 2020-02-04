@@ -2,16 +2,55 @@
 
 ####################################
 # Default Settings
+# (Developer Environment)
 ####################################
 
+
 # Specify root target directory for backup
+target_dir: C:\Backups
 
 
 # Add each source directory to backup...
+source_dirs:
+ - C:\Projects
+ - C:\Documents\Specifications
+ - "C:\Documents\Research & Development"
+
+
+# Add any excluded directories
+excluded_dirs:
+ - obj
+ - bin
+ - _sgbak
+ - ipch
+ - .dropbox.cache
+ - .git
+ - .vs
 
 
 # Add extensions for excluded file types
-
+excluded_types:
+ - exe
+ - dll
+ - pdb
+ - zip
+ - scc
+ - obj
+ - sbr
+ - ilk
+ - pch
+ - bsc
+ - tlog
+ - idb
+ - lastbuildstate
+ - manifest
+ - cache
+ - log
+ - exp
+ - tlh
+ - tli
+ - sdf
+ - aps
 
 
 ...
