@@ -124,20 +124,10 @@ namespace BackupUtilityCore
 
         static BackupSettings ParseSettings(string settingsFile)
         {
-            BackupSettings backupSettings = CreateBackupSettings();
-
-            // Attempt to load file
-            backupSettings.LoadFromFile(settingsFile);
-
-            return backupSettings;
-        }
-
-        static BackupSettings CreateBackupSettings()
-        {
             // Type from settings?
             YamlBackupSettings backupSettings = new YamlBackupSettings();
 
-            return new BackupSettings(backupSettings);
+            return backupSettings.Parse(settingsFile);
         }
     }
 }

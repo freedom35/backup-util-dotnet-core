@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace BackupUtilityCore.XML
 {
-    public sealed class XmlBackupSettings : IBackupSettings
+    public sealed class XmlBackupSettings : ISettingsParser
     {
         #region Constants
 
@@ -23,73 +23,26 @@ namespace BackupUtilityCore.XML
 
         #endregion
 
-        #region Properties
+        //public override string ToString()
+        //{
+        //    return ToXml().OuterXml;
+        //}
 
-        /// <summary>
-        /// Gets or sets the name of the settings file.
-        /// </summary>
-        /// <value>The name of the settings file.</value>
-        public string SettingsFileName
+        public BackupSettings Parse(string fileName)
         {
-            get;
-            private set;
-        }
-
-        public string[] SourceDirectories
-        {
-            get;
-            set;
-        } = new string[0];
-
-        public string TargetDirectory
-        {
-            get;
-            set;
-        } = "";
-
-        public string[] ExcludedDirectories
-        {
-            get;
-            set;
-        } = new string[0];
-
-        public string[] ExcludedFileTypes
-        {
-            get;
-            set;
-        } = new string[0];
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to ignore hidden files.
-        /// </summary>
-        /// <value><c>true</c> to ignore hidden files; otherwise, <c>false</c>.</value>
-        public bool IgnoreHiddenFiles
-        {
-            get;
-            set;
-        } = true;
-
-        #endregion
-
-        public override string ToString()
-        {
-            return ToXml().OuterXml;
-        }
-
-        public void Parse(string fileName)
-        {
-            // Update file name
-            SettingsFileName = fileName;
-
             // Load file into memory
             XmlDocument doc = new XmlDocument();
             doc.Load(fileName);
 
+            BackupSettings settings = new BackupSettings();
+
             // Parse settings
-            LoadFromXml(doc);
+            LoadFromXml(doc, settings);
+
+            return settings;
         }
 
-        public void LoadFromXml(XmlDocument doc)
+        private void LoadFromXml(XmlDocument doc, BackupSettings settings)
         {
             // Check for something to load
             if (doc != null && doc.HasChildNodes && doc[XmlRoot] != null)
@@ -98,54 +51,45 @@ namespace BackupUtilityCore.XML
                 XmlElement xeSettings = doc[XmlRoot];
 
                 // Get target dir
-                TargetDirectory = xeSettings[XmlTargetDir]?.InnerText ?? "";
+                settings.TargetDirectory = xeSettings[XmlTargetDir]?.InnerText ?? "";
 
                 // Get source directories
                 if (xeSettings[XmlSourceDirs] != null)
                 {
                     // Select all the source dir nodes
-                    SourceDirectories = xeSettings[XmlSourceDirs].SelectNodes(XmlSourceDir).Cast<XmlElement>().Select(xe => xe.InnerText).ToArray();
+                    settings.SourceDirectories = xeSettings[XmlSourceDirs].SelectNodes(XmlSourceDir).Cast<XmlElement>().Select(xe => xe.InnerText).ToArray();
                 }
                 else
                 {
                     // Clear property
-                    SourceDirectories = null;
+                    settings.SourceDirectories = null;
                 }
 
                 // Get exluded files
                 if (xeSettings[XmlExcludedTypes] != null)
                 {
                     // Select all the excluded types
-                    ExcludedFileTypes = xeSettings[XmlExcludedTypes].SelectNodes(XmlExcludedType).Cast<XmlElement>().Select(xe => xe.InnerText).ToArray();
+                    settings.ExcludedFileTypes = xeSettings[XmlExcludedTypes].SelectNodes(XmlExcludedType).Cast<XmlElement>().Select(xe => xe.InnerText).ToArray();
 
                     // Determine whether to ignore hidden files
                     // (Otherwise leave as default)
                     if (xeSettings[XmlExcludedTypes].HasAttribute(XmlIgnoreHidden) && bool.TryParse(xeSettings[XmlExcludedTypes].GetAttribute(XmlIgnoreHidden), out bool ignoreHidden))
                     {
-                        IgnoreHiddenFiles = ignoreHidden;
+                        settings.IgnoreHiddenFiles = ignoreHidden;
                     }
                 }
                 else
                 {
                     // Clear property
-                    ExcludedFileTypes = null;
+                    settings.ExcludedFileTypes = null;
                 }
             }
         }
 
-        public void SaveToFile(string fileName)
-        {
-            // Update file name
-            SettingsFileName = fileName;
-
-            // Create file
-            SaveToFile();
-        }
-
-        public void SaveToFile()
+        public void SaveToFile(string fileName, BackupSettings settings)
         {
             // Convert settings to xml
-            XmlDocument doc = ToXml();
+            XmlDocument doc = ToXml(settings);
 
             // Specify writer settings
             XmlWriterSettings writerSettings = new XmlWriterSettings
@@ -156,11 +100,11 @@ namespace BackupUtilityCore.XML
             };
 
             // Save settings to file
-            using XmlWriter writer = XmlWriter.Create(SettingsFileName, writerSettings);
+            using XmlWriter writer = XmlWriter.Create(fileName, writerSettings);
             doc.Save(writer);
         }
 
-        public XmlDocument ToXml()
+        public XmlDocument ToXml(BackupSettings settings)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -176,7 +120,7 @@ namespace BackupUtilityCore.XML
 
             // Add target directory
             XmlElement xeTargetDir = doc.CreateElement(XmlTargetDir);
-            xeTargetDir.InnerText = TargetDirectory;
+            xeTargetDir.InnerText = settings.TargetDirectory;
             xeSettings.AppendChild(xeTargetDir);
 
             // Add comment for help
@@ -187,7 +131,7 @@ namespace BackupUtilityCore.XML
             xeSettings.AppendChild(xeSourceDirs);
 
             // Add each source directory
-            foreach (string sourceDir in SourceDirectories)
+            foreach (string sourceDir in settings.SourceDirectories)
             {
                 XmlElement xeSourceDir = doc.CreateElement(XmlSourceDir);
                 xeSourceDir.InnerText = sourceDir;
@@ -203,11 +147,11 @@ namespace BackupUtilityCore.XML
 
             // Add attribute for hidden files
             XmlAttribute xaIgnoreHidden = doc.CreateAttribute(XmlIgnoreHidden);
-            xaIgnoreHidden.Value = IgnoreHiddenFiles.ToString();
+            xaIgnoreHidden.Value = settings.IgnoreHiddenFiles.ToString();
             xeExcludedTypes.Attributes.Append(xaIgnoreHidden);
 
             // Add each excluded type
-            foreach (string fileType in ExcludedFileTypes)
+            foreach (string fileType in settings.ExcludedFileTypes)
             {
                 XmlElement xeExcludedType = doc.CreateElement(XmlExcludedType);
                 xeExcludedType.InnerText = fileType;

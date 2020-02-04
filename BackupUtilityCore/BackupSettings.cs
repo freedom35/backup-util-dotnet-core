@@ -7,14 +7,7 @@ namespace BackupUtilityCore
 {
     public sealed class BackupSettings
     {
-        public BackupSettings(IBackupSettings settingsparser)
-        {
-            parser = settingsparser;
-        }
-
         #region Members
-
-        private readonly IBackupSettings parser;
 
         private string[] excludedDirectories = {
             "obj",
@@ -151,18 +144,13 @@ namespace BackupUtilityCore
         /// Gets or sets the name of the settings file.
         /// </summary>
         /// <value>The name of the settings file.</value>
-        public string SettingsFileName
-        {
-            get;
-            private set;
-        }
+        //public string SettingsFileName
+        //{
+        //    get;
+        //    private set;
+        //}
 
         #endregion
-
-        public override string ToString()
-        {
-            return parser.ToString();
-        }
 
         public bool IsFileExcluded(string fileName)
         {
@@ -173,24 +161,6 @@ namespace BackupUtilityCore
         public bool IsDirectoryExcluded(string directoryName)
         {
             return !HasExcludedDirectories || ExcludedDirectories.Contains(directoryName.ToLower());
-        }
-
-        public void LoadFromFile(string fileName)
-        {
-            // Update file name
-            SettingsFileName = fileName;
-
-            // Parse settings
-            parser.Parse(fileName);
-        }
-
-        public void SaveToFile(string fileName)
-        {
-            // Update file name
-            SettingsFileName = fileName;
-
-            // Create file
-            parser.SaveToFile(fileName);
         }
     }
 }
