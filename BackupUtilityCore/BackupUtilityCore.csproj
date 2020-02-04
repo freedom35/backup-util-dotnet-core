@@ -6,4 +6,12 @@
     <Version>1.1.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="backup-config.yaml" />
+  </ItemGroup>
+
 </Project>

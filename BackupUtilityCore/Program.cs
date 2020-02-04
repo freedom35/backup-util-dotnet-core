@@ -7,6 +7,9 @@ namespace BackupUtilityCore
 {
     sealed class Program
     {
+        /// <summary>
+        /// Entry point for program.
+        /// </summary>
         static int Main(string[] args)
         {
             // Default to OK
@@ -59,7 +62,7 @@ namespace BackupUtilityCore
                 }
 
                 // Return error
-                returnCode = -1;
+                returnCode = 1;
             }
 
             return returnCode;
@@ -81,8 +84,10 @@ namespace BackupUtilityCore
 
         static bool TryGetSettingsFile(string[] args, out string settingsFile)
         {
+            const string DefaultFile = "backup-config.yaml";
+
             // Get settings file name.
-            settingsFile = args.ElementAtOrDefault(0) ?? "backup-config.xml";
+            settingsFile = args.ElementAtOrDefault(0) ?? DefaultFile;
 
             // Check whether full path or just file supplied.
             if (!System.IO.Path.IsPathRooted(settingsFile))
@@ -102,10 +107,10 @@ namespace BackupUtilityCore
             if (args.Contains("-c"))
             {
                 // Create file using defaults.
-                CreateBackupSettings().SaveToFile(settingsFile);
+                EmbeddedResource.CreateLocalCopy(DefaultFile);
 
                 // Report that file created.
-                Console.WriteLine($"Config file created: {settingsFile}");
+                Console.WriteLine($"Config file created: {DefaultFile}");
             }
             else
             {
