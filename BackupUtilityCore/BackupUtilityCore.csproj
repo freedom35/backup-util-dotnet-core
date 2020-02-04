@@ -11,7 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="backup-config.yaml" />
+    <EmbeddedResource Include="Resources\Windows\backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Unix\" />
   </ItemGroup>
 
 </Project>
