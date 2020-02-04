@@ -125,7 +125,7 @@ namespace BackupUtilityCore
         static BackupSettings ParseSettings(string settingsFile)
         {
             // Type from settings?
-            YamlBackupSettings backupSettings = new YamlBackupSettings();
+            YamlSettingsParser backupSettings = new YamlSettingsParser();
 
             return backupSettings.Parse(settingsFile);
         }

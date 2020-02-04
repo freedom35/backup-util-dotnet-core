@@ -4,7 +4,10 @@ using System.Text;
 
 namespace BackupUtilityCore.YAML
 {
-    public sealed class YamlBackupSettings : ISettingsParser
+    /// <summary>
+    /// Basic YAML parser for backup settings.
+    /// </summary>
+    public sealed class YamlSettingsParser : ISettingsParser
     {
         public BackupSettings Parse(string fileName)
         {
