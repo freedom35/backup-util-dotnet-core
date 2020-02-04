@@ -22,7 +22,7 @@ namespace BackupUtilityCore
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
                 {
-                    DisplayHelp();
+                    Help.Display();
                 }
                 else if (TryGetSettingsFile(args, out string settingsFile))
                 {
@@ -66,20 +66,6 @@ namespace BackupUtilityCore
             }
 
             return returnCode;
-        }
-
-        static void DisplayHelp()
-        {
-            Console.WriteLine("Help:");
-            Console.WriteLine("  [<file name>], Name of non-default config file.");
-            Console.WriteLine("  [-c], Creates config file if non-existent.");
-            Console.WriteLine();
-            Console.WriteLine("Usage:");
-            Console.WriteLine("  backup");
-            Console.WriteLine("  backup -c");
-            Console.WriteLine("  backup config1.xml");
-            Console.WriteLine("  backup config1.xml -c");
-            Console.WriteLine("  backup C:\\Configs\\config1.xml");
         }
 
         static bool TryGetSettingsFile(string[] args, out string settingsFile)
