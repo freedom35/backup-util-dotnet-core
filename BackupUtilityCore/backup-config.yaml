@@ -4,6 +4,14 @@
 # Default Settings
 ####################################
 
+# Specify root target directory for backup
+
+
+# Add each source directory to backup...
+
+
+# Add extensions for excluded file types
+
 
 
 ...
