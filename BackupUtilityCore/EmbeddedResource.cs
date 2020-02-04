@@ -23,8 +23,11 @@ namespace BackupUtilityCore
 
         public static byte[] GetResourceBytes(string resourceName)
         {
+            // Different file based on platform
+            string resourceDir = Environment.OSVersion.Platform == PlatformID.Unix ? "Unix" : "Windows";
+
             // Open resource as stream
-            using Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream($"BackupUtilityCore.{resourceName}");
+            using Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream($"BackupUtilityCore.Resources.{resourceDir}.{resourceName}");
             
             // Read bytes from stream
             byte[] resourceBytes = new byte[s.Length];
