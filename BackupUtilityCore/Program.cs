@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Linq;
 
+using BackupUtilityCore.YAML;
+
 namespace BackupUtilityCore
 {
     sealed class Program
     {
+        /// <summary>
+        /// Entry point for program.
+        /// </summary>
         static int Main(string[] args)
         {
             // Default to OK
@@ -17,7 +22,7 @@ namespace BackupUtilityCore
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
                 {
-                    DisplayHelp();
+                    Help.Display();
                 }
                 else if (TryGetSettingsFile(args, out string settingsFile))
                 {
@@ -57,30 +62,18 @@ namespace BackupUtilityCore
                 }
 
                 // Return error
-                returnCode = -1;
+                returnCode = 1;
             }
 
             return returnCode;
         }
 
-        static void DisplayHelp()
-        {
-            Console.WriteLine("Help:");
-            Console.WriteLine("  [<file name>], Name of non-default config file.");
-            Console.WriteLine("  [-c], Creates config file if non-existent.");
-            Console.WriteLine();
-            Console.WriteLine("Usage:");
-            Console.WriteLine("  backup");
-            Console.WriteLine("  backup -c");
-            Console.WriteLine("  backup config1.xml");
-            Console.WriteLine("  backup config1.xml -c");
-            Console.WriteLine("  backup C:\\Configs\\config1.xml");
-        }
-
         static bool TryGetSettingsFile(string[] args, out string settingsFile)
         {
+            const string DefaultFile = "backup-config.yaml";
+
             // Get settings file name.
-            settingsFile = args.ElementAtOrDefault(0) ?? "backup-config.xml";
+            settingsFile = args.ElementAtOrDefault(0) ?? DefaultFile;
 
             // Check whether full path or just file supplied.
             if (!System.IO.Path.IsPathRooted(settingsFile))
@@ -100,10 +93,10 @@ namespace BackupUtilityCore
             if (args.Contains("-c"))
             {
                 // Create file using defaults.
-                new BackupSettings().SaveToFile(settingsFile);
+                EmbeddedResource.CreateLocalCopy(DefaultFile);
 
                 // Report that file created.
-                Console.WriteLine($"Config file created: {settingsFile}");
+                Console.WriteLine($"Config file created: {DefaultFile}");
             }
             else
             {
@@ -117,12 +110,10 @@ namespace BackupUtilityCore
 
         static BackupSettings ParseSettings(string settingsFile)
         {
-            BackupSettings backupSettings = new BackupSettings();
+            // Type from settings?
+            YamlSettingsParser backupSettings = new YamlSettingsParser();
 
-            // Attempt to load file
-            backupSettings.LoadFromFile(settingsFile);
-
-            return backupSettings;
+            return backupSettings.Parse(settingsFile);
         }
     }
 }

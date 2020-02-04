@@ -15,4 +15,8 @@
 </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BackupUtilityCore\BackupUtilityCore.csproj" />
+  </ItemGroup>
+
 </Project>

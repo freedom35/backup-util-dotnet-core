@@ -6,4 +6,16 @@
     <Version>1.1.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Windows\backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Unix\" />
+  </ItemGroup>
+
 </Project>
