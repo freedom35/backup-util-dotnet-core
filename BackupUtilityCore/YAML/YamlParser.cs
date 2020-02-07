@@ -94,7 +94,6 @@ namespace BackupUtilityCore.YAML
                 }
             }
 
-            // Return true if 
             return keyValues;
         }
 
