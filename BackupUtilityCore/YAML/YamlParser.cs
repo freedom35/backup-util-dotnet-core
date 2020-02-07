@@ -32,11 +32,11 @@ namespace BackupUtilityCore.YAML
                 line = TrimUnwantedChars(line);
 
                 // Check whether to ignore line
-                if (IgnoreLine(line))
+                if (IsIgnoreLine(line))
                 {
                     continue;
                 }
-                else if (line.StartsWith('-'))
+                else if (IsSequenceEntry(line))
                 {
                     // Sequence entry
                     if (currentSequence != null)
@@ -108,9 +108,17 @@ namespace BackupUtilityCore.YAML
         /// <summary>
         /// Checks for empty line/doc start/doc end/comment
         /// </summary>
-        private static bool IgnoreLine(string line)
+        private static bool IsIgnoreLine(string line)
         {
             return string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith("#");
+        }
+
+        /// <summary>
+        /// Determines whether line is a sequence entry.
+        /// </summary>
+        private static bool IsSequenceEntry(string line)
+        {
+            return line.StartsWith('-');
         }
     }
 }
