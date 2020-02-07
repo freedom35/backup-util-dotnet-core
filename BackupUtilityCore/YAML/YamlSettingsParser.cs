@@ -39,7 +39,7 @@ namespace BackupUtilityCore.YAML
 
             if (keyValuePairs.TryGetValue("excluded_types", out object excludedTypes))
             {
-                settings.ExcludedFileTypes = (excludedDirs as IEnumerable<string>)?.ToArray();
+                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray();
             }
 
             if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString(), out bool ignore))

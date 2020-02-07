@@ -31,8 +31,8 @@ namespace BackupUtilityCore.YAML
             {
                 line = TrimUnwantedChars(line);
 
-                // Check for empty line/doc start/doc end/comment
-                if (string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith("#"))
+                // Check whether to ignore line
+                if (IgnoreLine(line))
                 {
                     continue;
                 }
@@ -103,6 +103,14 @@ namespace BackupUtilityCore.YAML
         private static string TrimUnwantedChars(string s)
         {
             return s.Trim(' ', '\n', '\r');
+        }
+
+        /// <summary>
+        /// Checks for empty line/doc start/doc end/comment
+        /// </summary>
+        private static bool IgnoreLine(string line)
+        {
+            return string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith("#");
         }
     }
 }
