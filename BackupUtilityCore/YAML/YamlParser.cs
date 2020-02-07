@@ -29,7 +29,7 @@ namespace BackupUtilityCore.YAML
             // Read each line
             while ((line = streamReader.ReadLine()) != null)
             {
-                line = TrimUnwantedChars(line);
+                line = TrimWhiteSpaceChars(line);
 
                 // Check whether to ignore line
                 if (IsIgnoreLine(line))
@@ -42,7 +42,7 @@ namespace BackupUtilityCore.YAML
                     if (currentSequence != null)
                     {
                         // Remove sequence char and quotes around directories
-                        line = line.TrimStart('-').Trim('\"', '\'');
+                        line = TrimSequenceChars(line);
 
                         // Add to sequence
                         currentSequence.Add(line);
@@ -100,9 +100,17 @@ namespace BackupUtilityCore.YAML
         /// <summary>
         /// Trims unwanted whitespace/line chars etc
         /// </summary>
-        private static string TrimUnwantedChars(string s)
+        private static string TrimWhiteSpaceChars(string s)
         {
             return s.Trim(' ', '\n', '\r');
+        }
+
+        /// <summary>
+        /// Trims sequence char and quotes
+        /// </summary>
+        private static string TrimSequenceChars(string s)
+        {
+            return s.TrimStart('-').Trim('\"', '\'');
         }
 
         /// <summary>
