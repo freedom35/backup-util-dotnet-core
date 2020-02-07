@@ -55,7 +55,7 @@ namespace BackupUtilityCore
         {
             get;
             set;
-        }
+        } = new string[0];
 
         /// <summary>
         /// Gets or sets the target directory.
@@ -65,7 +65,7 @@ namespace BackupUtilityCore
         {
             get;
             set;
-        }
+        } = "";
 
         /// <summary>
         /// Gets or sets the excluded directories.
