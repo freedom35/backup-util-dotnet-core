@@ -64,7 +64,8 @@ namespace BackupUtilityCore.YAML
                     if (tmp.Length > 1)
                     {
                         // Trim values either side of ':'
-                        tmp[0] = tmp[0].TrimEnd();
+                        // Convert keys to lowercase for comparison.
+                        tmp[0] = tmp[0].TrimEnd().ToLower();
                         tmp[1] = tmp[1].TrimStart();
 
                         // Check whether value was found
@@ -73,6 +74,9 @@ namespace BackupUtilityCore.YAML
                             // Start new sequence
                             currentKey = tmp[0];
                             currentSequence = new List<string>();
+
+                            // Add to dictionary
+                            keyValues.Add(currentKey, currentSequence);
                         }
                         else
                         {
