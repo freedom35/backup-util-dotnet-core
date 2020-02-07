@@ -11,6 +11,9 @@ namespace BackupUtilityCore.YAML
     {
         public BackupSettings Parse(string fileName)
         {
+            // Parse config from file
+            Dictionary<string, object> keyValuePairs = YamlParser.ParseFile(fileName);
+
             BackupSettings settings = new BackupSettings();
 
             return settings;

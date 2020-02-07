@@ -29,24 +29,32 @@ namespace BackupUtilityCore
                     // Parse args for backup settings
                     BackupSettings backupSettings = ParseSettings(settingsFile);
 
-                    // Create backup object
-                    BackupTask backup = new BackupTask(backupSettings);
-
-                    // Add handler for output
-                    backup.Log += Console.WriteLine;
-
-                    try
+                    // Check config parsed ok
+                    if (backupSettings.Valid)
                     {
-                        // Execute backup
-                        int backupCount = backup.Execute();
+                        // Create backup object
+                        BackupTask backup = new BackupTask(backupSettings);
 
-                        // Report total
-                        Console.WriteLine($"Total files backed up: {backupCount}");
+                        // Add handler for output
+                        backup.Log += Console.WriteLine;
+
+                        try
+                        {
+                            // Execute backup
+                            int backupCount = backup.Execute();
+
+                            // Report total
+                            Console.WriteLine($"Total files backed up: {backupCount}");
+                        }
+                        finally
+                        {
+                            // Remove handler
+                            backup.Log -= Console.WriteLine;
+                        }
                     }
-                    finally
+                    else
                     {
-                        // Remove handler
-                        backup.Log -= Console.WriteLine;
+                        Console.WriteLine("Config file is not valid, target or source settings are missing.");
                     }
                 }
             }
