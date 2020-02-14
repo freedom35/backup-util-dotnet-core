@@ -127,20 +127,17 @@ namespace BackupUtilityCore.YAML
         /// <returns>true if line contains key/value delim</returns>
         public static bool TryGetKeyValue(string line, out string key, out string val)
         {
-            const char Delim = ':';
-
             // Check for key/value
-            string[] tmp = line.Split(Delim);
+            // (Don't use split - value may contain delim)
+            int index = line.IndexOf(':');
 
             // Check whether delim was found
-            if (tmp.Length > 1)
+            if (index > -1)
             {
-                // Trim values either side of ':'
+                // Trim any spaces either side of ':'
                 // Convert keys to lowercase for comparison.
-                key = tmp[0].TrimEnd().ToLower();
-
-                // Value may contain delim, re-join array
-                val = string.Join(Delim, tmp.Skip(1)).TrimStart();
+                key = line.Substring(0, index).TrimEnd().ToLower();
+                val = line.Substring(index + 1).TrimStart();
 
                 return true;
             }
