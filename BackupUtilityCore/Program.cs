@@ -1,7 +1,6 @@
-﻿using System;
+﻿using BackupUtilityCore.YAML;
+using System;
 using System.Linq;
-
-using BackupUtilityCore.YAML;
 
 namespace BackupUtilityCore
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace BackupUtilityCore.YAML
@@ -21,7 +20,7 @@ namespace BackupUtilityCore.YAML
             ///////////////////////////////////////////
             // Check key/values for expected settings
             ///////////////////////////////////////////
-            
+
             if (keyValuePairs.TryGetValue("target_dir", out object targetDir))
             {
                 settings.TargetDirectory = targetDir as string;

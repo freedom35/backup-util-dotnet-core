@@ -14,9 +14,9 @@ namespace BackupUtilityCore
 
             // Create stream for writing to a file
             using FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
-            
+
             fs.Write(resourceBytes, 0, resourceBytes.Length);
-                
+
             // Verify file written
             return (fs.Length == resourceBytes.Length);
         }
@@ -28,7 +28,7 @@ namespace BackupUtilityCore
 
             // Open resource as stream
             using Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream($"BackupUtilityCore.Resources.{resourceDir}.{resourceName}");
-            
+
             // Read bytes from stream
             byte[] resourceBytes = new byte[s.Length];
             s.Read(resourceBytes, 0, resourceBytes.Length);
