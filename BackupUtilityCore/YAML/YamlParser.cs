@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace BackupUtilityCore.YAML
 {
@@ -126,8 +127,10 @@ namespace BackupUtilityCore.YAML
         /// <returns>true if line contains key/value delim</returns>
         public static bool TryGetKeyValue(string line, out string key, out string val)
         {
+            const char Delim = ':';
+
             // Check for key/value
-            string[] tmp = line.Split(':');
+            string[] tmp = line.Split(Delim);
 
             // Check whether delim was found
             if (tmp.Length > 1)
@@ -135,7 +138,9 @@ namespace BackupUtilityCore.YAML
                 // Trim values either side of ':'
                 // Convert keys to lowercase for comparison.
                 key = tmp[0].TrimEnd().ToLower();
-                val = tmp[1].TrimStart();
+
+                // Value may contain delim, re-join array
+                val = string.Join(Delim, tmp.Skip(1)).TrimStart();
 
                 return true;
             }
