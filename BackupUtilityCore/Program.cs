@@ -123,7 +123,7 @@ namespace BackupUtilityCore
 
         static BackupSettings ParseSettings(string settingsPath)
         {
-            // Type from settings?
+            // Other file formats could be supported in future
             ISettingsParser backupSettings = new YamlSettingsParser();
 
             return backupSettings.Parse(settingsPath);
