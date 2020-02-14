@@ -1,6 +1,5 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using BackupUtilityCore.YAML;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BackupUtilityTest
 {
@@ -8,13 +7,8 @@ namespace BackupUtilityTest
     /// Test cases for YamlParser.
     /// </summary>
     [TestClass]
-    public class TestYamlParser
+    public sealed class TestYamlParser
     {
-        //[TestMethod]
-        //public void TestMethod1()
-        //{
-        //}
-
         [DataRow("", "")]
         [DataRow("abc", "abc")]
         [DataRow("abc ", "abc")]
@@ -29,6 +23,7 @@ namespace BackupUtilityTest
             Assert.AreEqual(inputTrimmed, YamlParser.TrimWhiteSpaceChars(input));
         }
 
+
         [DataRow(@"C:\dir1", @"C:\dir1")]
         [DataRow(@"- C:\dir1", @"C:\dir1")]
         [DataRow(@"- C:\dir1", @"C:\dir1")]
@@ -39,6 +34,7 @@ namespace BackupUtilityTest
         {
             Assert.AreEqual(inputTrimmed, YamlParser.TrimSequenceChars(input));
         }
+
 
         [DataRow("", true)]
         [DataRow("---", true)]
@@ -52,6 +48,7 @@ namespace BackupUtilityTest
             Assert.AreEqual(ignoreLine, YamlParser.IsIgnoreLine(input));
         }
 
+
         [DataRow("", false)]
         [DataRow("---", false)]
         [DataRow("abc", false)]
@@ -61,6 +58,24 @@ namespace BackupUtilityTest
         public void TestIsSequenceEntry(string input, bool sequenceEntry)
         {
             Assert.AreEqual(sequenceEntry, YamlParser.IsSequenceEntry(input));
+        }
+
+
+        [DataRow("", false, "", "")]
+        [DataRow("key", false, "", "")]
+        [DataRow("key val", false, "", "")]
+        [DataRow("key:", true, "key", "")]
+        [DataRow("key: val", true, "key", "val")]
+        [DataRow("key:  val", true, "key", "val")]
+        [DataRow("KEY: VAL", true, "key", "VAL")]
+        [DataTestMethod]
+        public void TestTryGetKeyValue(string input, bool containsKey, string expectedKey, string expectedVal)
+        {
+            bool keyFound = YamlParser.TryGetKeyValue(input, out string key, out string val);
+
+            Assert.AreEqual(containsKey, keyFound);
+            Assert.AreEqual(expectedKey, key);
+            Assert.AreEqual(expectedVal, val);
         }
     }
 }

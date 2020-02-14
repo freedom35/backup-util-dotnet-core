@@ -38,7 +38,7 @@ namespace BackupUtilityCore.YAML
                 }
                 else if (IsSequenceEntry(line))
                 {
-                    // Sequence entry
+                    // Check sequence started/expected
                     if (currentSequence != null)
                     {
                         // Remove sequence char and quotes around directories
@@ -53,44 +53,32 @@ namespace BackupUtilityCore.YAML
                         throw new FormatException($"YAML sequence entry without key definition: {line}");
                     }
                 }
-                else
+                else if (TryGetKeyValue(line, out string key, out string val))
                 {
-                    // Check for key/value
-                    string[] tmp = line.Split(':');
-
-                    // Check whether key was found
-                    if (tmp.Length > 1)
+                    // Check whether value was found
+                    if (string.IsNullOrEmpty(val))
                     {
-                        // Trim values either side of ':'
-                        // Convert keys to lowercase for comparison.
-                        tmp[0] = tmp[0].TrimEnd().ToLower();
-                        tmp[1] = tmp[1].TrimStart();
+                        // Start new sequence
+                        currentKey = key;
+                        currentSequence = new List<string>();
 
-                        // Check whether value was found
-                        if (string.IsNullOrEmpty(tmp[1]))
-                        {
-                            // Start new sequence
-                            currentKey = tmp[0];
-                            currentSequence = new List<string>();
-
-                            // Add to dictionary
-                            keyValues.Add(currentKey, currentSequence);
-                        }
-                        else
-                        {
-                            // New key/value pair
-                            keyValues.Add(tmp[0], tmp[1]);
-
-                            // End any current sequence
-                            currentKey = null;
-                            currentSequence = null;
-                        }
+                        // Add to dictionary
+                        keyValues.Add(currentKey, currentSequence);
                     }
                     else
                     {
-                        // Not expecting this entry
-                        throw new NotSupportedException($"YAML entry not supported: {line}");
+                        // New key/value pair
+                        keyValues.Add(key, val);
+
+                        // End any current sequence
+                        currentKey = null;
+                        currentSequence = null;
                     }
+                }
+                else
+                {
+                    // Not expecting this type of entry
+                    throw new NotSupportedException($"YAML entry not supported: {line}");
                 }
             }
 
@@ -127,6 +115,38 @@ namespace BackupUtilityCore.YAML
         public static bool IsSequenceEntry(string line)
         {
             return line.StartsWith('-') && !line.StartsWith("--");
+        }
+
+        /// <summary>
+        /// Attempts to find key/value delim within line.
+        /// </summary>
+        /// <param name="line">string to parse</param>
+        /// <param name="key">key</param>
+        /// <param name="val">value (if exists - may be start of sequence)</param>
+        /// <returns>true if line contains key/value delim</returns>
+        public static bool TryGetKeyValue(string line, out string key, out string val)
+        {
+            // Check for key/value
+            string[] tmp = line.Split(':');
+
+            // Check whether delim was found
+            if (tmp.Length > 1)
+            {
+                // Trim values either side of ':'
+                // Convert keys to lowercase for comparison.
+                key = tmp[0].TrimEnd().ToLower();
+                val = tmp[1].TrimStart();
+
+                return true;
+            }
+            else
+            {
+                // Responsible for initializing
+                key = "";
+                val = "";
+
+                return false;
+            }
         }
     }
 }
