@@ -11,9 +11,9 @@ namespace BackupUtilityCore.YAML
     public static class YamlParser
     {
         /// <summary>
-        /// 
+        /// Parses YAML file into Dictionary of keys/values.
         /// </summary>
-        /// <param name="path">NAme of YAML file</param>
+        /// <param name="path">Name of YAML file</param>
         /// <returns>Key/Value pairs from parsed file.</returns>
         public static Dictionary<string, object> ParseFile(string path)
         {
@@ -100,7 +100,7 @@ namespace BackupUtilityCore.YAML
         /// <summary>
         /// Trims unwanted whitespace/line chars etc
         /// </summary>
-        private static string TrimWhiteSpaceChars(string s)
+        public static string TrimWhiteSpaceChars(string s)
         {
             return s.Trim(' ', '\n', '\r');
         }
@@ -108,15 +108,15 @@ namespace BackupUtilityCore.YAML
         /// <summary>
         /// Trims sequence char and quotes
         /// </summary>
-        private static string TrimSequenceChars(string s)
+        public static string TrimSequenceChars(string s)
         {
-            return s.TrimStart('-').Trim('\"', '\'');
+            return s.TrimStart('-').Trim(' ', '\"', '\'');
         }
 
         /// <summary>
         /// Checks for empty line/doc start/doc end/comment
         /// </summary>
-        private static bool IsIgnoreLine(string line)
+        public static bool IsIgnoreLine(string line)
         {
             return string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith("#");
         }
@@ -124,9 +124,9 @@ namespace BackupUtilityCore.YAML
         /// <summary>
         /// Determines whether line is a sequence entry.
         /// </summary>
-        private static bool IsSequenceEntry(string line)
+        public static bool IsSequenceEntry(string line)
         {
-            return line.StartsWith('-');
+            return line.StartsWith('-') && !line.StartsWith("--");
         }
     }
 }
