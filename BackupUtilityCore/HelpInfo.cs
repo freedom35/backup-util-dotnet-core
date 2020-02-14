@@ -2,7 +2,7 @@
 
 namespace BackupUtilityCore
 {
-    internal static class Help
+    internal static class HelpInfo
     {
         /// <summary>
         /// Displays app help info in console/terminal.

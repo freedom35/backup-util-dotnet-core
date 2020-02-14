@@ -22,7 +22,7 @@ namespace BackupUtilityCore
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
                 {
-                    Help.Display();
+                    HelpInfo.Display();
                 }
                 else if (TryGetSettingsFile(args, out string settingsFile))
                 {
