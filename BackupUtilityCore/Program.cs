@@ -108,7 +108,8 @@ namespace BackupUtilityCore
                 EmbeddedResource.CreateLocalCopy(DefaultFile);
 
                 // Report that file created.
-                Console.WriteLine($"Config file created: {DefaultFile}");
+                Console.WriteLine($"Default config file created: {DefaultFile}");
+                Console.WriteLine("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
             }
             else
             {
