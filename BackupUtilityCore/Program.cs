@@ -11,8 +11,8 @@ namespace BackupUtilityCore
         /// </summary>
         static int Main(string[] args)
         {
-            // Default to OK
-            int returnCode = 0;
+            // Default to error
+            int returnCode = 1;
 
             try
             {
@@ -44,6 +44,9 @@ namespace BackupUtilityCore
 
                             // Report total
                             Console.WriteLine($"Total files backed up: {backupCount}");
+
+                            // Backup ran OK
+                            returnCode = 0;
                         }
                         finally
                         {
@@ -67,9 +70,6 @@ namespace BackupUtilityCore
                 {
                     Console.WriteLine("\nStack Trace:\n{0}", ex.StackTrace);
                 }
-
-                // Return error
-                returnCode = 1;
             }
 
             return returnCode;
