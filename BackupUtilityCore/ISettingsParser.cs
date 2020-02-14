@@ -2,6 +2,6 @@
 {
     interface ISettingsParser
     {
-        BackupSettings Parse(string fileName);
+        BackupSettings Parse(string settingsPath);
     }
 }

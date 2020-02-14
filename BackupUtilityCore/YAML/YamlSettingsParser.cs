@@ -8,12 +8,12 @@ namespace BackupUtilityCore.YAML
     /// </summary>
     public sealed class YamlSettingsParser : ISettingsParser
     {
-        public BackupSettings Parse(string fileName)
+        public BackupSettings Parse(string settingsPath)
         {
             ///////////////////////////////////////////
             // Parse config from file
             ///////////////////////////////////////////
-            Dictionary<string, object> keyValuePairs = YamlParser.ParseFile(fileName);
+            Dictionary<string, object> keyValuePairs = YamlParser.ParseFile(settingsPath);
 
             BackupSettings settings = new BackupSettings();
 

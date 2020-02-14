@@ -23,10 +23,10 @@ namespace BackupUtilityCore
                 {
                     HelpInfo.Display();
                 }
-                else if (TryGetSettingsFile(args, out string settingsFile))
+                else if (TryGetSettingsPath(args, out string settingsPath))
                 {
                     // Parse args for backup settings
-                    BackupSettings backupSettings = ParseSettings(settingsFile);
+                    BackupSettings backupSettings = ParseSettings(settingsPath);
 
                     // Check config parsed ok
                     if (backupSettings.Valid)
@@ -75,22 +75,27 @@ namespace BackupUtilityCore
             return returnCode;
         }
 
-        static bool TryGetSettingsFile(string[] args, out string settingsFile)
+        static bool TryGetSettingsPath(string[] args, out string settingsPath)
         {
             const string DefaultFile = "backup-config.yaml";
 
             // Get settings file name.
-            settingsFile = args.ElementAtOrDefault(0) ?? DefaultFile;
+            string settingsFileArg = args.ElementAtOrDefault(0) ?? DefaultFile;
 
             // Check whether full path or just file supplied.
-            if (!System.IO.Path.IsPathRooted(settingsFile))
+            if (!System.IO.Path.IsPathRooted(settingsFileArg))
             {
                 // Add current directory to path.
-                settingsFile = System.IO.Path.Combine(Environment.CurrentDirectory, settingsFile);
+                settingsPath = System.IO.Path.Combine(Environment.CurrentDirectory, settingsFileArg);
+            }
+            else
+            {
+                // Already contains path
+                settingsPath = settingsFileArg;
             }
 
             // Check file exists.
-            if (System.IO.File.Exists(settingsFile))
+            if (System.IO.File.Exists(settingsPath))
             {
                 // File should be used.
                 return true;
@@ -107,7 +112,7 @@ namespace BackupUtilityCore
             }
             else
             {
-                Console.WriteLine($"Config file does not exist: {settingsFile}");
+                Console.WriteLine($"Config file does not exist: {settingsFileArg}");
             }
 
             // Return false if not specified or newly created.
@@ -115,12 +120,12 @@ namespace BackupUtilityCore
             return false;
         }
 
-        static BackupSettings ParseSettings(string settingsFile)
+        static BackupSettings ParseSettings(string settingsPath)
         {
             // Type from settings?
             ISettingsParser backupSettings = new YamlSettingsParser();
 
-            return backupSettings.Parse(settingsFile);
+            return backupSettings.Parse(settingsPath);
         }
     }
 }
