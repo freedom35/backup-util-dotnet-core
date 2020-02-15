@@ -107,6 +107,7 @@ namespace BackupUtilityCore
                 if (!targetDirInfo.Exists)
                 {
                     targetDirInfo.Create();
+                    targetDirInfo.Refresh();
 
                     // Verify created OK
                     if (!targetDirInfo.Exists)
@@ -169,7 +170,7 @@ namespace BackupUtilityCore
             string targetDir = Path.Combine(targetDirInfo.FullName, rootDir);
             string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
-            // Check fixed length limits for Windows APIs
+            // Check fixed length limits for OS APIs
             if (targetDir.Length >= MaxLenDir || targetPath.Length >= MaxLenPath)
             {
                 AddToLog($"Target path too long: {sourceFileInfo.Name}");
