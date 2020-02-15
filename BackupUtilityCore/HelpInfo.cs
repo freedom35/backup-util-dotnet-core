@@ -7,26 +7,31 @@ namespace BackupUtilityCore
         /// <summary>
         /// Displays app help info in console/terminal.
         /// </summary>
-        public static void Display()
+        public static string[] GetAppUsage()
         {
-            Console.WriteLine("Help:");
-            Console.WriteLine("  [<file name>], Name of non-default config file.");
-            Console.WriteLine("  [-c], Creates default config file if non-existent.");
-            Console.WriteLine();
-            Console.WriteLine("Usage:");
-            Console.WriteLine("  backup");
-            Console.WriteLine("  backup -c");
-            Console.WriteLine("  backup config1.yaml");
-            Console.WriteLine("  backup config1.yaml -c");
+            return new string[] {
+                "Help:",
+                "  [<file name>], Name of non-default config file to run.",
+                "  [-c], Creates default config file if non-existent.",
+                "",
+                "Usage:",
+                "  backup",
+                "  backup -c",
+                "  backup config1.yaml",
+                "  backup " + GetConfigPath()
+            };
+        }
 
+        private static string GetConfigPath()
+        {
             // Tailor help based on platform
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                Console.WriteLine("  backup /user/default/Configs/config1.yaml");
+                return "/user/default/Configs/config1.yaml";
             }
             else
             {
-                Console.WriteLine("  backup C:\\Configs\\config1.yaml");
+                return "C:\\Configs\\config1.yaml";
             }
         }
     }

@@ -16,17 +16,22 @@ namespace BackupUtilityCore
 
             try
             {
-                string appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                // Include version of app DLL
+                string appHeader = $"Backup Utility v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
 
                 // Log header
-                AddToLog("".PadRight(appVersion.Length, '-'));
-                AddToLog($"Backup Utility v{appVersion}");
-                AddToLog("".PadRight(appVersion.Length, '-'));
+                AddToLog("".PadRight(appHeader.Length, '-'));
+                AddToLog(appHeader);
+                AddToLog("".PadRight(appHeader.Length, '-'));
 
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
                 {
-                    HelpInfo.Display();
+                    // Display help
+                    foreach (string s in HelpInfo.GetAppUsage())
+                    {
+                        AddToLog(s);
+                    }
                 }
                 else if (TryGetSettingsPath(args, out string settingsPath))
                 {
