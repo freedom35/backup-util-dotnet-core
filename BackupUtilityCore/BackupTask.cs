@@ -70,6 +70,12 @@ namespace BackupUtilityCore
             {
                 AddToLog($"Target DIR: {backupSettings.TargetDirectory}");
 
+                // Check target directory
+                if (!Directory.Exists(backupSettings.TargetDirectory))
+                {
+                    Directory.CreateDirectory(backupSettings.TargetDirectory);
+                }
+
                 // Backup each source directory
                 foreach (string source in backupSettings.SourceDirectories)
                 {
@@ -105,12 +111,6 @@ namespace BackupUtilityCore
             if (sourceDirInfo.Exists)
             {
                 DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
-
-                // Check target directory
-                if (!targetDirInfo.Exists)
-                {
-                    targetDirInfo.Create();
-                }
 
                 backupCount = BackupFiles(sourceDirInfo.Name, targetDirInfo, sourceDirInfo);
             }
