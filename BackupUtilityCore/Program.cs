@@ -80,6 +80,11 @@ namespace BackupUtilityCore
             return returnCode;
         }
 
+        static void AddToLog(object _, MessageEventArgs e)
+        {
+            AddToLog(e.Message);
+        }
+
         static void AddToLog(string message)
         {
             Console.WriteLine(message);

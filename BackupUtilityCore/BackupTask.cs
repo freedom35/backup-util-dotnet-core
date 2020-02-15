@@ -39,7 +39,7 @@ namespace BackupUtilityCore
 
         #region Delegates / Events
 
-        public delegate void MessageDelegate(string message);
+        public delegate void MessageDelegate(object sender, MessageEventArgs e);
         public event MessageDelegate Log;
 
         #endregion
@@ -90,7 +90,7 @@ namespace BackupUtilityCore
         private void AddToLog(string message)
         {
             // Check event handled
-            Log?.Invoke(message);
+            Log?.Invoke(this, new MessageEventArgs(message));
         }
 
         private int BackupDirectory(string targetDir, string sourceDir)
