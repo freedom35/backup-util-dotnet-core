@@ -16,7 +16,12 @@ namespace BackupUtilityCore
 
             try
             {
-                Console.WriteLine("Backup Utility v{0}\n", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+                string appVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+                // Log header
+                AddToLog("".PadRight(appVersion.Length, '-'));
+                AddToLog($"Backup Utility v{appVersion}");
+                AddToLog("".PadRight(appVersion.Length, '-'));
 
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
@@ -35,7 +40,7 @@ namespace BackupUtilityCore
                         BackupTask backup = new BackupTask(backupSettings);
 
                         // Add handler for output
-                        backup.Log += Console.WriteLine;
+                        backup.Log += AddToLog;
 
                         try
                         {
@@ -43,7 +48,7 @@ namespace BackupUtilityCore
                             int backupCount = backup.Execute();
 
                             // Report total
-                            Console.WriteLine($"Total files backed up: {backupCount}");
+                            AddToLog($"Total files backed up: {backupCount}");
 
                             // Backup ran OK
                             returnCode = 0;
@@ -51,28 +56,33 @@ namespace BackupUtilityCore
                         finally
                         {
                             // Remove handler
-                            backup.Log -= Console.WriteLine;
+                            backup.Log -= AddToLog;
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Config file is not valid, target or source settings are missing.");
+                        AddToLog("Config file is not valid, target or source settings are missing.");
                     }
                 }
             }
             catch (Exception ex)
             {
                 // Report error
-                Console.WriteLine("\nError:\n{0}", ex.Message);
+                AddToLog($"\nError:\n{ex.Message}");
 
                 // Check if more details available
                 if (ex.StackTrace != null)
                 {
-                    Console.WriteLine("\nStack Trace:\n{0}", ex.StackTrace);
+                    AddToLog($"\nStack Trace:\n{ex.StackTrace}");
                 }
             }
 
             return returnCode;
+        }
+
+        static void AddToLog(string message)
+        {
+            Console.WriteLine(message);
         }
 
         static bool TryGetSettingsPath(string[] args, out string settingsPath)
@@ -108,12 +118,12 @@ namespace BackupUtilityCore
                 EmbeddedResource.CreateLocalCopy(DefaultFile);
 
                 // Report that file created.
-                Console.WriteLine($"Default config file created: {DefaultFile}");
-                Console.WriteLine("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
+                AddToLog($"Default config file created: {DefaultFile}");
+                AddToLog("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
             }
             else
             {
-                Console.WriteLine($"Config file does not exist: {settingsFileArg}");
+                AddToLog($"Config file does not exist: {settingsFileArg}");
             }
 
             // Return false if not specified or newly created.

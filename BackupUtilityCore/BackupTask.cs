@@ -68,6 +68,8 @@ namespace BackupUtilityCore
             // Validate settings
             if (backupSettings?.Valid == true)
             {
+                AddToLog($"Target DIR: {backupSettings.TargetDirectory}");
+
                 // Backup each source directory
                 foreach (string source in backupSettings.SourceDirectories)
                 {
@@ -95,6 +97,10 @@ namespace BackupUtilityCore
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
+            AddToLog($"Backing up: {sourceDir}");
+
+            int backupCount = 0;
+
             // Check source exists
             if (sourceDirInfo.Exists)
             {
@@ -113,11 +119,12 @@ namespace BackupUtilityCore
                     }
                 }
 
-                return BackupFiles(sourceDirInfo.Name, targetDirInfo, sourceDirInfo);
+                backupCount = BackupFiles(sourceDirInfo.Name, targetDirInfo, sourceDirInfo);
             }
 
-            // No files backed up
-            return 0;
+            AddToLog($"Backed up {backupCount} files");
+
+            return backupCount;
         }
 
         private int BackupFiles(string rootDir, DirectoryInfo targetDirInfo, DirectoryInfo sourceDirInfo)
