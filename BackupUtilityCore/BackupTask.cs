@@ -103,7 +103,7 @@ namespace BackupUtilityCore
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
-            AddToLog($"Backing up: {sourceDir}");
+            AddToLog($"Source DIR: {sourceDir}");
 
             int backupCount = 0;
 
@@ -185,7 +185,7 @@ namespace BackupUtilityCore
                 // Check if not already backed up, or source file changed.
                 if (eligible && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
                 {
-                    AddToLog($"Backing up: {rootDir}\\{sourceFileInfo.Name}");
+                    AddToLog($"Backing up: {fileName}");
 
                     // Check target directory
                     if (!targetFileInfo.Directory.Exists)
