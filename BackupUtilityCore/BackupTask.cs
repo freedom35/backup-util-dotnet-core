@@ -112,7 +112,10 @@ namespace BackupUtilityCore
             {
                 DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
-                backupCount = BackupFiles(sourceDirInfo.Name, targetDirInfo, sourceDirInfo);
+                // Remove root path
+                string rootDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
+
+                backupCount = BackupFiles(rootDir, targetDirInfo, sourceDirInfo);
             }
 
             AddToLog($"Backed up {backupCount} files");
