@@ -13,7 +13,7 @@ namespace BackupUtilityCore
         public BackupTask(BackupSettings backupSettings)
         {
             // Set property
-            this.backupSettings = backupSettings ?? default;
+            this.BackupSettings = backupSettings ?? default;
 
             // Check platform type
             if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -32,8 +32,6 @@ namespace BackupUtilityCore
 
         #region Members
 
-        private BackupSettings backupSettings;
-
         private readonly int MaxLenDir;
         private readonly int MaxLenPath;
 
@@ -50,20 +48,20 @@ namespace BackupUtilityCore
 
         public BackupSettings BackupSettings
         {
-            get => backupSettings;
-            set => backupSettings = value;
+            get;
+            set;
         }
 
         #endregion
 
         public int Execute()
         {
-            return Execute(backupSettings);
+            return Execute(BackupSettings);
         }
 
         public int Execute(BackupSettings backupSettings)
         {
-            this.backupSettings = backupSettings;
+            this.BackupSettings = backupSettings;
 
             int backupCount = 0;
 
@@ -78,7 +76,6 @@ namespace BackupUtilityCore
                         backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
                     }
                     catch (Exception ex)
-
                     {
                         AddToLog($"Error backing up {source}: {ex.Message}");
                     }
@@ -133,10 +130,10 @@ namespace BackupUtilityCore
                 AddToLog($"Root directory too long: {rootDir}");
             }
             // Files in a hidden directory considered hidden.
-            else if (!backupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
+            else if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
                 // Get qualifying files only
-                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !backupSettings.IsFileExcluded(f));
+                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
                 // Check each file
                 foreach (string file in files)
@@ -154,7 +151,7 @@ namespace BackupUtilityCore
                 }
 
                 // Recursive call for sub directories
-                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !backupSettings.IsDirectoryExcluded(d.Name)))
+                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
                 {
                     backupCount += BackupFiles(Path.Combine(rootDir, subDirInfo.Name), targetDirInfo, subDirInfo);
                 }
@@ -181,7 +178,7 @@ namespace BackupUtilityCore
 
                 // Check whether backup required: 
                 // Not already backed up, or source file is newer.
-                if ((!backupSettings.IgnoreHiddenFiles || (targetFileInfo.Attributes & FileAttributes.Hidden) == 0) && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
+                if ((!BackupSettings.IgnoreHiddenFiles || (targetFileInfo.Attributes & FileAttributes.Hidden) == 0) && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
                 {
                     AddToLog($"Backing up: {rootDir}\\{sourceFileInfo.Name}");
 
