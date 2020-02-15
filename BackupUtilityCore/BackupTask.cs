@@ -110,13 +110,6 @@ namespace BackupUtilityCore
                 if (!targetDirInfo.Exists)
                 {
                     targetDirInfo.Create();
-                    targetDirInfo.Refresh();
-
-                    // Verify created OK
-                    if (!targetDirInfo.Exists)
-                    {
-                        throw new Exception($"Failed to create directory {targetDir}");
-                    }
                 }
 
                 backupCount = BackupFiles(sourceDirInfo.Name, targetDirInfo, sourceDirInfo);
@@ -183,9 +176,11 @@ namespace BackupUtilityCore
             {
                 FileInfo targetFileInfo = new FileInfo(targetPath);
 
-                // Check whether backup required: 
-                // Not already backed up, or source file is newer.
-                if ((!BackupSettings.IgnoreHiddenFiles || (targetFileInfo.Attributes & FileAttributes.Hidden) == 0) && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
+                // Check whether file eligible
+                bool eligible = !BackupSettings.IgnoreHiddenFiles || (targetFileInfo.Attributes & FileAttributes.Hidden) != 0;
+
+                // Check if not already backed up, or source file changed.
+                if (eligible && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
                 {
                     AddToLog($"Backing up: {rootDir}\\{sourceFileInfo.Name}");
 
