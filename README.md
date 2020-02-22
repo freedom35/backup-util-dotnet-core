@@ -7,7 +7,7 @@ An example usage would be to configure the target directory within a cloud direc
 
 Certain file types or directories may be excluded in order to save space on the target directory. For example, in a developer environment, build type folders (such as bin and obj) can be excluded as these are easily recreated by rebuilding a project/solution.
 
-Configuration files are YAML in format.
+Configuration files are in YAML format.
 <br>
 <br>
 ## Requirements
