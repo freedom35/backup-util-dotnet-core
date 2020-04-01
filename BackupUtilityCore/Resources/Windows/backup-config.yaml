@@ -5,6 +5,7 @@
 # (Developer Environment)
 ####################################
 
+# *** CHECK DEFAULT DIRECTORIES BEFORE RUNNING ***
 
 # Specify root target directory for backup
 target_dir: C:\Backups
