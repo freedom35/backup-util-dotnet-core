@@ -1,4 +1,4 @@
-# backup-util-dotnet-core
+# Backup Utility (.NET Core)
 
 Backup utility to copy directories from multiple source locations to a common target directory.
 
