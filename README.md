@@ -20,7 +20,6 @@ A default configuration file can be created using the following command:
 $ dotnet BackupUtilityCore -c
 ```
 <br />
-<br />
 
 ## Usage
 The name of the configuration file should be passed as a command line argument.  
