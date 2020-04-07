@@ -8,20 +8,24 @@ An example usage would be to configure the target directory within a cloud direc
 Certain file types or directories may be excluded in order to save space on the target directory. For example, in a developer environment, build type folders (such as bin and obj) can be excluded as these are easily recreated by rebuilding a project/solution.
 
 Configuration files are in YAML format.
-<br>
-<br>
+<br />
+<br />
 ## Requirements
 Requires .NET Core framework v3.1.
-<br>
-<br>
+<br />
+<br />
 ## Default Config
-A default configuration file can be created using the following command:<br>
-**BackupUtilityCore -c**
-<br>
-<br>
+A default configuration file can be created using the following command:<br />
+```sh
+$ dotnet BackupUtilityCore -c
+```
+<br />
+<br />
 ## Usage
 The name of the configuration file should be passed as a command line argument.<br>
-i.e. BackupUtilityCore [config name]
+I.e. **BackupUtilityCore [config name]**
 
-Example:<br>
-**BackupUtilityCore config1.yaml**
+Example:<br />
+```sh
+$ dotnet BackupUtilityCore config1.yaml
+```
