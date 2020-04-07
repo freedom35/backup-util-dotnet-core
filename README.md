@@ -21,9 +21,9 @@ $ dotnet BackupUtilityCore -c
 ```
 <br />
 <br />
+
 ## Usage
 The name of the configuration file should be passed as a command line argument.  
-<br />
 I.e. **BackupUtilityCore \[config name]**
 <br />
 Example:  
