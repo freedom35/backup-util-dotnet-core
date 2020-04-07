@@ -15,17 +15,18 @@ Requires .NET Core framework v3.1.
 <br />
 <br />
 ## Default Config
-A default configuration file can be created using the following command:<br />
+A default configuration file can be created using the following command:  
 ```sh
 $ dotnet BackupUtilityCore -c
 ```
 <br />
 <br />
 ## Usage
-The name of the configuration file should be passed as a command line argument.<br>
-I.e. **BackupUtilityCore [config name]**
-
-Example:<br />
+The name of the configuration file should be passed as a command line argument.  
+<br />
+I.e. **BackupUtilityCore \[config name]**
+<br />
+Example:  
 ```sh
 $ dotnet BackupUtilityCore config1.yaml
 ```
