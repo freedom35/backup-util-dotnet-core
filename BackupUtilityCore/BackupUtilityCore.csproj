@@ -4,6 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Version>1.1.0</Version>
+    <Copyright>Copyright © Alan Barr</Copyright>
+    <Authors>Alan Barr (GitHub: freedom35)</Authors>
+    <Description>Command line backup utility targeting .NET Core framework.</Description>
+    <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
