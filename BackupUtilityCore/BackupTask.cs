@@ -180,7 +180,7 @@ namespace BackupUtilityCore
                 FileInfo targetFileInfo = new FileInfo(targetPath);
 
                 // Check whether file eligible
-                bool eligible = !BackupSettings.IgnoreHiddenFiles || (targetFileInfo.Attributes & FileAttributes.Hidden) != 0;
+                bool eligible = !BackupSettings.IgnoreHiddenFiles || (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0;
 
                 // Check if not already backed up, or source file changed.
                 if (eligible && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
