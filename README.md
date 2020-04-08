@@ -17,15 +17,15 @@ Requires .NET Core framework v3.1.
 ## Default Config
 A default configuration file can be created using the following command:  
 ```sh
-$ dotnet BackupUtilityCore -c
+$ dotnet backuputil -c
 ```
 <br />
 
 ## Usage
 The name of the configuration file should be passed as a command line argument.  
-I.e. **BackupUtilityCore \[config name]**
+I.e. **backuputil \[config name]**
 <br />
 Example:  
 ```sh
-$ dotnet BackupUtilityCore config1.yaml
+$ dotnet backuputil config1.yaml
 ```
