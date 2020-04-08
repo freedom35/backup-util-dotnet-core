@@ -8,6 +8,7 @@
     <Authors>Alan Barr (GitHub: freedom35)</Authors>
     <Description>Command line backup utility targeting .NET Core framework.</Description>
     <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
+    <AssemblyName>backuputil</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
