@@ -13,14 +13,12 @@
 
   <ItemGroup>
     <None Remove="backup-config.yaml" />
+    <None Remove="Resources\Unix\backup-config.yaml" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Unix\backup-config.yaml" />
     <EmbeddedResource Include="Resources\Windows\backup-config.yaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Resources\Unix\" />
   </ItemGroup>
 
 </Project>
