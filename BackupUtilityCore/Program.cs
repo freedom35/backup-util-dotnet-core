@@ -102,6 +102,13 @@ namespace BackupUtilityCore
             // Get settings file name.
             string settingsFileArg = args.ElementAtOrDefault(0) ?? DefaultFile;
 
+            // Add default yaml extension if none given
+            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(settingsFileArg)))
+            {
+                // GetExtension also returns empty string if file ends in '.'
+                settingsFileArg = settingsFileArg.TrimEnd('.') + ".yaml";
+            }
+
             // Check whether full path or just file supplied.
             if (!System.IO.Path.IsPathRooted(settingsFileArg))
             {
