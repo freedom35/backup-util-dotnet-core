@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace BackupUtilityCore
 {
@@ -35,6 +37,8 @@ namespace BackupUtilityCore
         private readonly int MaxLenDir;
         private readonly int MaxLenPath;
 
+        private readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
+
         #endregion
 
         #region Delegates / Events
@@ -64,7 +68,7 @@ namespace BackupUtilityCore
             this.BackupSettings = backupSettings;
 
             int backupCount = 0;
-
+            
             // Validate settings
             if (backupSettings?.Valid == true)
             {
@@ -76,17 +80,22 @@ namespace BackupUtilityCore
                     Directory.CreateDirectory(backupSettings.TargetDirectory);
                 }
 
+                // Ensure reset
+                backupErrors.Clear();
+
                 // Backup each source directory
                 foreach (string source in backupSettings.SourceDirectories)
                 {
-                    try
-                    {
-                        backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
-                    }
-                    catch (Exception ex)
-                    {
-                        AddToLog($"Error backing up {source}: {ex.Message}");
-                    }
+                    backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
+                }
+
+                // Retry if possible
+                backupCount += RetryErrors();
+
+                // Log files that couldn't be backed-up
+                foreach (BackupErrorInfo retryError in backupErrors)
+                {
+                    AddToLog($"Unable to backup: {retryError.Filename} ({retryError.Result.GetDescription()})");
                 }
             }
 
@@ -127,29 +136,47 @@ namespace BackupUtilityCore
         {
             int backupCount = 0;
 
-            // Check fixed length limits for Windows APIs.
-            if (rootDir.Length >= MaxLenDir)
-            {
-                AddToLog($"Root directory too long: {rootDir}");
-            }
             // Files in a hidden directory considered hidden.
-            else if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
+            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
-                // Check each file
                 foreach (string file in files)
                 {
-                    // Check fixed length limits for Windows APIs
-                    if (file.Length >= MaxLenPath)
+                    BackupResult result = BackupFile(file, rootDir, targetDirInfo);
+
+                    switch (result)
                     {
-                        AddToLog($"File path too long: {file}");
-                    }
-                    else if (BackupFile(file, rootDir, targetDirInfo))
-                    {
-                        // Keep track of files backed up
-                        backupCount++;
+                        case BackupResult.OK:
+                            // Keep track of (new) files backed up
+                            backupCount++;
+                            break;
+
+                        case BackupResult.AlreadyBackedUp:
+                        case BackupResult.Ineligible:
+                            // Do nothing
+                            break;
+
+                        default:
+                            
+                            BackupErrorInfo errorInfo = new BackupErrorInfo(result)
+                            {
+                                Filename = file,
+                                RootDir = rootDir,
+                                TargetDirInfo = targetDirInfo
+                            };
+
+                            // Add to queue for retry
+                            backupErrors.Add(errorInfo);
+
+                            // Abort on high error count
+                            if (backupErrors.Count > 5)
+                            {
+                                throw new Exception("Backup aborted due to excessive errors");
+                            }
+
+                            break;
                     }
                 }
 
@@ -163,51 +190,122 @@ namespace BackupUtilityCore
             return backupCount;
         }
 
-        private bool BackupFile(string fileName, string rootDir, DirectoryInfo targetDirInfo)
+        private BackupResult BackupFile(string filename, string rootDir, DirectoryInfo targetDirInfo)
         {
-            FileInfo sourceFileInfo = new FileInfo(fileName);
+            BackupResult result;
 
+            FileInfo sourceFileInfo = new FileInfo(filename);
+
+            // Get target path
             string targetDir = Path.Combine(targetDirInfo.FullName, rootDir);
             string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
             // Check fixed length limits for OS APIs
             if (targetDir.Length >= MaxLenDir || targetPath.Length >= MaxLenPath)
             {
-                AddToLog($"Target path too long: {sourceFileInfo.Name}");
+                //AddToLog($"Target path too long for file: {sourceFileInfo.Name}");
+
+                result = BackupResult.PathTooLong;
+            }
+            else if(BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
+            {
+                result = BackupResult.Ineligible;
+            }
+            else if ((DateTime.UtcNow - sourceFileInfo.LastWriteTimeUtc).TotalMilliseconds < 500)
+            {
+                result = BackupResult.WriteInProgress;
             }
             else
             {
                 FileInfo targetFileInfo = new FileInfo(targetPath);
 
-                // Check whether file eligible
-                bool eligible = !BackupSettings.IgnoreHiddenFiles || (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0;
-
-                // Check if not already backed up, or source file changed.
-                if (eligible && (!targetFileInfo.Exists || !targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc)))
+                // Check whether file previously backed up (and not changed)
+                if (targetFileInfo.Exists && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
                 {
-                    AddToLog($"Backing up: {fileName}");
+                    result = BackupResult.AlreadyBackedUp;
+                }
+                else
+                {
+                    AddToLog($"Backing up: {filename}");
 
-                    // Check target directory
-                    if (!targetFileInfo.Directory.Exists)
+                    try
                     {
-                        targetFileInfo.Directory.Create();
+                        // Check target directory
+                        if (!targetFileInfo.Directory.Exists)
+                        {
+                            targetFileInfo.Directory.Create();
+                        }
+                        else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
+                        {
+                            // Modify attributes - ensure can overwrite it.
+                            targetFileInfo.Attributes &= ~FileAttributes.ReadOnly;
+                        }
+
+                        // Backup file
+                        sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
+
+                        // Confirm backed up
+                        result = BackupResult.OK;
                     }
-                    else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
+                    catch (IOException ex)
                     {
-                        // Modify attributes - ensure can overwrite it.
-                        targetFileInfo.Attributes &= ~FileAttributes.ReadOnly;
+                        AddToLog($"ERROR: {ex.Message}");
+
+                        // File may be locked or in-use by another process
+                        result = BackupResult.Error;
                     }
-
-                    // Backup file
-                    sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
-
-                    // Confirm backed up
-                    return true;
                 }
             }
+            
+            return result;
+        }
 
-            // Not backed up
-            return false;
+        private int RetryErrors()
+        {
+            int backupCount = 0;
+
+            // Get the errors that can be retried
+            List<BackupErrorInfo> retryErrors = backupErrors.Where(err => err.Result.CanBeRetried()).ToList();
+
+            if (retryErrors.Count > 0)
+            {
+                AddToLog("Re-attempting errors...");
+
+                // Times in milliseconds
+                const int MaxRetryTime = 3000;
+                const int RetryInterval = 500;
+
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+
+                // Retry while still files remaining, but eventually time-out
+                while (retryErrors.Count > 0 && sw.ElapsedMilliseconds < MaxRetryTime)
+                {
+                    // File likely in-use, wait before re-attempt
+                    Thread.Sleep(RetryInterval);
+
+                    // Retry certain errors, check if files finished writing
+                    for (int i = 0; i < retryErrors.Count; i++)
+                    {
+                        BackupErrorInfo errorInfo = retryErrors[0];
+
+                        // Retry backup
+                        if (BackupFile(errorInfo.Filename, errorInfo.RootDir, errorInfo.TargetDirInfo) == BackupResult.OK)
+                        {
+                            // Success
+                            backupCount++;
+                            retryErrors.RemoveAt(i--);
+
+                            // Also remove from master list
+                            backupErrors.Remove(errorInfo);
+                        }
+                    }
+                }
+
+                sw.Stop();
+            }
+
+            return backupCount;
         }
     }
 }
