@@ -1,20 +1,20 @@
 ﻿---
 
 ####################################
-# Default Config for Windows
+# Default Config for Mac
 ####################################
 
 # *** CHECK DEFAULT DIRECTORIES BEFORE RUNNING ***
 
 # Specify root target directory for backup
-target_dir: C:\Backups
+target_dir: /Users/freedom35/Backups
 
 
 # Add each source directory to backup...
 source_dirs:
- - C:\Users\freedom35\Projects
- - C:\Users\freedom35\Documents\Specifications
- - "C:\Users\freedom35\Documents\Research & Development"
+ - /Users/freedom35/Projects
+ - /Users/freedom35/Documents/Specifications
+ - "/Users/freedom35/Documents/Research & Development"
 
 
 # Directories to one-way sync 
@@ -35,7 +35,6 @@ excluded_dirs:
 
 # Add extensions for excluded file types
 excluded_types:
- - exe
  - dll
  - pdb
  - zip

@@ -3,8 +3,14 @@ using System.IO;
 
 namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Class to access embedded resources within project.
+    /// </summary>
     internal static class EmbeddedResource
     {
+        /// <summary>
+        /// Creates a copy of the specified resource in the current directory.
+        /// </summary>
         public static bool CreateLocalCopy(string resourceName)
         {
             byte[] resourceBytes = GetResourceBytes(resourceName);
@@ -21,7 +27,11 @@ namespace BackupUtilityCore
             return (fs.Length == resourceBytes.Length);
         }
 
-        public static byte[] GetResourceBytes(string resourceName)
+        /// <summary>
+        /// Gets byte array for specified resource.
+        /// (Returns a different resource based on current platform.)
+        /// </summary>
+        private static byte[] GetResourceBytes(string resourceName)
         {
             // Different file based on platform
             string resourceDir = Environment.OSVersion.Platform == PlatformID.Unix ? "Unix" : "Windows";
