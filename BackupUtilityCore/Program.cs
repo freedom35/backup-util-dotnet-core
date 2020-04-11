@@ -159,14 +159,6 @@ namespace BackupUtilityCore
             }
         }
 
-        private static BackupSettings ParseConfig(string settingsPath)
-        {
-            // Other file formats could be supported in future
-            ISettingsParser backupSettings = new YamlSettingsParser();
-
-            return backupSettings.Parse(settingsPath);
-        }
-
         private static bool ExecuteBackupConfig(string configName)
         {
             // Get full path for config
@@ -180,21 +172,21 @@ namespace BackupUtilityCore
             }
 
             // Parse args for backup settings
-            BackupSettings backupSettings = ParseConfig(configPath);
+            BackupSettings backupSettings = BackupSettings.ParseFromYaml(configPath);
 
             // Check config parsed ok
             if (backupSettings.Valid)
             {
                 // Create backup object
-                BackupTask backup = new BackupTask(backupSettings);
+                BackupTask backupTask = new BackupTask(backupSettings);
 
                 // Add handler for output
-                backup.Log += AddToLog;
+                backupTask.Log += AddToLog;
 
                 try
                 {
                     // Execute backup
-                    int backupCount = backup.Execute();
+                    int backupCount = backupTask.Execute();
 
                     // Report total
                     AddToLog($"Total files backed up: {backupCount}");
@@ -202,15 +194,15 @@ namespace BackupUtilityCore
                 finally
                 {
                     // Remove handler
-                    backup.Log -= AddToLog;
+                    backupTask.Log -= AddToLog;
                 }
 
                 // Return error if backup had issues
-                return backup.ErrorCount == 0;
+                return backupTask.ErrorCount == 0;
             }
             else
             {
-                AddToLog("Config file is not valid, target or source settings are missing.");
+                AddToLog($"Config file {backupSettings.SettingsFilename} is not valid, target or source settings are missing.");
                 return false;
             }
         }

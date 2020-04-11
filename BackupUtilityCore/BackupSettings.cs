@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace BackupUtilityCore
 {
@@ -142,11 +143,11 @@ namespace BackupUtilityCore
         /// Gets or sets the name of the settings file.
         /// </summary>
         /// <value>The name of the settings file.</value>
-        //public string SettingsFileName
-        //{
-        //    get;
-        //    private set;
-        //}
+        public string SettingsFilename
+        {
+            get;
+            private set;
+        }
 
         #endregion
 
@@ -159,6 +160,55 @@ namespace BackupUtilityCore
         public bool IsDirectoryExcluded(string directoryName)
         {
             return !HasExcludedDirectories || ExcludedDirectories.Contains(directoryName.ToLower());
+        }
+
+        /// <summary>
+        /// Basic YAML parser for backup settings.
+        /// </summary>
+        /// <param name="settingsPath">Path of config file.</param>
+        /// <returns>BackupSettings object</returns>
+        public static BackupSettings ParseFromYaml(string settingsPath)
+        {
+            BackupSettings settings = new BackupSettings()
+            {
+                SettingsFilename = System.IO.Path.GetFileName(settingsPath)
+            };
+
+            ///////////////////////////////////////////
+            // Parse config from file
+            ///////////////////////////////////////////
+            Dictionary<string, object> keyValuePairs = YAML.YamlParser.ParseFile(settingsPath);
+
+            ///////////////////////////////////////////
+            // Check key/values for expected settings
+            ///////////////////////////////////////////
+
+            if (keyValuePairs.TryGetValue("target_dir", out object targetDir))
+            {
+                settings.TargetDirectory = targetDir as string;
+            }
+
+            if (keyValuePairs.TryGetValue("source_dirs", out object sourceDirs))
+            {
+                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray();
+            }
+
+            if (keyValuePairs.TryGetValue("excluded_dirs", out object excludedDirs))
+            {
+                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray();
+            }
+
+            if (keyValuePairs.TryGetValue("excluded_types", out object excludedTypes))
+            {
+                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray();
+            }
+
+            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString(), out bool ignore))
+            {
+                settings.IgnoreHiddenFiles = ignore;
+            }
+
+            return settings;
         }
     }
 }
