@@ -37,14 +37,14 @@ A default YAML configuration file can be created using the **-c** argument follo
   
 Example:
 ```sh
-$ dotnet backuputil -c backup-config1.yaml
+$ dotnet backuputil -c config1.yaml
 ```
 <br />
 
-## Usage
-The name of the configuration file should be passed as a command line argument.  
+## Running a Backup
+The name of the backup configuration file should be passed as a command line argument after the **-r** argument.  
   
 Example:  
 ```sh
-$ dotnet backuputil backup-config1.yaml
+$ dotnet backuputil -r config1.yaml
 ```
