@@ -7,25 +7,44 @@ An example usage would be to configure the target directory within a cloud direc
 
 Certain file types or directories may be excluded in order to save space on the target directory. For example, in a developer environment, build type folders (such as bin and obj) can be excluded as these are easily recreated by rebuilding a project/solution.
 
-Configuration files are in YAML format.
+Supported configuration files are in YAML format.  
 <br />
-<br />
+  
 ## Requirements
-Requires .NET Core framework v3.1.
+Requires .NET Core framework v3.1.  
 <br />
-<br />
-## Default Config
-A default configuration file can be created using the following command:  
+  
+## Help
+Help info can be displayed in the console using the **--help** argument:  
+  
+Example:
 ```sh
-$ dotnet backuputil -c
+$ dotnet backuputil --help
+```
+<br />
+  
+## Version
+Version info can be displayed in the console using the **--version** argument:  
+  
+Example:
+```sh
+$ dotnet backuputil --version
+```
+<br />
+  
+## Creating a Default Config
+A default YAML configuration file can be created using the **-c** argument followed by a config name:  
+  
+Example:
+```sh
+$ dotnet backuputil -c backup-config1.yaml
 ```
 <br />
 
 ## Usage
 The name of the configuration file should be passed as a command line argument.  
-I.e. **backuputil \[config name]**
-<br />
+  
 Example:  
 ```sh
-$ dotnet backuputil config1.yaml
+$ dotnet backuputil backup-config1.yaml
 ```
