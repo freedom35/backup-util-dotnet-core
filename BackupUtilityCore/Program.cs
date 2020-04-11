@@ -22,61 +22,45 @@ namespace BackupUtilityCore
             try
             {
                 // If no arguments specified, display help 
-                // (1st arg will be path/app name)
-                if (args.Length <= 1 || args.Any(arg => HelpInfo.IsHelpArg(arg)))
+                // (1st arg will be app path/name)
+                if (args.Length <= 1 || CommandLineArgs.IsHelpArg(args[1]))
                 {
-                    // Include version of app DLL in help
-                    string helpTitle = $"Help for {AppVersion}";
-
-                    AddToLog("".PadRight(helpTitle.Length, '-'));
-                    AddToLog(helpTitle);
-                    AddToLog("".PadRight(helpTitle.Length, '-'));
-
-                    // Display help
-                    foreach (string s in HelpInfo.GetAppUsage())
-                    {
-                        AddToLog(s);
-                    }
+                    DisplayHelp();
                 }
-                else if (args.Any(arg => arg.ToLower() == "--version"))
+                else if (CommandLineArgs.IsVersionArg(args[1]))
                 {
                     AddToLog(AppVersion);
                 }
-                else if (TryGetSettingsPath(args, out string settingsPath))
+                else if (CommandLineArgs.IsCreateConfigArg(args[1]))
                 {
-                    // Parse args for backup settings
-                    BackupSettings backupSettings = ParseSettings(settingsPath);
-
-                    // Check config parsed ok
-                    if (backupSettings.Valid)
+                    // Check number of args
+                    if (args.Length == 3)
                     {
-                        // Create backup object
-                        BackupTask backup = new BackupTask(backupSettings);
-
-                        // Add handler for output
-                        backup.Log += AddToLog;
-
-                        try
-                        {
-                            // Execute backup
-                            int backupCount = backup.Execute();
-
-                            // Report total
-                            AddToLog($"Total files backed up: {backupCount}");
-
-                            // Return error if backup had issues
-                            returnCode = backup.ErrorCount > 0 ? 1 : 0;
-                        }
-                        finally
-                        {
-                            // Remove handler
-                            backup.Log -= AddToLog;
-                        }
+                        returnCode = CreateDefaultConfig(args[2]) ? 0 : 1;
                     }
                     else
                     {
-                        AddToLog("Config file is not valid, target or source settings are missing.");
+                        DisplayHelp();
+                        returnCode = 1;
                     }
+                }
+                else if (CommandLineArgs.IsExecuteArg(args[1]))
+                {
+                    // Check number of args
+                    if (args.Length == 3)
+                    {
+                        returnCode = ExecuteBackupConfig(args.ElementAtOrDefault(2)) ? 0 : 1;
+                    }
+                    else
+                    {
+                        DisplayHelp();
+                        returnCode = 1;
+                    }
+                }
+                else
+                {
+                    // Unknown command
+                    DisplayHelp();
                 }
             }
             catch (Exception ex)
@@ -106,65 +90,124 @@ namespace BackupUtilityCore
             Console.WriteLine(message);
         }
 
-        private static bool TryGetSettingsPath(string[] args, out string settingsPath)
+        private static void DisplayHelp()
         {
-            const string DefaultFile = "backup-config.yaml";
+            // Include version of app DLL in help
+            string helpTitle = $"Help for {AppVersion}";
 
-            // Get settings file name.
-            string settingsFileArg = args.ElementAtOrDefault(0) ?? DefaultFile;
+            AddToLog("".PadRight(helpTitle.Length, '-'));
+            AddToLog(helpTitle);
+            AddToLog("".PadRight(helpTitle.Length, '-'));
 
+            // Display help
+            foreach (string s in CommandLineArgs.GetHelpInfo())
+            {
+                AddToLog(s);
+            }
+        }
+
+        private static string GetConfigPath(string configName)
+        {
             // Add default yaml extension if none given
-            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(settingsFileArg)))
+            if (string.IsNullOrEmpty(System.IO.Path.GetExtension(configName)))
             {
                 // GetExtension also returns empty string if file ends in '.'
-                settingsFileArg = settingsFileArg.TrimEnd('.') + ".yaml";
+                configName = configName.TrimEnd('.') + ".yaml";
             }
 
             // Check whether full path or just file supplied.
-            if (!System.IO.Path.IsPathRooted(settingsFileArg))
+            if (!System.IO.Path.IsPathRooted(configName))
             {
                 // Add current directory to path.
-                settingsPath = System.IO.Path.Combine(Environment.CurrentDirectory, settingsFileArg);
+                return System.IO.Path.Combine(Environment.CurrentDirectory, configName);
             }
             else
             {
                 // Already contains path
-                settingsPath = settingsFileArg;
+                return configName;
             }
+        }
+
+        private static bool CreateDefaultConfig(string configName)
+        {
+            // Get full path for config
+            string configPath = GetConfigPath(configName);
 
             // Check file exists.
-            if (System.IO.File.Exists(settingsPath))
+            if (System.IO.File.Exists(configPath))
             {
-                // File should be used.
-                return true;
-            }
-
-            // Check for flag to create missing file.
-            if (args.Contains("-c"))
-            {
-                // Create file using defaults.
-                EmbeddedResource.CreateLocalCopy(DefaultFile);
-
-                // Report that file created.
-                AddToLog($"Default config file created: {DefaultFile}");
-                AddToLog("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
+                AddToLog($"Config file already exists: {configName}");
+                return false;
             }
             else
             {
-                AddToLog($"Config file does not exist: {settingsFileArg}");
-            }
+                const string EmbeddedConfig = "backup-config.yaml";
 
-            // Return false if not specified or newly created.
-            // (May be dangerous to use default settings)
-            return false;
+                // Create file using defaults.
+                EmbeddedResource.CreateLocalCopy(EmbeddedConfig, configPath);
+
+                // Report that file created.
+                AddToLog($"Default config file created: {configName}");
+                AddToLog("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
+
+                return true;
+            }
         }
 
-        private static BackupSettings ParseSettings(string settingsPath)
+        private static BackupSettings ParseConfig(string settingsPath)
         {
             // Other file formats could be supported in future
             ISettingsParser backupSettings = new YamlSettingsParser();
 
             return backupSettings.Parse(settingsPath);
+        }
+
+        private static bool ExecuteBackupConfig(string configName)
+        {
+            // Get full path for config
+            string configPath = GetConfigPath(configName);
+
+            // Check file exists.
+            if (!System.IO.File.Exists(configPath))
+            {
+                AddToLog($"Config file does not exist: {configName}");
+                return false;
+            }
+
+            // Parse args for backup settings
+            BackupSettings backupSettings = ParseConfig(configPath);
+
+            // Check config parsed ok
+            if (backupSettings.Valid)
+            {
+                // Create backup object
+                BackupTask backup = new BackupTask(backupSettings);
+
+                // Add handler for output
+                backup.Log += AddToLog;
+
+                try
+                {
+                    // Execute backup
+                    int backupCount = backup.Execute();
+
+                    // Report total
+                    AddToLog($"Total files backed up: {backupCount}");
+                }
+                finally
+                {
+                    // Remove handler
+                    backup.Log -= AddToLog;
+                }
+
+                // Return error if backup had issues
+                return backup.ErrorCount == 0;
+            }
+            else
+            {
+                AddToLog("Config file is not valid, target or source settings are missing.");
+                return false;
+            }
         }
     }
 }
