@@ -14,29 +14,34 @@ namespace BackupUtilityCore
         /// <summary>
         /// Entry point for program.
         /// </summary>
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             // Default to OK
             int returnCode = 0;
 
             try
             {
+                // On UNIX, 1st arg will be app path/name
+                int initialIndex = Environment.OSVersion.Platform == PlatformID.Unix ? 1 : 0;
+
+                // Get args of interest
+                string commandArg = args.ElementAtOrDefault(initialIndex);
+                string fileArg = args.ElementAtOrDefault(initialIndex + 1);
+
                 // If no arguments specified, display help 
-                // (1st arg will be app path/name)
-                if (args.Length <= 1 || CommandLineArgs.IsHelpArg(args[1]))
+                if (string.IsNullOrEmpty(commandArg) || CommandLineArgs.IsHelpArg(commandArg))
                 {
                     DisplayHelp();
                 }
-                else if (CommandLineArgs.IsVersionArg(args[1]))
+                else if (CommandLineArgs.IsVersionArg(commandArg))
                 {
                     AddToLog(AppVersion);
                 }
-                else if (CommandLineArgs.IsCreateConfigArg(args[1]))
+                else if (CommandLineArgs.IsCreateConfigArg(commandArg))
                 {
-                    // Check number of args
-                    if (args.Length == 3)
+                    if (!string.IsNullOrEmpty(fileArg))
                     {
-                        returnCode = CreateDefaultConfig(args[2]) ? 0 : 1;
+                        returnCode = CreateDefaultConfig(fileArg) ? 0 : 1;
                     }
                     else
                     {
@@ -44,12 +49,11 @@ namespace BackupUtilityCore
                         returnCode = 1;
                     }
                 }
-                else if (CommandLineArgs.IsExecuteArg(args[1]))
+                else if (CommandLineArgs.IsExecuteArg(commandArg))
                 {
-                    // Check number of args
-                    if (args.Length == 3)
+                    if (!string.IsNullOrEmpty(fileArg))
                     {
-                        returnCode = ExecuteBackupConfig(args.ElementAtOrDefault(2)) ? 0 : 1;
+                        returnCode = ExecuteBackupConfig(fileArg) ? 0 : 1;
                     }
                     else
                     {
@@ -61,6 +65,7 @@ namespace BackupUtilityCore
                 {
                     // Unknown command
                     DisplayHelp();
+                    returnCode = 1;
                 }
             }
             catch (Exception ex)

@@ -15,9 +15,6 @@ namespace BackupUtilityCore
         {
             byte[] resourceBytes = GetResourceBytes(resourceName);
 
-            // Save file in local directory
-            //string path = Path.Combine(Environment.CurrentDirectory, copyName);
-
             // Create stream for writing to a file
             using FileStream fs = new FileStream(copyPath, FileMode.Create, FileAccess.Write);
 
