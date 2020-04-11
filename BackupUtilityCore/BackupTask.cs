@@ -56,6 +56,11 @@ namespace BackupUtilityCore
             set;
         }
 
+        public int ErrorCount
+        {
+            get => backupErrors.Count;
+        }
+
         #endregion
 
         public int Execute()

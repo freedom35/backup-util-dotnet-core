@@ -11,15 +11,12 @@ namespace BackupUtilityCore
         /// <summary>
         /// Creates a copy of the specified resource in the current directory.
         /// </summary>
-        public static bool CreateLocalCopy(string resourceName)
+        public static bool CreateLocalCopy(string resourceName, string copyPath)
         {
             byte[] resourceBytes = GetResourceBytes(resourceName);
 
-            // Save file in local directory
-            string path = Path.Combine(Environment.CurrentDirectory, resourceName);
-
             // Create stream for writing to a file
-            using FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+            using FileStream fs = new FileStream(copyPath, FileMode.Create, FileAccess.Write);
 
             fs.Write(resourceBytes, 0, resourceBytes.Length);
 
