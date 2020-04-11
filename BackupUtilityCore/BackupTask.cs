@@ -73,7 +73,7 @@ namespace BackupUtilityCore
             this.BackupSettings = backupSettings;
 
             int backupCount = 0;
-            
+
             // Validate settings
             if (backupSettings?.Valid == true)
             {
@@ -164,7 +164,7 @@ namespace BackupUtilityCore
                             break;
 
                         default:
-                            
+
                             BackupErrorInfo errorInfo = new BackupErrorInfo(result)
                             {
                                 Filename = file,
@@ -212,7 +212,7 @@ namespace BackupUtilityCore
 
                 result = BackupResult.PathTooLong;
             }
-            else if(BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
+            else if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
             {
                 result = BackupResult.Ineligible;
             }
@@ -261,7 +261,7 @@ namespace BackupUtilityCore
                     }
                 }
             }
-            
+
             return result;
         }
 
