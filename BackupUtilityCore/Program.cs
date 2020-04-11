@@ -7,31 +7,39 @@ namespace BackupUtilityCore
     sealed class Program
     {
         /// <summary>
+        /// Version info for app
+        /// </summary>
+        private static string AppVersion => $"Backup Utility v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+
+        /// <summary>
         /// Entry point for program.
         /// </summary>
         static int Main(string[] args)
         {
-            // Default to error
-            int returnCode = 1;
+            // Default to OK
+            int returnCode = 0;
 
             try
             {
-                // Include version of app DLL
-                string appHeader = $"Backup Utility v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
-
-                // Log header
-                AddToLog("".PadRight(appHeader.Length, '-'));
-                AddToLog(appHeader);
-                AddToLog("".PadRight(appHeader.Length, '-'));
-
                 // Check if help args supplied
                 if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
                 {
+                    // Include version of app DLL in help
+                    string versionInfo = AppVersion;
+
+                    AddToLog("".PadRight(versionInfo.Length, '-'));
+                    AddToLog(versionInfo);
+                    AddToLog("".PadRight(versionInfo.Length, '-'));
+
                     // Display help
                     foreach (string s in HelpInfo.GetAppUsage())
                     {
                         AddToLog(s);
                     }
+                }
+                else if (args.Any(arg => arg.ToLower() == "--version"))
+                {
+                    AddToLog(AppVersion);
                 }
                 else if (TryGetSettingsPath(args, out string settingsPath))
                 {
@@ -55,8 +63,8 @@ namespace BackupUtilityCore
                             // Report total
                             AddToLog($"Total files backed up: {backupCount}");
 
-                            // Backup ran OK
-                            returnCode = 0;
+                            // Return error if backup had issues
+                            returnCode = backup.ErrorCount > 0 ? 1 : 0;
                         }
                         finally
                         {
@@ -80,22 +88,24 @@ namespace BackupUtilityCore
                 {
                     AddToLog($"\nStack Trace:\n{ex.StackTrace}");
                 }
+
+                returnCode = 1;
             }
 
             return returnCode;
         }
 
-        static void AddToLog(object _, MessageEventArgs e)
+        private static void AddToLog(object _, MessageEventArgs e)
         {
             AddToLog(e.Message);
         }
 
-        static void AddToLog(string message)
+        private static void AddToLog(string message)
         {
             Console.WriteLine(message);
         }
 
-        static bool TryGetSettingsPath(string[] args, out string settingsPath)
+        private static bool TryGetSettingsPath(string[] args, out string settingsPath)
         {
             const string DefaultFile = "backup-config.yaml";
 
@@ -148,7 +158,7 @@ namespace BackupUtilityCore
             return false;
         }
 
-        static BackupSettings ParseSettings(string settingsPath)
+        private static BackupSettings ParseSettings(string settingsPath)
         {
             // Other file formats could be supported in future
             ISettingsParser backupSettings = new YamlSettingsParser();
