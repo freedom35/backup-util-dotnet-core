@@ -4,6 +4,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <Authors>Alan Barr (GitHub: freedom35)</Authors>
+
+    <Copyright>Copyright © Alan Barr</Copyright>
+
+    <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
+
+    <Description>Unit tests for BackupUtilityCore app.</Description>
   </PropertyGroup>
 
   <ItemGroup>

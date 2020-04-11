@@ -21,15 +21,16 @@ namespace BackupUtilityCore
 
             try
             {
-                // Check if help args supplied
-                if (args.Any(arg => arg == "-h" || arg.ToLower() == "--help"))
+                // If no arguments specified, display help 
+                // (1st arg will be path/app name)
+                if (args.Length <= 1 || args.Any(arg => HelpInfo.IsHelpArg(arg)))
                 {
                     // Include version of app DLL in help
-                    string versionInfo = AppVersion;
+                    string helpTitle = $"Help for {AppVersion}";
 
-                    AddToLog("".PadRight(versionInfo.Length, '-'));
-                    AddToLog(versionInfo);
-                    AddToLog("".PadRight(versionInfo.Length, '-'));
+                    AddToLog("".PadRight(helpTitle.Length, '-'));
+                    AddToLog(helpTitle);
+                    AddToLog("".PadRight(helpTitle.Length, '-'));
 
                     // Display help
                     foreach (string s in HelpInfo.GetAppUsage())
