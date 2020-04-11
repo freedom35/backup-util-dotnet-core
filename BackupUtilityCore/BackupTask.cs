@@ -147,6 +147,9 @@ namespace BackupUtilityCore
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
+                // Reset error count between each directory
+                int errorCount = 0;
+
                 foreach (string file in files)
                 {
                     BackupResult result = BackupFile(file, rootDir, targetDirInfo);
@@ -176,7 +179,7 @@ namespace BackupUtilityCore
                             backupErrors.Add(errorInfo);
 
                             // Abort on high error count
-                            if (backupErrors.Count > 5)
+                            if (++errorCount > 3)
                             {
                                 throw new Exception("Backup aborted due to excessive errors");
                             }
