@@ -16,26 +16,9 @@ namespace BackupUtilityCore
         {
             // Set property
             this.BackupSettings = backupSettings ?? default;
-
-            // Check platform type
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                // Approx - TBD
-                MaxLenDir = 1000;
-                MaxLenPath = 1000;
-            }
-            else
-            {
-                // Default limits based on pre-Win10 Windows APIs (shortest)
-                MaxLenDir = 248;
-                MaxLenPath = 260;
-            }
         }
 
         #region Members
-
-        private readonly int MaxLenDir;
-        private readonly int MaxLenPath;
 
         private readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
 
@@ -208,14 +191,8 @@ namespace BackupUtilityCore
             string targetDir = Path.Combine(targetDirInfo.FullName, rootDir);
             string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
-            // Check fixed length limits for OS APIs
-            if (targetDir.Length >= MaxLenDir || targetPath.Length >= MaxLenPath)
-            {
-                //AddToLog($"Target path too long for file: {sourceFileInfo.Name}");
-
-                result = BackupResult.PathTooLong;
-            }
-            else if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
+            // Check whether file el
+            if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
             {
                 result = BackupResult.Ineligible;
             }
@@ -260,7 +237,8 @@ namespace BackupUtilityCore
                         AddToLog($"ERROR: {ex.Message}");
 
                         // File may be locked or in-use by another process
-                        result = BackupResult.Error;
+                        // Path may be too long
+                        result = BackupResult.Exception;
                     }
                 }
             }
