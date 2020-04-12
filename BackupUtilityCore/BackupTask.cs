@@ -232,12 +232,18 @@ namespace BackupUtilityCore
                         // Confirm backed up
                         result = BackupResult.OK;
                     }
-                    catch (IOException ex)
+                    catch (PathTooLongException pe)
                     {
-                        AddToLog($"ERROR: {ex.Message}");
+                        AddToLog($"PATH ERROR: {pe.Message}");
+
+                        // Max length will vary by OS and environment settings.
+                        result = BackupResult.PathTooLong;
+                    }
+                    catch (IOException ie)
+                    {
+                        AddToLog($"I/O ERROR: {ie.Message}");
 
                         // File may be locked or in-use by another process
-                        // Path may be too long
                         result = BackupResult.Exception;
                     }
                 }

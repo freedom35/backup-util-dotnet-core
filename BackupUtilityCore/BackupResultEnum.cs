@@ -18,11 +18,14 @@ namespace BackupUtilityCore
         [Description("Already backed-up")]
         AlreadyBackedUp,
 
-        [Description("Unable to backup file")]
+        [Description("Unable to access file")]
         Exception,
 
         [Description("File busy, write in progress")]
-        WriteInProgress
+        WriteInProgress,
+
+        [Description("Target path is too long")]
+        PathTooLong
     }
 
     /// <summary>
@@ -37,7 +40,8 @@ namespace BackupUtilityCore
         /// <returns>true if retry possible</returns>
         public static bool CanBeRetried(this BackupResult result)
         {
-            return result == BackupResult.WriteInProgress;
+            return result == BackupResult.WriteInProgress
+                || result == BackupResult.Exception;
         }
 
         /// <summary>
