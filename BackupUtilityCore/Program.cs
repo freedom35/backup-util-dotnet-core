@@ -4,13 +4,11 @@ using System.Reflection;
 
 namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Backup Utility App.
+    /// </summary>
     sealed class Program
     {
-        /// <summary>
-        /// Version info for app
-        /// </summary>
-        private static string AppVersion => $"Backup Utility v{Assembly.GetExecutingAssembly().GetName().Version}";
-
         /// <summary>
         /// Entry point for program.
         /// </summary>
@@ -35,7 +33,7 @@ namespace BackupUtilityCore
                 }
                 else if (CommandLineArgs.IsVersionArg(commandArg))
                 {
-                    AddToLog(AppVersion);
+                    AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
                 }
                 else if (CommandLineArgs.IsCreateConfigArg(commandArg))
                 {
@@ -99,7 +97,7 @@ namespace BackupUtilityCore
         private static void DisplayHelp()
         {
             // Include version of app DLL in help
-            string helpTitle = $"Help for {AppVersion}";
+            string helpTitle = $"Help for Backup Utility v{Assembly.GetExecutingAssembly().GetName().Version}";
 
             // Include copyright info, convert '©' to plain ASCII for console output.
             string copyright = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<AssemblyCopyrightAttribute>().First().Copyright.Replace("©", "(c)");
