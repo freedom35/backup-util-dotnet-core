@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 
 namespace BackupUtilityCore
 {
@@ -8,7 +9,7 @@ namespace BackupUtilityCore
         /// <summary>
         /// Version info for app
         /// </summary>
-        private static string AppVersion => $"Backup Utility v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+        private static string AppVersion => $"Backup Utility v{Assembly.GetExecutingAssembly().GetName().Version}";
 
         /// <summary>
         /// Entry point for program.
@@ -99,14 +100,37 @@ namespace BackupUtilityCore
             // Include version of app DLL in help
             string helpTitle = $"Help for {AppVersion}";
 
-            AddToLog("".PadRight(helpTitle.Length, '-'));
-            AddToLog(helpTitle);
-            AddToLog("".PadRight(helpTitle.Length, '-'));
+            // Include copyright info, convert '©' to plain ASCII for console output.
+            string copyright = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<AssemblyCopyrightAttribute>().First().Copyright.Replace("©", "(c)");
+
+            // Get max length for border
+            int borderLen = Math.Max(helpTitle.Length, copyright.Length);
+
+            // Add header
+            AddToLog("".PadRight(borderLen, '-'));
+            AddToLog(CenterText(helpTitle, borderLen));
+            AddToLog(CenterText(copyright, borderLen));
+            AddToLog("".PadRight(borderLen, '-'));
 
             // Display help
             foreach (string s in CommandLineArgs.GetHelpInfo())
             {
                 AddToLog(s);
+            }
+        }
+
+        /// <summary>
+        /// Centers text by padding left.
+        /// </summary>
+        private static string CenterText(string text, int borderLen)
+        {
+            if (borderLen > text.Length)
+            {
+                return text.PadLeft(((borderLen - text.Length) / 2) + text.Length);
+            }
+            else
+            {
+                return text;
             }
         }
 

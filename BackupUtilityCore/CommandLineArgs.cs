@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace BackupUtilityCore
 {
@@ -41,6 +42,9 @@ namespace BackupUtilityCore
         /// </summary>
         public static string[] GetHelpInfo()
         {
+            // Get exe name of app (project output on build)
+            string app = Assembly.GetExecutingAssembly().GetName().Name;
+
             return new string[] {
                 "",
                 "Arguments:",
@@ -50,10 +54,10 @@ namespace BackupUtilityCore
                 "  -r <filename>.yaml    Path/name of config file to execute.",
                 "",
                 "Usage:",
-                "  dotnet backuputil --version",
-                "  dotnet backuputil -c config1.yaml",
-                "  dotnet backuputil -r config1.yaml",
-                "  dotnet backuputil -r " + GetExampleConfigPath(),
+                $"  dotnet {app} --version",
+                $"  dotnet {app} -c config1.yaml",
+                $"  dotnet {app} -r config1.yaml",
+                $"  dotnet {app} -r {GetExampleConfigPath()}",
                 "",
                 "Note: Config files must be in YAML format.",
                 "",
