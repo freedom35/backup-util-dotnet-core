@@ -19,12 +19,9 @@ namespace BackupUtilityCore
 
             try
             {
-                // On UNIX, 1st arg will be app path/name
-                int initialIndex = Environment.OSVersion.Platform == PlatformID.Unix ? 1 : 0;
-
                 // Get args of interest
-                string commandArg = args.ElementAtOrDefault(initialIndex);
-                string fileArg = args.ElementAtOrDefault(initialIndex + 1);
+                string commandArg = args.ElementAtOrDefault(0);
+                string fileArg = args.ElementAtOrDefault(1);
 
                 // If no arguments specified, display help 
                 if (string.IsNullOrEmpty(commandArg) || CommandLineArgs.IsHelpArg(commandArg))
