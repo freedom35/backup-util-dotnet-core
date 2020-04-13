@@ -43,7 +43,10 @@ namespace BackupUtilityCore
         public static string[] GetHelpInfo()
         {
             // Get exe name of app (project output on build)
-            string app = Assembly.GetExecutingAssembly().GetName().Name;
+            string name = Assembly.GetExecutingAssembly().GetName().Name;
+
+            // Platform agnostic call
+            string app = $"dotnet {name}.dll";
 
             return new string[] {
                 "",
@@ -54,12 +57,12 @@ namespace BackupUtilityCore
                 "  --run, -r <filename>.yaml      Path/name of config file to execute.",
                 "",
                 "Usage:",
-                $"  dotnet {app} --version",
-                $"  dotnet {app} --create config1.yaml",
-                $"  dotnet {app} -c config1.yaml",
-                $"  dotnet {app} --run config1.yaml",
-                $"  dotnet {app} -r config1.yaml",
-                $"  dotnet {app} -r {GetExampleConfigPath()}",
+                $"  {app} --version",
+                $"  {app} --create config1.yaml",
+                $"  {app} -c config1.yaml",
+                $"  {app} --run config1.yaml",
+                $"  {app} -r config1.yaml",
+                $"  {app} -r {GetExampleConfigPath()}",
                 "",
                 "Note: Config files must be in YAML format.",
                 "",
