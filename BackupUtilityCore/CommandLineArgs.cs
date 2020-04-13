@@ -34,7 +34,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsExecuteArg(string arg)
         {
-            return arg == "-r";
+            return arg.ToLower() == "--run" || arg == "-r";
         }
 
         /// <summary>
@@ -48,14 +48,16 @@ namespace BackupUtilityCore
             return new string[] {
                 "",
                 "Arguments:",
-                "  --help, -h, -?                Displays help info for app.",
-                "  --version, -v                 Displays version info for app.",
-                "  --create, -c <filename>.yaml  Creates config file with default values.",
-                "  -r <filename>.yaml            Path/name of config file to execute.",
+                "  --help, -h, -?                 Displays help info for app.",
+                "  --version, -v                  Displays version info for app.",
+                "  --create, -c <filename>.yaml   Creates config file with default values.",
+                "  --run, -r <filename>.yaml      Path/name of config file to execute.",
                 "",
                 "Usage:",
                 $"  dotnet {app} --version",
+                $"  dotnet {app} --create config1.yaml",
                 $"  dotnet {app} -c config1.yaml",
+                $"  dotnet {app} --run config1.yaml",
                 $"  dotnet {app} -r config1.yaml",
                 $"  dotnet {app} -r {GetExampleConfigPath()}",
                 "",
