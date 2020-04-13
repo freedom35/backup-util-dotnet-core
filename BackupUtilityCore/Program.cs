@@ -65,6 +65,7 @@ namespace BackupUtilityCore
                 {
                     // Unknown command
                     DisplayHelp();
+                    AddToLog($"{commandArg}: illegal option");
                     returnCode = 1;
                 }
             }
