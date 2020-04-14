@@ -1,0 +1,4 @@
+# Auto detect text files, normalize line endings to LF (between Windows/Mac)
+*    text=auto
+
+*.cs text diff=csharp
