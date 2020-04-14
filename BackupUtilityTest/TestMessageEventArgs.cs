@@ -6,15 +6,29 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestMessageEventArgs
     {
+        //[TestMethod]
+        //public void TestMessageProp()
+        //{
+        //    const string Message = "TEST";
+
+        //    // Property readonly - assigned in constructor
+        //    MessageEventArgs e = new MessageEventArgs(Message);
+
+        //    // Check property matches
+        //    Assert.AreEqual(Message, e.Message);
+        //}
+
         [TestMethod]
-        public void TestMessageProp()
+        public void TestConstructor()
         {
-            const string Message = "TEST";
+            const string Category = "CAT-TEST";
+            const string Message = "MSG-TEST";
 
-            // Property readonly - assigned in constructor
-            MessageEventArgs e = new MessageEventArgs(Message);
+            // Properties readonly - assigned in constructor
+            MessageEventArgs e = new MessageEventArgs(Category, Message);
 
-            // Check property matches
+            // Check properties match
+            Assert.AreEqual(Category, e.Category);
             Assert.AreEqual(Message, e.Message);
         }
     }

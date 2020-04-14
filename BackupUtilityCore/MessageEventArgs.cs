@@ -4,9 +4,17 @@ namespace BackupUtilityCore
 {
     public sealed class MessageEventArgs : EventArgs
     {
-        public MessageEventArgs(string msg)
+        public MessageEventArgs(string category, string message)
         {
-            Message = msg;
+            Category = category;
+            Message = message;
+        }
+
+        public string Category
+        {
+            get;
+            private set;
+
         }
 
         public string Message

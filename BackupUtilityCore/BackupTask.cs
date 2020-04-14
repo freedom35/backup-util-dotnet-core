@@ -75,7 +75,7 @@ namespace BackupUtilityCore
             // Validate settings
             if (backupSettings?.Valid == true)
             {
-                AddToLog($"Target DIR: {backupSettings.TargetDirectory}");
+                AddToLog("Target DIR", backupSettings.TargetDirectory);
 
                 // Check target directory
                 if (!Directory.Exists(backupSettings.TargetDirectory))
@@ -98,24 +98,29 @@ namespace BackupUtilityCore
                 // Log any files that couldn't be backed-up (or failed retry)
                 foreach (BackupErrorInfo retryError in backupErrors)
                 {
-                    AddToLog($"Unable to backup: {retryError.Filename} ({retryError.Result.GetDescription()})");
+                    AddToLog("Unable to backup", $"{retryError.Filename} ({retryError.Result.GetDescription()})");
                 }
             }
 
             return backupCount;
         }
 
-        private void AddToLog(string message)
+        private void AddToLog(string category)
+        {
+            AddToLog(category, "");
+        }
+
+        private void AddToLog(string category, string message)
         {
             // Check event handled
-            Log?.Invoke(this, new MessageEventArgs(message));
+            Log?.Invoke(this, new MessageEventArgs(category, message));
         }
 
         private int BackupDirectory(string targetDir, string sourceDir)
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
-            AddToLog($"Source DIR: {sourceDir}");
+            AddToLog("Source DIR", sourceDir);
 
             int backupCount = 0;
 
@@ -139,7 +144,7 @@ namespace BackupUtilityCore
                 }
             }
 
-            AddToLog($"Backed up {backupCount} files");
+            AddToLog("COMPLETE", $"Backed up {backupCount} files");
 
             return backupCount;
         }
@@ -151,7 +156,7 @@ namespace BackupUtilityCore
             // Files in a hidden directory considered hidden.
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                AddToLog($"Backing up DIR: {sourceDirInfo.Name}");
+                AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
@@ -237,7 +242,7 @@ namespace BackupUtilityCore
                 }
                 else
                 {
-                    AddToLog($"Backing up: {sourceFileInfo.Name}");
+                    AddToLog("Backing up file", sourceFileInfo.FullName);
 
                     try
                     {
@@ -260,14 +265,14 @@ namespace BackupUtilityCore
                     }
                     catch (PathTooLongException pe)
                     {
-                        AddToLog($"PATH ERROR: {pe.Message}");
+                        AddToLog("PATH ERROR", pe.Message);
 
                         // Max length will vary by OS and environment settings.
                         result = BackupResult.PathTooLong;
                     }
                     catch (IOException ie)
                     {
-                        AddToLog($"I/O ERROR: {ie.Message}");
+                        AddToLog("I/O ERROR", ie.Message);
 
                         // File may be locked or in-use by another process
                         result = BackupResult.Exception;

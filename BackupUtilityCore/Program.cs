@@ -84,7 +84,23 @@ namespace BackupUtilityCore
 
         private static void AddToLog(object _, MessageEventArgs e)
         {
-            AddToLog(e.Message);
+            // Add some padding for consistent output
+            string category = $"{e.Category}: ".PadRight(17);
+            string msg = e.Message;
+
+            string entry = $"{category}{msg}";
+
+            // Truncate to console buffer width otherwise will end on new line.
+            if (entry.Length > Console.BufferWidth)
+            {
+                // Truncate message part
+                msg = e.Message.Remove(0, (entry.Length - Console.BufferWidth) + 1);
+
+                // Replace first message char with tilde to indicate truncated
+                entry = $"{category}~{msg}";
+            }
+
+            AddToLog(entry);
         }
 
         private static void AddToLog(string message)
