@@ -92,10 +92,10 @@ namespace BackupUtilityCore
                     backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
                 }
 
-                // Retry if possible
+                // Retry errors if possible (depends on issue)
                 backupCount += RetryErrors();
 
-                // Log files that couldn't be backed-up
+                // Log any files that couldn't be backed-up (or failed retry)
                 foreach (BackupErrorInfo retryError in backupErrors)
                 {
                     AddToLog($"Unable to backup: {retryError.Filename} ({retryError.Result.GetDescription()})");
@@ -127,7 +127,16 @@ namespace BackupUtilityCore
                 // Remove root path
                 string rootDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
 
-                backupCount = CopyFiles(rootDir, sourceDirInfo, targetDirInfo);
+                switch (BackupSettings.BackupType)
+                {
+                    case BackupType.Copy:
+                        backupCount = CopyFiles(rootDir, sourceDirInfo, targetDirInfo);
+                        break;
+
+                    case BackupType.Sync:
+                        //...
+                        break;
+                }
             }
 
             AddToLog($"Backed up {backupCount} files");
@@ -142,6 +151,8 @@ namespace BackupUtilityCore
             // Files in a hidden directory considered hidden.
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
+                AddToLog($"Backing up DIR: {sourceDirInfo.Name}");
+
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
@@ -226,7 +237,7 @@ namespace BackupUtilityCore
                 }
                 else
                 {
-                    AddToLog($"Backing up: {filename}");
+                    AddToLog($"Backing up: {sourceFileInfo.Name}");
 
                     try
                     {

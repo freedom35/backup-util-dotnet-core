@@ -229,7 +229,7 @@ namespace BackupUtilityCore
                 {
                     AddToLog($"{invalidSetting.Key}: {invalidSetting.Value}");
                 }
-                
+
 
                 return false;
             }
