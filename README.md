@@ -15,7 +15,7 @@ Supported configuration files are in YAML format.
 Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed.  
   
 To build the project yourself you will need the [.NET Core SDK](https://dotnet.microsoft.com/download).  
-[Visual Studio](https://visualstudio.microsoft.com/vs/) for Windows or [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) is an IDE with built-in support for C# and is pre-packaged with the .NET Core SDK.  
+[Visual Studio](https://visualstudio.microsoft.com) is an IDE with built-in support for C# (pre-packaged with the .NET Core SDK), and is available for [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/).  
 Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
 
