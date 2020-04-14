@@ -16,26 +16,9 @@ namespace BackupUtilityCore
         {
             // Set property
             this.BackupSettings = backupSettings ?? default;
-
-            // Check platform type
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                // Approx - TBD
-                MaxLenDir = 1000;
-                MaxLenPath = 1000;
-            }
-            else
-            {
-                // Default limits based on pre-Win10 Windows APIs (shortest)
-                MaxLenDir = 248;
-                MaxLenPath = 260;
-            }
         }
 
         #region Members
-
-        private readonly int MaxLenDir;
-        private readonly int MaxLenPath;
 
         private readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
 
@@ -50,12 +33,18 @@ namespace BackupUtilityCore
 
         #region Properties
 
+        /// <summary>
+        /// Settings associated with backup task.
+        /// </summary>
         public BackupSettings BackupSettings
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Number of errors occurred during backup task.
+        /// </summary>
         public int ErrorCount
         {
             get => backupErrors.Count;
@@ -63,21 +52,30 @@ namespace BackupUtilityCore
 
         #endregion
 
+        /// <summary>
+        /// Executes backup using settings in BackupSettings property.
+        /// </summary>
+        /// <returns>Number of files backed up</returns>
         public int Execute()
         {
             return Execute(BackupSettings);
         }
 
+        /// <summary>
+        /// Executes backup using specified settings.
+        /// </summary>
+        /// <param name="backupSettings">Settings to use for backup.</param>
+        /// <returns>Number of files backed up</returns>
         public int Execute(BackupSettings backupSettings)
         {
             this.BackupSettings = backupSettings;
 
             int backupCount = 0;
-            
+
             // Validate settings
             if (backupSettings?.Valid == true)
             {
-                AddToLog($"Target DIR: {backupSettings.TargetDirectory}");
+                AddToLog("Target DIR", backupSettings.TargetDirectory);
 
                 // Check target directory
                 if (!Directory.Exists(backupSettings.TargetDirectory))
@@ -94,13 +92,18 @@ namespace BackupUtilityCore
                     backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
                 }
 
-                // Retry if possible
+                // Retry errors if possible (depends on issue)
                 backupCount += RetryErrors();
 
-                // Log files that couldn't be backed-up
-                foreach (BackupErrorInfo retryError in backupErrors)
+                // Log any files that couldn't be backed-up (or failed retry)
+                foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
                 {
-                    AddToLog($"Unable to backup: {retryError.Filename} ({retryError.Result.GetDescription()})");
+                    AddToLog($"Unable to backup ({retryGroup.Key.GetDescription()}):");
+
+                    foreach (BackupErrorInfo retryError in retryGroup)
+                    {
+                        AddToLog($"{retryError.Filename}");
+                    }
                 }
             }
 
@@ -109,15 +112,20 @@ namespace BackupUtilityCore
 
         private void AddToLog(string message)
         {
+            AddToLog(message, "");
+        }
+
+        private void AddToLog(string message, string arg)
+        {
             // Check event handled
-            Log?.Invoke(this, new MessageEventArgs(message));
+            Log?.Invoke(this, new MessageEventArgs(message, arg));
         }
 
         private int BackupDirectory(string targetDir, string sourceDir)
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
-            AddToLog($"Source DIR: {sourceDir}");
+            AddToLog("Source DIR", sourceDir);
 
             int backupCount = 0;
 
@@ -129,27 +137,45 @@ namespace BackupUtilityCore
                 // Remove root path
                 string rootDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
 
-                backupCount = BackupFiles(rootDir, targetDirInfo, sourceDirInfo);
+                switch (BackupSettings.BackupType)
+                {
+                    case BackupType.Copy:
+                        backupCount = CopyFiles(rootDir, sourceDirInfo, targetDirInfo);
+                        break;
+
+                    case BackupType.Sync:
+                        //...
+                        break;
+
+                    case BackupType.Individual:
+                        //...
+                        break;
+                }
             }
 
-            AddToLog($"Backed up {backupCount} files");
+            AddToLog("COMPLETE", $"Backed up {backupCount} files");
 
             return backupCount;
         }
 
-        private int BackupFiles(string rootDir, DirectoryInfo targetDirInfo, DirectoryInfo sourceDirInfo)
+        private int CopyFiles(string rootDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
             int backupCount = 0;
 
             // Files in a hidden directory considered hidden.
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
+                AddToLog("Backing up DIR", sourceDirInfo.FullName);
+
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
+                // Reset error count between each directory
+                int errorCount = 0;
+
                 foreach (string file in files)
                 {
-                    BackupResult result = BackupFile(file, rootDir, targetDirInfo);
+                    BackupResult result = CopyFile(file, rootDir, targetDirInfo);
 
                     switch (result)
                     {
@@ -164,7 +190,7 @@ namespace BackupUtilityCore
                             break;
 
                         default:
-                            
+
                             BackupErrorInfo errorInfo = new BackupErrorInfo(result)
                             {
                                 Filename = file,
@@ -172,11 +198,11 @@ namespace BackupUtilityCore
                                 TargetDirInfo = targetDirInfo
                             };
 
-                            // Add to queue for retry
+                            // Add to list for retry
                             backupErrors.Add(errorInfo);
 
                             // Abort on high error count
-                            if (backupErrors.Count > 5)
+                            if (++errorCount > 3)
                             {
                                 throw new Exception("Backup aborted due to excessive errors");
                             }
@@ -188,14 +214,14 @@ namespace BackupUtilityCore
                 // Recursive call for sub directories
                 foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
                 {
-                    backupCount += BackupFiles(Path.Combine(rootDir, subDirInfo.Name), targetDirInfo, subDirInfo);
+                    backupCount += CopyFiles(Path.Combine(rootDir, subDirInfo.Name), subDirInfo, targetDirInfo);
                 }
             }
 
             return backupCount;
         }
 
-        private BackupResult BackupFile(string filename, string rootDir, DirectoryInfo targetDirInfo)
+        private BackupResult CopyFile(string filename, string rootDir, DirectoryInfo targetDirInfo)
         {
             BackupResult result;
 
@@ -205,14 +231,8 @@ namespace BackupUtilityCore
             string targetDir = Path.Combine(targetDirInfo.FullName, rootDir);
             string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
-            // Check fixed length limits for OS APIs
-            if (targetDir.Length >= MaxLenDir || targetPath.Length >= MaxLenPath)
-            {
-                //AddToLog($"Target path too long for file: {sourceFileInfo.Name}");
-
-                result = BackupResult.PathTooLong;
-            }
-            else if(BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
+            // Check whether file eligible
+            if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
             {
                 result = BackupResult.Ineligible;
             }
@@ -231,7 +251,7 @@ namespace BackupUtilityCore
                 }
                 else
                 {
-                    AddToLog($"Backing up: {filename}");
+                    AddToLog("Backing up file", sourceFileInfo.FullName);
 
                     try
                     {
@@ -252,16 +272,23 @@ namespace BackupUtilityCore
                         // Confirm backed up
                         result = BackupResult.OK;
                     }
-                    catch (IOException ex)
+                    catch (PathTooLongException pe)
                     {
-                        AddToLog($"ERROR: {ex.Message}");
+                        AddToLog("PATH ERROR", pe.Message);
+
+                        // Max length will vary by OS and environment settings.
+                        result = BackupResult.PathTooLong;
+                    }
+                    catch (IOException ie)
+                    {
+                        AddToLog("I/O ERROR", ie.Message);
 
                         // File may be locked or in-use by another process
-                        result = BackupResult.Error;
+                        result = BackupResult.Exception;
                     }
                 }
             }
-            
+
             return result;
         }
 
@@ -295,7 +322,7 @@ namespace BackupUtilityCore
                         BackupErrorInfo errorInfo = retryErrors[0];
 
                         // Retry backup
-                        if (BackupFile(errorInfo.Filename, errorInfo.RootDir, errorInfo.TargetDirInfo) == BackupResult.OK)
+                        if (CopyFile(errorInfo.Filename, errorInfo.RootDir, errorInfo.TargetDirInfo) == BackupResult.OK)
                         {
                             // Success
                             backupCount++;

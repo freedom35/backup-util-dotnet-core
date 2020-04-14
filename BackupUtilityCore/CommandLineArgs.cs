@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace BackupUtilityCore
 {
@@ -33,7 +34,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsExecuteArg(string arg)
         {
-            return arg == "-r";
+            return arg.ToLower() == "--run" || arg == "-r";
         }
 
         /// <summary>
@@ -41,19 +42,27 @@ namespace BackupUtilityCore
         /// </summary>
         public static string[] GetHelpInfo()
         {
+            // Get exe name of app (project output on build)
+            string name = Assembly.GetExecutingAssembly().GetName().Name;
+
+            // Platform agnostic call
+            string app = $"dotnet {name}.dll";
+
             return new string[] {
                 "",
                 "Arguments:",
-                "  --help, -h, -?        Displays help info for app.",
-                "  --version, -v         Displays version info for app.",
-                "  -c <filename>.yaml    Creates config file (if non-existent) with default values.",
-                "  -r <filename>.yaml    Path/name of config file to execute.",
+                "  --help, -h, -?                 Displays help info for app.",
+                "  --version, -v                  Displays version info for app.",
+                "  --create, -c <filename>.yaml   Creates config file with default values.",
+                "  --run, -r <filename>.yaml      Path/name of config file to execute.",
                 "",
                 "Usage:",
-                "  dotnet backuputil --version",
-                "  dotnet backuputil -c config1.yaml",
-                "  dotnet backuputil -r config1.yaml",
-                "  dotnet backuputil -r " + GetExampleConfigPath(),
+                $"  {app} --version",
+                $"  {app} --create config1.yaml",
+                $"  {app} -c config1.yaml",
+                $"  {app} --run config1.yaml",
+                $"  {app} -r config1.yaml",
+                $"  {app} -r {GetExampleConfigPath()}",
                 "",
                 "Note: Config files must be in YAML format.",
                 "",

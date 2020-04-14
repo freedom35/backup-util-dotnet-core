@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BackupUtilityCore
@@ -18,7 +19,6 @@ namespace BackupUtilityCore
         };
 
         private string[] excludedFileTypes = {
-            "exe",
             "dll",
             "pdb",
             "zip",
@@ -44,6 +44,15 @@ namespace BackupUtilityCore
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Determines type of backup.
+        /// </summary>
+        public BackupType BackupType
+        {
+            get;
+            set;
+        } = (BackupType)(-1);
 
         /// <summary>
         /// Gets or sets the source directories.
@@ -135,18 +144,18 @@ namespace BackupUtilityCore
         /// <value><c>true</c> if valid; otherwise, <c>false</c>.</value>
         public bool Valid
         {
-            get => SourceDirectories?.Length > 0 && !string.IsNullOrEmpty(TargetDirectory);
+            get => GetInvalidSettings().Count == 0;
         }
 
         /// <summary>
         /// Gets or sets the name of the settings file.
         /// </summary>
         /// <value>The name of the settings file.</value>
-        //public string SettingsFileName
-        //{
-        //    get;
-        //    private set;
-        //}
+        public string SettingsFilename
+        {
+            get;
+            private set;
+        }
 
         #endregion
 
@@ -159,6 +168,91 @@ namespace BackupUtilityCore
         public bool IsDirectoryExcluded(string directoryName)
         {
             return !HasExcludedDirectories || ExcludedDirectories.Contains(directoryName.ToLower());
+        }
+
+        /// <summary>
+        /// Basic YAML parser for backup settings.
+        /// </summary>
+        /// <param name="settingsPath">Path of config file.</param>
+        /// <returns>BackupSettings object</returns>
+        public static BackupSettings ParseFromYaml(string settingsPath)
+        {
+            BackupSettings settings = new BackupSettings()
+            {
+                SettingsFilename = System.IO.Path.GetFileName(settingsPath)
+            };
+
+            ///////////////////////////////////////////
+            // Parse config from file
+            ///////////////////////////////////////////
+            Dictionary<string, object> keyValuePairs = YAML.YamlParser.ParseFile(settingsPath);
+
+            ///////////////////////////////////////////
+            // Check key/values for expected settings
+            ///////////////////////////////////////////
+
+            if (keyValuePairs.TryGetValue("backup_type", out object configBackupType) && Enum.TryParse(configBackupType.ToString(), out BackupType type))
+            {
+                settings.BackupType = type;
+            }
+
+            if (keyValuePairs.TryGetValue("target_dir", out object targetDir))
+            {
+                settings.TargetDirectory = targetDir as string;
+            }
+
+            if (keyValuePairs.TryGetValue("source_dirs", out object sourceDirs))
+            {
+                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray();
+            }
+
+            // Optional
+            if (keyValuePairs.TryGetValue("excluded_dirs", out object excludedDirs))
+            {
+                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray();
+            }
+
+            // Optional
+            if (keyValuePairs.TryGetValue("excluded_types", out object excludedTypes))
+            {
+                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray();
+            }
+
+            // Optional
+            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString(), out bool ignore))
+            {
+                settings.IgnoreHiddenFiles = ignore;
+            }
+
+            return settings;
+        }
+
+        /// <summary>
+        /// Gets info on invalid settings.
+        /// </summary>
+        public Dictionary<string, string> GetInvalidSettings()
+        {
+            Dictionary<string, string> invalidSettings = new Dictionary<string, string>();
+
+            // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
+            if (!Enum.IsDefined(typeof(BackupType), BackupType))
+            {
+                invalidSettings.Add("backup_type", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
+            }
+
+            // Must have a target
+            if (string.IsNullOrEmpty(TargetDirectory))
+            {
+                invalidSettings.Add("target_dir", "setting or associated value is missing.");
+            }
+
+            // Must have at least one source
+            if (SourceDirectories == null || SourceDirectories.Length == 0)
+            {
+                invalidSettings.Add("source_dirs", "setting or associated values are missing.");
+            }
+
+            return invalidSettings;
         }
     }
 }

@@ -1,16 +1,15 @@
-﻿using BackupUtilityCore.YAML;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Backup Utility App.
+    /// </summary>
     sealed class Program
     {
-        /// <summary>
-        /// Version info for app
-        /// </summary>
-        private static string AppVersion => $"Backup Utility v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
-
         /// <summary>
         /// Entry point for program.
         /// </summary>
@@ -21,12 +20,9 @@ namespace BackupUtilityCore
 
             try
             {
-                // On UNIX, 1st arg will be app path/name
-                int initialIndex = Environment.OSVersion.Platform == PlatformID.Unix ? 1 : 0;
-
                 // Get args of interest
-                string commandArg = args.ElementAtOrDefault(initialIndex);
-                string fileArg = args.ElementAtOrDefault(initialIndex + 1);
+                string commandArg = args.ElementAtOrDefault(0);
+                string fileArg = args.ElementAtOrDefault(1);
 
                 // If no arguments specified, display help 
                 if (string.IsNullOrEmpty(commandArg) || CommandLineArgs.IsHelpArg(commandArg))
@@ -35,7 +31,7 @@ namespace BackupUtilityCore
                 }
                 else if (CommandLineArgs.IsVersionArg(commandArg))
                 {
-                    AddToLog(AppVersion);
+                    AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
                 }
                 else if (CommandLineArgs.IsCreateConfigArg(commandArg))
                 {
@@ -65,6 +61,7 @@ namespace BackupUtilityCore
                 {
                     // Unknown command
                     DisplayHelp();
+                    AddToLog($"{commandArg}: illegal option");
                     returnCode = 1;
                 }
             }
@@ -87,7 +84,7 @@ namespace BackupUtilityCore
 
         private static void AddToLog(object _, MessageEventArgs e)
         {
-            AddToLog(e.Message);
+            AddToLog(e.ToString(Console.BufferWidth));
         }
 
         private static void AddToLog(string message)
@@ -98,16 +95,39 @@ namespace BackupUtilityCore
         private static void DisplayHelp()
         {
             // Include version of app DLL in help
-            string helpTitle = $"Help for {AppVersion}";
+            string helpTitle = $"Help for Backup Utility v{Assembly.GetExecutingAssembly().GetName().Version}";
 
-            AddToLog("".PadRight(helpTitle.Length, '-'));
-            AddToLog(helpTitle);
-            AddToLog("".PadRight(helpTitle.Length, '-'));
+            // Include copyright info, convert '©' to plain ASCII for console output.
+            string copyright = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<AssemblyCopyrightAttribute>().First().Copyright.Replace("©", "(c)");
+
+            // Get max length for border
+            int borderLen = Math.Max(helpTitle.Length, copyright.Length);
+
+            // Add header
+            AddToLog("".PadRight(borderLen, '-'));
+            AddToLog(CenterText(helpTitle, borderLen));
+            AddToLog(CenterText(copyright, borderLen));
+            AddToLog("".PadRight(borderLen, '-'));
 
             // Display help
             foreach (string s in CommandLineArgs.GetHelpInfo())
             {
                 AddToLog(s);
+            }
+        }
+
+        /// <summary>
+        /// Centers text by padding left.
+        /// </summary>
+        private static string CenterText(string text, int borderLen)
+        {
+            if (borderLen > text.Length)
+            {
+                return text.PadLeft(((borderLen - text.Length) / 2) + text.Length);
+            }
+            else
+            {
+                return text;
             }
         }
 
@@ -159,14 +179,6 @@ namespace BackupUtilityCore
             }
         }
 
-        private static BackupSettings ParseConfig(string settingsPath)
-        {
-            // Other file formats could be supported in future
-            ISettingsParser backupSettings = new YamlSettingsParser();
-
-            return backupSettings.Parse(settingsPath);
-        }
-
         private static bool ExecuteBackupConfig(string configName)
         {
             // Get full path for config
@@ -180,21 +192,21 @@ namespace BackupUtilityCore
             }
 
             // Parse args for backup settings
-            BackupSettings backupSettings = ParseConfig(configPath);
+            BackupSettings backupSettings = BackupSettings.ParseFromYaml(configPath);
 
             // Check config parsed ok
             if (backupSettings.Valid)
             {
                 // Create backup object
-                BackupTask backup = new BackupTask(backupSettings);
+                BackupTask backupTask = new BackupTask(backupSettings);
 
                 // Add handler for output
-                backup.Log += AddToLog;
+                backupTask.Log += AddToLog;
 
                 try
                 {
                     // Execute backup
-                    int backupCount = backup.Execute();
+                    int backupCount = backupTask.Execute();
 
                     // Report total
                     AddToLog($"Total files backed up: {backupCount}");
@@ -202,15 +214,23 @@ namespace BackupUtilityCore
                 finally
                 {
                     // Remove handler
-                    backup.Log -= AddToLog;
+                    backupTask.Log -= AddToLog;
                 }
 
                 // Return error if backup had issues
-                return backup.ErrorCount == 0;
+                return backupTask.ErrorCount == 0;
             }
             else
             {
-                AddToLog("Config file is not valid, target or source settings are missing.");
+                AddToLog($"Config file {backupSettings.SettingsFilename} is not valid.");
+
+                // Add some additional info to log...
+                foreach (KeyValuePair<string, string> invalidSetting in backupSettings.GetInvalidSettings())
+                {
+                    AddToLog($"{invalidSetting.Key}: {invalidSetting.Value}");
+                }
+
+
                 return false;
             }
         }

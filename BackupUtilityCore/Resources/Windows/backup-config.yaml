@@ -6,6 +6,15 @@
 
 # *** CHECK DEFAULT DIRECTORIES BEFORE RUNNING ***
 
+
+# Backup type (Copy or Sync)
+backup_type: copy
+
+
+# Hidden files
+ignore_hidden_files: true
+
+
 # Specify root target directory for backup
 target_dir: C:\Backups
 
@@ -57,8 +66,5 @@ excluded_types:
  - sdf
  - aps
 
-
- # Hidden files
- ignore_hidden_files: true
 
 ...

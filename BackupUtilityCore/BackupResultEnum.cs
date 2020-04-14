@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 
 namespace BackupUtilityCore
 {
@@ -11,16 +11,16 @@ namespace BackupUtilityCore
     {
         [Description("OK")]
         OK,
-        
+
         [Description("Ineligible due to config")]
         Ineligible,
-        
+
         [Description("Already backed-up")]
         AlreadyBackedUp,
-        
+
         [Description("Unable to access file")]
-        Error,
-        
+        Exception,
+
         [Description("File busy, write in progress")]
         WriteInProgress,
 
@@ -40,8 +40,8 @@ namespace BackupUtilityCore
         /// <returns>true if retry possible</returns>
         public static bool CanBeRetried(this BackupResult result)
         {
-            return result == BackupResult.WriteInProgress 
-                || result == BackupResult.Error;
+            return result == BackupResult.WriteInProgress
+                || result == BackupResult.Exception;
         }
 
         /// <summary>
