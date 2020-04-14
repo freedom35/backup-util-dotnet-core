@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
+using BackupUtilityCore.Tasks;
+
 namespace BackupUtilityCore
 {
     /// <summary>
@@ -198,15 +200,15 @@ namespace BackupUtilityCore
             if (backupSettings.Valid)
             {
                 // Create backup object
-                BackupTask backupTask = new BackupTask(backupSettings);
-
+                BackupTaskBase backupTask = CreateBackupTask(backupSettings.BackupType);
+                                
                 // Add handler for output
                 backupTask.Log += AddToLog;
 
                 try
                 {
                     // Execute backup
-                    int backupCount = backupTask.Execute();
+                    int backupCount = backupTask.Execute(backupSettings);
 
                     // Report total
                     AddToLog($"Total files backed up: {backupCount}");
@@ -233,6 +235,17 @@ namespace BackupUtilityCore
 
                 return false;
             }
+        }
+
+        private static BackupTaskBase CreateBackupTask(BackupType backupType)
+        {
+            return backupType switch
+            {
+                BackupType.Copy => new BackupTaskCopy(),
+                BackupType.Sync => new BackupTaskSync(),
+                BackupType.Isolated => new BackupTaskIsolatedCopy(),
+                _ => throw new NotImplementedException($"Backup task not implemented for '{backupType}'."),
+            };
         }
     }
 }

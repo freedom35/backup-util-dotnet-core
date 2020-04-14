@@ -32,7 +32,7 @@ namespace BackupUtilityCore
             set;
         } = "";
 
-        public string RootDir
+        public string SourceSubDir
         {
             get;
             set;
