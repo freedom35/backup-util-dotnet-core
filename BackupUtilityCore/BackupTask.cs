@@ -96,24 +96,29 @@ namespace BackupUtilityCore
                 backupCount += RetryErrors();
 
                 // Log any files that couldn't be backed-up (or failed retry)
-                foreach (BackupErrorInfo retryError in backupErrors)
+                foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
                 {
-                    AddToLog("Unable to backup", $"{retryError.Filename} ({retryError.Result.GetDescription()})");
+                    AddToLog($"Unable to backup ({retryGroup.Key.GetDescription()}):");
+
+                    foreach (BackupErrorInfo retryError in retryGroup)
+                    {
+                        AddToLog($"{retryError.Filename}");
+                    }
                 }
             }
 
             return backupCount;
         }
 
-        private void AddToLog(string category)
+        private void AddToLog(string message)
         {
-            AddToLog(category, "");
+            AddToLog(message, "");
         }
 
-        private void AddToLog(string category, string message)
+        private void AddToLog(string message, string arg)
         {
             // Check event handled
-            Log?.Invoke(this, new MessageEventArgs(category, message));
+            Log?.Invoke(this, new MessageEventArgs(message, arg));
         }
 
         private int BackupDirectory(string targetDir, string sourceDir)
