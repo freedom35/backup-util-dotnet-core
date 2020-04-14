@@ -146,6 +146,10 @@ namespace BackupUtilityCore
                     case BackupType.Sync:
                         //...
                         break;
+
+                    case BackupType.Individual:
+                        //...
+                        break;
                 }
             }
 
