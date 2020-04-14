@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -221,7 +222,15 @@ namespace BackupUtilityCore
             }
             else
             {
-                AddToLog($"Config file {backupSettings.SettingsFilename} is not valid, target or source settings are missing.");
+                AddToLog($"Config file {backupSettings.SettingsFilename} is not valid.");
+
+                // Add some additional info to log...
+                foreach (KeyValuePair<string, string> invalidSetting in backupSettings.GetInvalidSettings())
+                {
+                    AddToLog($"{invalidSetting.Key}: {invalidSetting.Value}");
+                }
+                
+
                 return false;
             }
         }
