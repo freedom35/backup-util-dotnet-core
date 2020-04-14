@@ -1,7 +1,7 @@
 # Backup Utility (.NET Core)
 
-Backup Utility is an app that copies files from multiple source directories to a common target directory.  
-The app is built as a .NET Core app rather than a service in order to remain portable between Windows and Mac.  
+Backup Utility is a console app that copies files from multiple source directories to a common target directory.  
+The app is built as a .NET Core console app rather than a service in order to remain portable between Windows and Mac.  
 
 An example usage would be to configure the target directory within a cloud directory (such as Dropbox/OneDrive etc.) in order to selectively backup files to your cloud provider of choice.  
 Multiple configurations can be used/run if you wanted to backup to multiple cloud/target drives.
@@ -14,10 +14,9 @@ Supported configuration files are in YAML format.
 ## Requirements
 Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed.  
   
-To build the project yourself you will need a C# compiler.  
-An IDE with built-in support for C# is recommended, such as [Visual Studio](https://visualstudio.microsoft.com/vs/) for Windows or [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/).  
-Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.
- 
+To build the project yourself you will need the [.NET Core SDK](https://dotnet.microsoft.com/download).  
+[Visual Studio](https://visualstudio.microsoft.com/vs/) for Windows or [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/) is an IDE with built-in support for C# and is pre-packaged with the .NET Core SDK.  
+Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
 
 ## Command Line
