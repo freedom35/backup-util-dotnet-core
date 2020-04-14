@@ -147,7 +147,7 @@ namespace BackupUtilityCore
                         //...
                         break;
 
-                    case BackupType.Individual:
+                    case BackupType.Isolated:
                         //...
                         break;
                 }
