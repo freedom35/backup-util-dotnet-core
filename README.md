@@ -12,11 +12,12 @@ Supported configuration files are in YAML format.
 <br />
   
 ## Requirements
-Requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed in order to execute the app.  
+Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed.  
   
-To build the project you will need a C# compiler. An IDE with built-in support for C# is recommended such as [Visual Studio](https://visualstudio.microsoft.com/vs/) for Windows or [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/).  
-You can also a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.
-
+To build the project yourself you will need a C# compiler.  
+An IDE with built-in support for C# is recommended, such as [Visual Studio](https://visualstudio.microsoft.com/vs/) for Windows or [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/).  
+Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.
+ 
 <br />
 
 ## Command Line
