@@ -8,38 +8,9 @@ namespace BackupUtilityCore
     {
         #region Members
 
-        private string[] excludedDirectories = {
-            "obj",
-            "bin",
-            "_sgbak",
-            "ipch",
-            ".dropbox.cache",
-            ".git",
-            ".vs"
-        };
+        private string[] excludedDirectories = new string[0];
 
-        private string[] excludedFileTypes = {
-            "dll",
-            "pdb",
-            "zip",
-            "scc",
-            "obj",
-            "sbr",
-            "ilk",
-            "pch",
-            "bsc",
-            "tlog",
-            "idb",
-            "lastbuildstate",
-            "manifest",
-            "cache",
-            "log",
-            "exp",
-            "tlh",
-            "tli",
-            "sdf",
-            "aps"
-        };
+        private string[] excludedFileTypes = new string[0];
 
         #endregion
 

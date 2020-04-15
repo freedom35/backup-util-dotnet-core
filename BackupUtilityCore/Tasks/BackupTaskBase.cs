@@ -8,16 +8,6 @@ namespace BackupUtilityCore.Tasks
 {
     public abstract class BackupTaskBase
     {
-        public BackupTaskBase() : this(null)
-        {
-        }
-
-        public BackupTaskBase(BackupSettings backupSettings)
-        {
-            // Set property
-            this.BackupSettings = backupSettings ?? default;
-        }
-
         #region Members
 
         protected readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
@@ -58,15 +48,6 @@ namespace BackupUtilityCore.Tasks
         #endregion
 
         /// <summary>
-        /// Executes backup using settings in BackupSettings property.
-        /// </summary>
-        /// <returns>Number of files backed up</returns>
-        public int Execute()
-        {
-            return Execute(BackupSettings);
-        }
-
-        /// <summary>
         /// Executes backup using specified settings.
         /// </summary>
         /// <param name="backupSettings">Settings to use for backup.</param>
@@ -74,7 +55,7 @@ namespace BackupUtilityCore.Tasks
         public int Execute(BackupSettings backupSettings)
         {
             // Update property value
-            BackupSettings = backupSettings;
+            BackupSettings = backupSettings ?? default;
 
             // Ensure reset
             backupErrors.Clear();
@@ -82,7 +63,7 @@ namespace BackupUtilityCore.Tasks
             int backupCount = 0;
 
             // Validate settings
-            if (backupSettings?.Valid == true)
+            if (BackupSettings?.Valid == true)
             {
                 AddToLog($"Running backup ({BackupDescription})");
 
