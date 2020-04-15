@@ -33,6 +33,11 @@ namespace BackupUtilityCore.Tasks
 
         #region Properties
 
+        public abstract string BackupDescription
+        {
+            get;
+        }
+
         /// <summary>
         /// Settings associated with backup task.
         /// </summary>
@@ -79,26 +84,9 @@ namespace BackupUtilityCore.Tasks
             // Validate settings
             if (backupSettings?.Valid == true)
             {
-                string targetDir = GetBackupLocation();
+                AddToLog($"Running backup ({BackupDescription})");
 
-                AddToLog("Target DIR", targetDir);
-
-                // Perform any prep work
-                PerformPreBackup();
-
-                // Check target directory
-                if (!Directory.Exists(targetDir))
-                {
-                    Directory.CreateDirectory(targetDir);
-                }
-
-                // Backup each source directory
-                foreach (string source in BackupSettings.SourceDirectories)
-                {
-                    AddToLog("Source DIR", source);
-
-                    backupCount += BackupDirectory(source, targetDir);
-                }
+                PerformBackup();
 
                 // Retry errors if possible (depends on issue)
                 backupCount += RetryErrors();
@@ -114,32 +102,35 @@ namespace BackupUtilityCore.Tasks
                     }
                 }
 
-                // Perform any clean-up
-                PerformPostBackup();
-
                 AddToLog("COMPLETE", $"Backed up {backupCount} files");
             }
 
             return backupCount;
         }
 
-        protected virtual void PerformPreBackup()
+        protected virtual int PerformBackup()
         {
-            //...
-        }
+            string targetDir = BackupSettings.TargetDirectory;
 
-        protected virtual void PerformPostBackup()
-        {
-            //...
-        }
+            AddToLog("Target DIR", targetDir);
 
-        /// <summary>
-        /// Gets the default location for backups.
-        /// </summary>
-        /// <returns>Target path of backup.</returns>
-        protected virtual string GetBackupLocation()
-        {
-            return BackupSettings.TargetDirectory;
+            // Check target directory
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            int backupCount = 0;
+
+            // Backup each source directory
+            foreach (string source in BackupSettings.SourceDirectories)
+            {
+                AddToLog("Source DIR", source);
+
+                backupCount += BackupDirectory(source, targetDir);
+            }
+
+            return backupCount;
         }
 
         protected void AddToLog(string message)
@@ -174,27 +165,89 @@ namespace BackupUtilityCore.Tasks
                 // Remove root path
                 string sourceSubDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
 
-                backupCount = BackupFiles(sourceSubDir, sourceDirInfo, targetDirInfo);
+                backupCount = CopyFiles(sourceSubDir, sourceDirInfo, targetDirInfo);
             }
 
             return backupCount;
         }
 
         /// <summary>
-        /// (Pure/Abstract method - must override.)
+        /// Copies directory from source to target.
         /// </summary>
-        /// <param name="sourceSubDir"></param>
-        /// <param name="sourceDirInfo"></param>
-        /// <param name="targetDirInfo"></param>
+        /// <param name="sourceSubDir">Sub directory of source being backed-up</param>
+        /// <param name="sourceDirInfo">Source directory to copy</param>
+        /// <param name="targetDirInfo">Target directory where backup is to take place</param>
         /// <returns>Number of files backed up</returns>
-        protected abstract int BackupFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo);
+        protected int CopyFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
+        {
+            int backupCount = 0;
+
+            // Files in a hidden directory considered hidden.
+            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
+            {
+                AddToLog("Backing up DIR", sourceDirInfo.FullName);
+
+                // Get qualifying files only
+                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+
+                // Reset error count between each directory
+                int errorCount = 0;
+
+                // Copy each file
+                foreach (string file in files)
+                {
+                    BackupResult result = CopyFile(file, sourceSubDir, targetDirInfo);
+
+                    switch (result)
+                    {
+                        case BackupResult.OK:
+                            // Keep track of (new) files backed up
+                            backupCount++;
+                            break;
+
+                        case BackupResult.AlreadyBackedUp:
+                        case BackupResult.Ineligible:
+                            // Do nothing
+                            break;
+
+                        default:
+
+                            BackupErrorInfo errorInfo = new BackupErrorInfo(result)
+                            {
+                                Filename = file,
+                                SourceSubDir = sourceSubDir,
+                                TargetDirInfo = targetDirInfo
+                            };
+
+                            // Add to list for retry
+                            backupErrors.Add(errorInfo);
+
+                            // Abort on high error count
+                            if (++errorCount > 3)
+                            {
+                                throw new Exception("Backup aborted due to excessive errors");
+                            }
+
+                            break;
+                    }
+                }
+
+                // Recursive call for sub directories
+                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
+                {
+                    backupCount += CopyFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
+                }
+            }
+
+            return backupCount;
+        }
 
         /// <summary>
         /// Copies file to target directory.
         /// </summary>
         /// <param name="filename">Name of file to back up</param>
         /// <param name="sourceSubDir">Sub directory of source being backed-up</param>
-        /// <param name="targetDirInfo">Target directory where backup to take place</param>
+        /// <param name="targetDirInfo">Target directory where backup is to take place</param>
         /// <returns>Result of backup attempt</returns>
         protected BackupResult CopyFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo)
         {

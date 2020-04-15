@@ -13,10 +13,38 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private const string DirDateFormat = "yyyy-MM-dd HHmmss";
 
+        protected override int PerformBackup()
+        {
+            string targetDir = GetBackupLocation();
+
+            AddToLog("Target DIR", targetDir);
+
+            // Delete old backups first before backup - free up space.
+            DeleteOldBackups();
+
+            // Check target directory
+            if (!Directory.Exists(targetDir))
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            int backupCount = 0;
+
+            // Backup each source directory
+            foreach (string source in BackupSettings.SourceDirectories)
+            {
+                AddToLog("Source DIR", source);
+
+                backupCount += BackupDirectory(source, targetDir);
+            }
+
+            return backupCount;
+        }
+
         /// <summary>
         /// Task creates a separate directory for each backup.
         /// </summary>
-        protected override string GetBackupLocation()
+        private string GetBackupLocation()
         {
             // Get original target root
             string targetRoot = BackupSettings.TargetDirectory;
@@ -34,16 +62,6 @@ namespace BackupUtilityCore.Tasks
             }
 
             return targetPath;
-        }
-
-        /// <summary>
-        /// Delete old backups first before backup - create space.
-        /// </summary>
-        protected override void PerformPreBackup()
-        {
-            DeleteOldBackups();
-
-            base.PerformPreBackup();
         }
 
         private void DeleteOldBackups()
