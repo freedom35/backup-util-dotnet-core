@@ -240,7 +240,7 @@ namespace BackupUtilityTest
 
             Assert.IsTrue(settings.IsFileExcluded("readme.txt"));
             Assert.IsTrue(settings.IsFileExcluded("README.MD"));
-            
+
             Assert.IsFalse(settings.IsFileExcluded("Program.cs"));
         }
 

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using BackupUtilityCore.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
-using BackupUtilityCore.Tasks;
 
 namespace BackupUtilityCore
 {
@@ -201,7 +200,7 @@ namespace BackupUtilityCore
             {
                 // Create backup object
                 BackupTaskBase backupTask = CreateBackupTask(backupSettings.BackupType);
-                                
+
                 // Add handler for output
                 backupTask.Log += AddToLog;
 

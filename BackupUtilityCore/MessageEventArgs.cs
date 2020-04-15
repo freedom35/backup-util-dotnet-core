@@ -11,7 +11,6 @@ namespace BackupUtilityCore
         {
             Message = message;
             Arg = messageArg;
-            
         }
 
         public string Message
