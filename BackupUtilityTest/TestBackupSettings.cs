@@ -1,0 +1,286 @@
+﻿using BackupUtilityCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace BackupUtilityTest
+{
+    [TestClass]
+    public sealed class TestBackupSettings
+    {
+        [TestMethod]
+        public void TestBackupTypeProp()
+        {
+            BackupType type = BackupType.Sync;
+
+            BackupSettings settings = new BackupSettings()
+            {
+                BackupType = type
+            };
+
+            Assert.AreEqual(type, settings.BackupType);
+
+            // Change and re-test
+            type = BackupType.Copy;
+            settings.BackupType = type;
+            Assert.AreEqual(type, settings.BackupType);
+        }
+
+        [TestMethod]
+        public void TestSourceDirectoriesProp()
+        {
+            string[] dirs = new string[]
+            {
+                "dir1",
+                "dir2"
+            };
+
+            BackupSettings settings = new BackupSettings()
+            {
+                SourceDirectories = dirs
+            };
+
+            Assert.IsNotNull(settings.SourceDirectories);
+            Assert.AreEqual(dirs.Length, settings.SourceDirectories.Length);
+
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                Assert.AreEqual(dirs[i], settings.SourceDirectories[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestTargetDirectoryProp()
+        {
+            string dir = "directory_name1";
+
+            BackupSettings settings = new BackupSettings()
+            {
+                TargetDirectory = dir
+            };
+
+            Assert.AreEqual(dir, settings.TargetDirectory);
+
+            // Change and re-test
+            dir = "directory_name2";
+            settings.TargetDirectory = dir;
+            Assert.AreEqual(dir, settings.TargetDirectory);
+        }
+
+        [TestMethod]
+        public void TestExcludedDirectoriesProp()
+        {
+            string[] dirs = new string[]
+            {
+                "Dir1",
+                "Dir2"
+            };
+
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedDirectories = dirs
+            };
+
+            Assert.IsNotNull(settings.ExcludedDirectories);
+            Assert.AreEqual(dirs.Length, settings.ExcludedDirectories.Length);
+
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                // Property converts to lowercase
+                Assert.AreEqual(dirs[i].ToLower(), settings.ExcludedDirectories[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestHasExcludedDirectoriesProp()
+        {
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedDirectories = new string[0]
+            };
+
+            Assert.IsFalse(settings.HasExcludedDirectories);
+
+            // Assign some directories
+            settings.ExcludedDirectories = new string[]
+            {
+                "Dir1",
+                "Dir2"
+            };
+
+            Assert.IsTrue(settings.HasExcludedDirectories);
+        }
+
+        [TestMethod]
+        public void TestExcludedFileTypesProp()
+        {
+            string[] types = new string[]
+            {
+                "txt",
+                "exe",
+                ".jpg"
+            };
+
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedFileTypes = types
+            };
+
+            Assert.IsNotNull(settings.ExcludedFileTypes);
+            Assert.AreEqual(types.Length, settings.ExcludedFileTypes.Length);
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                // Property converts to lowercase and strips '.'
+                Assert.AreEqual(types[i].ToLower().TrimStart('.'), settings.ExcludedFileTypes[i]);
+            }
+        }
+
+        [TestMethod]
+        public void TestHasExcludedFileTypesProp()
+        {
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedFileTypes = new string[0]
+            };
+
+            Assert.IsFalse(settings.HasExcludedFileTypes);
+
+            // Assign some files
+            settings.ExcludedFileTypes = new string[]
+            {
+                "md",
+                "bmp"
+            };
+
+            Assert.IsTrue(settings.HasExcludedFileTypes);
+        }
+
+        [TestMethod]
+        public void TestIgnoreHiddenFilesProp()
+        {
+            bool ignore = false;
+
+            BackupSettings settings = new BackupSettings()
+            {
+                IgnoreHiddenFiles = ignore
+            };
+
+            Assert.AreEqual(ignore, settings.IgnoreHiddenFiles);
+
+            // Change and re-test
+            ignore = !ignore;
+            settings.IgnoreHiddenFiles = ignore;
+            Assert.AreEqual(ignore, settings.IgnoreHiddenFiles);
+        }
+
+        [TestMethod]
+        public void TestMaxIsolationDaysProp()
+        {
+            int age = 30;
+
+            BackupSettings settings = new BackupSettings()
+            {
+                MaxIsololationDays = age
+            };
+
+            Assert.AreEqual(age, settings.MaxIsololationDays);
+
+            // Change and re-test
+            age = 45;
+            settings.MaxIsololationDays = age;
+            Assert.AreEqual(age, settings.MaxIsololationDays);
+        }
+
+        [TestMethod]
+        public void TestValidProp()
+        {
+            BackupSettings settings = new BackupSettings();
+
+            Assert.IsFalse(settings.Valid);
+
+            settings.TargetDirectory = "dir1";
+
+            Assert.IsFalse(settings.Valid);
+
+            settings.SourceDirectories = new string[] { "dir2" };
+
+            Assert.IsFalse(settings.Valid);
+
+            settings.BackupType = BackupType.Copy;
+
+            // All requirements now set
+            Assert.IsTrue(settings.Valid);
+
+            settings.TargetDirectory = "";
+
+            Assert.IsFalse(settings.Valid);
+
+            settings.TargetDirectory = "dir3";
+
+            Assert.IsTrue(settings.Valid);
+
+            settings.SourceDirectories = null;
+
+            Assert.IsFalse(settings.Valid);
+        }
+
+        [TestMethod]
+        public void TestIsFileExcludedMethod()
+        {
+            string[] types = new string[]
+            {
+                "txt",
+                "md",
+                ".jpg"
+            };
+
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedFileTypes = types
+            };
+
+            Assert.IsTrue(settings.IsFileExcluded("readme.txt"));
+            Assert.IsTrue(settings.IsFileExcluded("README.MD"));
+
+            Assert.IsFalse(settings.IsFileExcluded("Program.cs"));
+        }
+
+        [TestMethod]
+        public void TestIsDirectoryExcludedMethod()
+        {
+            string[] dirs = new string[]
+            {
+                "git",
+                "vs",
+                "release"
+            };
+
+            BackupSettings settings = new BackupSettings()
+            {
+                ExcludedDirectories = dirs
+            };
+
+            Assert.IsTrue(settings.IsDirectoryExcluded("git"));
+            Assert.IsTrue(settings.IsDirectoryExcluded("RELEASE"));
+
+            Assert.IsFalse(settings.IsDirectoryExcluded("bin"));
+        }
+
+        [TestMethod]
+        public void TestGetInvalidSettingsMethod()
+        {
+            BackupSettings settings = new BackupSettings();
+
+            // Critical settings not valid by default
+            Assert.AreEqual(3, settings.GetInvalidSettings().Count);
+
+            settings.BackupType = BackupType.Copy;
+            Assert.AreEqual(2, settings.GetInvalidSettings().Count);
+
+            settings.TargetDirectory = "dir1";
+            Assert.AreEqual(1, settings.GetInvalidSettings().Count);
+
+            settings.SourceDirectories = new string[] { "dir2" };
+            Assert.AreEqual(0, settings.GetInvalidSettings().Count);
+        }
+    }
+}
