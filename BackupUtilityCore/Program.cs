@@ -33,6 +33,7 @@ namespace BackupUtilityCore
                     type = CommandLineArgType.Unknown;
                 }
 
+                // Execute command
                 switch (type)
                 {
                     case CommandLineArgType.Help:
@@ -46,29 +47,11 @@ namespace BackupUtilityCore
                         break;
 
                     case CommandLineArgType.CreateConfig:
-                        if (!string.IsNullOrEmpty(fileArg))
-                        {
-                            returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
-                        }
-                        else
-                        {
-                            // Config file arg missing
-                            DisplayHelp();
-                            returnCode = ReturnError;
-                        }
+                        returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
                         break;
-
+                        
                     case CommandLineArgType.ExecuteBackup:
-                        if (!string.IsNullOrEmpty(fileArg))
-                        {
-                            returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
-                        }
-                        else
-                        {
-                            // Config file arg missing
-                            DisplayHelp();
-                            returnCode = ReturnError;
-                        }
+                        returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
                         break;
 
                     default:

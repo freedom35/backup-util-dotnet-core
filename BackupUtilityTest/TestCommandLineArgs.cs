@@ -80,18 +80,20 @@ namespace BackupUtilityTest
         }
 
         [DataRow("-h", true, CommandLineArgType.Help, "")]
+        [DataRow("-h -r", false, CommandLineArgType.Help, "")]
         [DataRow("-v", true, CommandLineArgType.Version, "")]
+        [DataRow("-v -u", false, CommandLineArgType.Version, "")]
         [DataRow("-c", false, CommandLineArgType.CreateConfig, "")]
         [DataRow("-c config1.yaml", true, CommandLineArgType.CreateConfig, "config1.yaml")]
-        [DataRow("config1.yaml -c", true, CommandLineArgType.CreateConfig, "config1.yaml")]
         [DataRow("-r", false, CommandLineArgType.ExecuteBackup, "")]
         [DataRow("-r config2.yaml", true, CommandLineArgType.ExecuteBackup, "config2.yaml")]
-        [DataRow("config2.yaml -r", true, CommandLineArgType.ExecuteBackup, "config2.yaml")]
-        [DataRow("-u", false, CommandLineArgType.Unknown, "")]
         [DataRow("-r config2.yaml -r", false, CommandLineArgType.ExecuteBackup, "config2.yaml")]
         [DataRow("-r config1.yaml config2.yaml", false, CommandLineArgType.ExecuteBackup, "config1.yaml")]
-        [DataRow("-h -r", false, CommandLineArgType.Help, "")]
-        [DataRow("just a bunch of junk", false, CommandLineArgType.Unknown, "just")]
+        [DataRow("config1.yaml -c", false, CommandLineArgType.Unknown, "")]
+        [DataRow("config2.yaml -r", false, CommandLineArgType.Unknown, "")]
+        [DataRow("-u", false, CommandLineArgType.Unknown, "")]
+        [DataRow("just a bunch of junk", false, CommandLineArgType.Unknown, "a")]
+        [DataRow("", false, CommandLineArgType.Unknown, "")]
         [DataTestMethod]
         public void TestTryParseArgs(string argsAsString, bool parseValid, CommandLineArgType correctType, string correctFileArg)
         {

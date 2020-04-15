@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace BackupUtilityCore
@@ -14,43 +15,21 @@ namespace BackupUtilityCore
         /// <returns>true if parse is valid</returns>
         public static bool TryParseArgs(string[] args, out CommandLineArgType commandType, out string fileArg)
         {
-            // Method responsible for initializing out params
-            commandType = CommandLineArgType.Unknown;
-            fileArg = "";
+            // First arg is command
+            commandType = GetArgType(args.ElementAtOrDefault(0) ?? "");
 
-            // Support any order of args
-            for (int i = 0; i < args.Length; i++)
+            // Optional filename arg
+            string filename = args.ElementAtOrDefault(1);
+
+            // Check for value, and not a rogue command
+            if (!string.IsNullOrEmpty(filename) && !filename.StartsWith('-'))
             {
-                CommandLineArgType tempType = GetArgType(args[i]);
-
-                if (tempType == CommandLineArgType.Unknown)
-                {
-                    // Check if rogue command or filename
-                    if (args[i].StartsWith('-'))
-                    {
-                        // Abort
-                        commandType = CommandLineArgType.Unknown;
-                        break;
-                    }
-                    else if (string.IsNullOrEmpty(fileArg))
-                    {
-                        fileArg = args[i];
-                    }
-                    else
-                    {
-                        // Already assigned filename (too many params)
-                        break;
-                    }
-                }
-                else if (commandType == CommandLineArgType.Unknown)
-                {
-                    commandType = tempType;
-                }
-                else
-                {
-                    // Multiple commands - abort
-                    break;
-                }
+                fileArg = filename;
+            }
+            else
+            {
+                // Method responsible for initializing to something
+                fileArg = "";
             }
 
             // Validate parse
