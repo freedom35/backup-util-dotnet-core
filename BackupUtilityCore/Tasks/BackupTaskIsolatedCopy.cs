@@ -8,5 +8,11 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
+        protected override BackupResult BackupFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo)
+        {
+            int _ = BackupSettings.MaxIsololationDays;
+
+            return base.BackupFile(filename, sourceSubDir, targetDirInfo);
+        }
     }
 }
