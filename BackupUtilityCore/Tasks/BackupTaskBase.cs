@@ -98,7 +98,7 @@ namespace BackupUtilityCore.Tasks
 
                     foreach (BackupErrorInfo retryError in retryGroup)
                     {
-                        AddToLog($"{retryError.Filename}");
+                        AddToLog($"{retryError.SourceFile}");
                     }
                 }
 
@@ -187,6 +187,9 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
+                // Get target path
+                string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
+
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
@@ -196,7 +199,7 @@ namespace BackupUtilityCore.Tasks
                 // Copy each file
                 foreach (string file in files)
                 {
-                    BackupResult result = CopyFile(file, sourceSubDir, targetDirInfo);
+                    BackupResult result = CopyFile(file, targetDir);
 
                     switch (result)
                     {
@@ -211,16 +214,8 @@ namespace BackupUtilityCore.Tasks
                             break;
 
                         default:
-
-                            BackupErrorInfo errorInfo = new BackupErrorInfo(result)
-                            {
-                                Filename = file,
-                                SourceSubDir = sourceSubDir,
-                                TargetDirInfo = targetDirInfo
-                            };
-
-                            // Add to list for retry
-                            backupErrors.Add(errorInfo);
+                            // Add file to list for retry
+                            backupErrors.Add(new BackupErrorInfo(result, file, targetDir));
 
                             // Abort on high error count
                             if (++errorCount > 3)
@@ -246,18 +241,13 @@ namespace BackupUtilityCore.Tasks
         /// Copies file to target directory.
         /// </summary>
         /// <param name="filename">Name of file to back up</param>
-        /// <param name="sourceSubDir">Sub directory of source being backed-up</param>
-        /// <param name="targetDirInfo">Target directory where backup is to take place</param>
+        /// <param name="targetDir">Target directory where backup is to take place</param>
         /// <returns>Result of backup attempt</returns>
-        protected BackupResult CopyFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo)
+        protected BackupResult CopyFile(string filename, string targetDir)
         {
             BackupResult result;
 
             FileInfo sourceFileInfo = new FileInfo(filename);
-
-            // Get target path
-            string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
-            string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
             // Check whether file eligible
             if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
@@ -270,6 +260,8 @@ namespace BackupUtilityCore.Tasks
             }
             else
             {
+                string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
+
                 FileInfo targetFileInfo = new FileInfo(targetPath);
 
                 // Check whether file previously backed up (and not changed)
@@ -365,7 +357,7 @@ namespace BackupUtilityCore.Tasks
                         BackupErrorInfo errorInfo = retryErrors[0];
 
                         // Retry backup
-                        if (CopyFile(errorInfo.Filename, errorInfo.SourceSubDir, errorInfo.TargetDirInfo) == BackupResult.OK)
+                        if (CopyFile(errorInfo.SourceFile, errorInfo.TargetDir) == BackupResult.OK)
                         {
                             // Success
                             backupCount++;
