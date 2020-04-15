@@ -1,79 +1,72 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace BackupUtilityCore.Tasks
 {
     public class BackupTaskCopy : BackupTaskBase
     {
-        protected override BackupResult BackupFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo)
+        protected override int BackupFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
-            BackupResult result;
+            int backupCount = 0;
 
-            FileInfo sourceFileInfo = new FileInfo(filename);
-
-            // Get target path
-            string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
-            string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
-
-            // Check whether file eligible
-            if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
+            // Files in a hidden directory considered hidden.
+            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                result = BackupResult.Ineligible;
-            }
-            else if ((DateTime.UtcNow - sourceFileInfo.LastWriteTimeUtc).TotalMilliseconds < 500)
-            {
-                result = BackupResult.WriteInProgress;
-            }
-            else
-            {
-                FileInfo targetFileInfo = new FileInfo(targetPath);
+                AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
-                // Check whether file previously backed up (and not changed)
-                if (targetFileInfo.Exists && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
+                // Get qualifying files only
+                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+
+                // Reset error count between each directory
+                int errorCount = 0;
+
+                foreach (string file in files)
                 {
-                    result = BackupResult.AlreadyBackedUp;
+                    BackupResult result = CopyFile(file, sourceSubDir, targetDirInfo);
+
+                    switch (result)
+                    {
+                        case BackupResult.OK:
+                            // Keep track of (new) files backed up
+                            backupCount++;
+                            break;
+
+                        case BackupResult.AlreadyBackedUp:
+                        case BackupResult.Ineligible:
+                            // Do nothing
+                            break;
+
+                        default:
+
+                            BackupErrorInfo errorInfo = new BackupErrorInfo(result)
+                            {
+                                Filename = file,
+                                SourceSubDir = sourceSubDir,
+                                TargetDirInfo = targetDirInfo
+                            };
+
+                            // Add to list for retry
+                            backupErrors.Add(errorInfo);
+
+                            // Abort on high error count
+                            if (++errorCount > 3)
+                            {
+                                throw new Exception("Backup aborted due to excessive errors");
+                            }
+
+                            break;
+                    }
                 }
-                else
+
+                // Recursive call for sub directories
+                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
                 {
-                    AddToLog("Backing up file", sourceFileInfo.FullName);
-
-                    try
-                    {
-                        // Check target directory
-                        if (!targetFileInfo.Directory.Exists)
-                        {
-                            targetFileInfo.Directory.Create();
-                        }
-                        else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
-                        {
-                            // Modify attributes - ensure can overwrite it.
-                            targetFileInfo.Attributes &= ~FileAttributes.ReadOnly;
-                        }
-
-                        // Backup file
-                        sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
-
-                        // Confirm backed up
-                        result = BackupResult.OK;
-                    }
-                    catch (PathTooLongException pe)
-                    {
-                        AddToLog("PATH ERROR", pe.Message);
-
-                        // Max length will vary by OS and environment settings.
-                        result = BackupResult.PathTooLong;
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("I/O ERROR", ie.Message);
-
-                        // File may be locked or in-use by another process
-                        result = BackupResult.Exception;
-                    }
+                    backupCount += BackupFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
                 }
             }
 
-            return result;
+            return backupCount;
         }
     }
 }

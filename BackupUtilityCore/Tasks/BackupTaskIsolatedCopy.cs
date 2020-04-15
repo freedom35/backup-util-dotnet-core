@@ -7,11 +7,15 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
-        protected override BackupResult BackupFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo)
+        
+
+        protected override int BackupFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
             int _ = BackupSettings.MaxIsololationDays;
 
-            return base.BackupFile(filename, sourceSubDir, targetDirInfo);
+            // Delete old backups
+
+            return base.BackupFiles(sourceSubDir, sourceDirInfo, targetDirInfo);
         }
     }
 }
