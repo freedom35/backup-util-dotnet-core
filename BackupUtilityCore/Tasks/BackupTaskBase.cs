@@ -69,7 +69,10 @@ namespace BackupUtilityCore.Tasks
         public int Execute(BackupSettings backupSettings)
         {
             // Update property value
-            this.BackupSettings = backupSettings;
+            BackupSettings = backupSettings;
+
+            // Ensure reset
+            backupErrors.Clear();
 
             int backupCount = 0;
 
@@ -80,14 +83,14 @@ namespace BackupUtilityCore.Tasks
 
                 AddToLog("Target DIR", targetDir);
 
+                // Perform any prep work
+                PerformPreBackup();
+
                 // Check target directory
                 if (!Directory.Exists(targetDir))
                 {
                     Directory.CreateDirectory(targetDir);
                 }
-
-                // Ensure reset
-                backupErrors.Clear();
 
                 // Backup each source directory
                 foreach (string source in BackupSettings.SourceDirectories)
@@ -111,10 +114,23 @@ namespace BackupUtilityCore.Tasks
                     }
                 }
 
+                // Perform any clean-up
+                PerformPostBackup();
+
                 AddToLog("COMPLETE", $"Backed up {backupCount} files");
             }
 
             return backupCount;
+        }
+
+        protected virtual void PerformPreBackup()
+        {
+            //...
+        }
+
+        protected virtual void PerformPostBackup()
+        {
+            //...
         }
 
         /// <summary>
