@@ -7,8 +7,13 @@
 # *** CHECK DEFAULT DIRECTORIES BEFORE RUNNING ***
 
 
-# Backup type (Copy or Sync)
+# Backup type (Copy/Sync/Isolated)
 backup_type: copy
+
+
+# Max number of days to keep backups when using 'isolated' backup type 
+# (zero for no limit)
+max_isolation_days: 0
 
 
 # Hidden files

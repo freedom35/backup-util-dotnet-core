@@ -129,14 +129,14 @@ namespace BackupUtilityCore
         } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to keep a recent version for rollback.
+        /// Gets or sets the max number of days to keep isolated backups.
         /// </summary>
-        /// <value><c>true</c> if keep rollback version; otherwise, <c>false</c>.</value>
-        public bool KeepRollbackVersion
+        /// <value>Number of days.</value>
+        public int MaxIsololationDays
         {
-            get;    // Keep in separate sub dir so not all mixed in - pain for recovery?
-            set;    // Keep files from day before
-        } = false;
+            get;
+            set;
+        } = 0;
 
         /// <summary>
         /// Determines whether the current settings are valid.
@@ -191,14 +191,14 @@ namespace BackupUtilityCore
             // Check key/values for expected settings
             ///////////////////////////////////////////
 
-            if (keyValuePairs.TryGetValue("backup_type", out object configBackupType) && Enum.TryParse(configBackupType.ToString(), out BackupType type))
+            if (keyValuePairs.TryGetValue("backup_type", out object configBackupType) && Enum.TryParse(configBackupType.ToString(), true, out BackupType type))
             {
                 settings.BackupType = type;
             }
 
-            if (keyValuePairs.TryGetValue("target_dir", out object targetDir))
+            if (keyValuePairs.TryGetValue("target_dir", out object targetDir) && targetDir is string targetDirAsString)
             {
-                settings.TargetDirectory = targetDir as string;
+                settings.TargetDirectory = targetDirAsString;
             }
 
             if (keyValuePairs.TryGetValue("source_dirs", out object sourceDirs))
@@ -219,9 +219,15 @@ namespace BackupUtilityCore
             }
 
             // Optional
-            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString(), out bool ignore))
+            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString().ToLower(), out bool ignore))
             {
                 settings.IgnoreHiddenFiles = ignore;
+            }
+
+            // Used for isolated backup type
+            if (keyValuePairs.TryGetValue("max_isolation_days", out object daysAsString) && int.TryParse(daysAsString.ToString(), out int daysAsInt))
+            {
+                settings.MaxIsololationDays = daysAsInt;
             }
 
             return settings;

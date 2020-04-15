@@ -22,6 +22,6 @@ namespace BackupUtilityCore
         /// Individual backups, separate copies.
         /// (New backup directory created for each copy.)
         /// </summary>
-        Individual = 3
+        Isolated = 3
     }
 }

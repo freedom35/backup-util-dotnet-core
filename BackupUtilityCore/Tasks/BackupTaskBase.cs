@@ -4,15 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace BackupUtilityCore
+namespace BackupUtilityCore.Tasks
 {
-    public sealed class BackupTask
+    public abstract class BackupTaskBase
     {
-        public BackupTask() : this(null)
+        public BackupTaskBase() : this(null)
         {
         }
 
-        public BackupTask(BackupSettings backupSettings)
+        public BackupTaskBase(BackupSettings backupSettings)
         {
             // Set property
             this.BackupSettings = backupSettings ?? default;
@@ -20,7 +20,7 @@ namespace BackupUtilityCore
 
         #region Members
 
-        private readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
+        protected readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
 
         #endregion
 
@@ -89,7 +89,9 @@ namespace BackupUtilityCore
                 // Backup each source directory
                 foreach (string source in backupSettings.SourceDirectories)
                 {
-                    backupCount += BackupDirectory(backupSettings.TargetDirectory, source);
+                    AddToLog("Source DIR", source);
+
+                    backupCount += BackupDirectory(source, backupSettings.TargetDirectory);
                 }
 
                 // Retry errors if possible (depends on issue)
@@ -105,27 +107,34 @@ namespace BackupUtilityCore
                         AddToLog($"{retryError.Filename}");
                     }
                 }
+
+                AddToLog("COMPLETE", $"Backed up {backupCount} files");
             }
 
             return backupCount;
         }
 
-        private void AddToLog(string message)
+        protected void AddToLog(string message)
         {
             AddToLog(message, "");
         }
 
-        private void AddToLog(string message, string arg)
+        protected void AddToLog(string message, string arg)
         {
             // Check event handled
             Log?.Invoke(this, new MessageEventArgs(message, arg));
         }
 
-        private int BackupDirectory(string targetDir, string sourceDir)
+        /// <summary>
+        /// Backs-up directory based on sub-class logic.
+        /// (Pure/Abstract - must override)
+        /// </summary>
+        /// <param name="targetDir">Root target directory</param>
+        /// <param name="sourceDir">Source directory</param>
+        /// <returns>Number of files backed up</returns>
+        private int BackupDirectory(string sourceDir, string targetDir)
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
-
-            AddToLog("Source DIR", sourceDir);
 
             int backupCount = 0;
 
@@ -135,30 +144,15 @@ namespace BackupUtilityCore
                 DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
                 // Remove root path
-                string rootDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
+                string sourceSubDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
 
-                switch (BackupSettings.BackupType)
-                {
-                    case BackupType.Copy:
-                        backupCount = CopyFiles(rootDir, sourceDirInfo, targetDirInfo);
-                        break;
-
-                    case BackupType.Sync:
-                        //...
-                        break;
-
-                    case BackupType.Individual:
-                        //...
-                        break;
-                }
+                backupCount = BackupFiles(sourceSubDir, sourceDirInfo, targetDirInfo);
             }
-
-            AddToLog("COMPLETE", $"Backed up {backupCount} files");
 
             return backupCount;
         }
 
-        private int CopyFiles(string rootDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
+        private int BackupFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
             int backupCount = 0;
 
@@ -175,7 +169,7 @@ namespace BackupUtilityCore
 
                 foreach (string file in files)
                 {
-                    BackupResult result = CopyFile(file, rootDir, targetDirInfo);
+                    BackupResult result = BackupFile(file, sourceSubDir, targetDirInfo);
 
                     switch (result)
                     {
@@ -194,7 +188,7 @@ namespace BackupUtilityCore
                             BackupErrorInfo errorInfo = new BackupErrorInfo(result)
                             {
                                 Filename = file,
-                                RootDir = rootDir,
+                                SourceSubDir = sourceSubDir,
                                 TargetDirInfo = targetDirInfo
                             };
 
@@ -214,83 +208,23 @@ namespace BackupUtilityCore
                 // Recursive call for sub directories
                 foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
                 {
-                    backupCount += CopyFiles(Path.Combine(rootDir, subDirInfo.Name), subDirInfo, targetDirInfo);
+                    backupCount += BackupFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
                 }
             }
 
             return backupCount;
         }
 
-        private BackupResult CopyFile(string filename, string rootDir, DirectoryInfo targetDirInfo)
-        {
-            BackupResult result;
+        /// <summary>
+        /// Backs-up file based on sub-class logic.
+        /// (Pure/Abstract - must override)
+        /// </summary>
+        /// <param name="filename">Name of file to back up</param>
+        /// <param name="sourceSubDir">Sub directory of source being backed-up</param>
+        /// <param name="targetDirInfo">Target directory where backup to take place</param>
+        /// <returns>Result of backup attempt</returns>
+        protected abstract BackupResult BackupFile(string filename, string sourceSubDir, DirectoryInfo targetDirInfo);
 
-            FileInfo sourceFileInfo = new FileInfo(filename);
-
-            // Get target path
-            string targetDir = Path.Combine(targetDirInfo.FullName, rootDir);
-            string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
-
-            // Check whether file eligible
-            if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
-            {
-                result = BackupResult.Ineligible;
-            }
-            else if ((DateTime.UtcNow - sourceFileInfo.LastWriteTimeUtc).TotalMilliseconds < 500)
-            {
-                result = BackupResult.WriteInProgress;
-            }
-            else
-            {
-                FileInfo targetFileInfo = new FileInfo(targetPath);
-
-                // Check whether file previously backed up (and not changed)
-                if (targetFileInfo.Exists && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
-                {
-                    result = BackupResult.AlreadyBackedUp;
-                }
-                else
-                {
-                    AddToLog("Backing up file", sourceFileInfo.FullName);
-
-                    try
-                    {
-                        // Check target directory
-                        if (!targetFileInfo.Directory.Exists)
-                        {
-                            targetFileInfo.Directory.Create();
-                        }
-                        else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
-                        {
-                            // Modify attributes - ensure can overwrite it.
-                            targetFileInfo.Attributes &= ~FileAttributes.ReadOnly;
-                        }
-
-                        // Backup file
-                        sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
-
-                        // Confirm backed up
-                        result = BackupResult.OK;
-                    }
-                    catch (PathTooLongException pe)
-                    {
-                        AddToLog("PATH ERROR", pe.Message);
-
-                        // Max length will vary by OS and environment settings.
-                        result = BackupResult.PathTooLong;
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("I/O ERROR", ie.Message);
-
-                        // File may be locked or in-use by another process
-                        result = BackupResult.Exception;
-                    }
-                }
-            }
-
-            return result;
-        }
 
         private int RetryErrors()
         {
@@ -322,7 +256,7 @@ namespace BackupUtilityCore
                         BackupErrorInfo errorInfo = retryErrors[0];
 
                         // Retry backup
-                        if (CopyFile(errorInfo.Filename, errorInfo.RootDir, errorInfo.TargetDirInfo) == BackupResult.OK)
+                        if (BackupFile(errorInfo.Filename, errorInfo.SourceSubDir, errorInfo.TargetDirInfo) == BackupResult.OK)
                         {
                             // Success
                             backupCount++;
