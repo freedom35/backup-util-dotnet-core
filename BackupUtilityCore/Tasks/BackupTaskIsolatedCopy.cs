@@ -35,7 +35,7 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog("Source DIR", source);
 
-                backupCount += BackupDirectory(source, targetDir);
+                backupCount += CopyDirectory(source, targetDir);
             }
 
             return backupCount;

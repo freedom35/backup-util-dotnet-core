@@ -31,7 +31,7 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Settings associated with backup task.
         /// </summary>
-        public BackupSettings BackupSettings
+        protected BackupSettings BackupSettings
         {
             get;
             set;
@@ -108,7 +108,7 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog("Source DIR", source);
 
-                backupCount += BackupDirectory(source, targetDir);
+                backupCount += CopyDirectory(source, targetDir);
             }
 
             return backupCount;
@@ -126,13 +126,12 @@ namespace BackupUtilityCore.Tasks
         }
 
         /// <summary>
-        /// Backs-up directory based on sub-class logic.
-        /// (Pure/Abstract - must override)
+        /// Copies directory from source to target.
         /// </summary>
         /// <param name="targetDir">Root target directory</param>
         /// <param name="sourceDir">Source directory</param>
         /// <returns>Number of files backed up</returns>
-        protected int BackupDirectory(string sourceDir, string targetDir)
+        protected int CopyDirectory(string sourceDir, string targetDir)
         {
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
