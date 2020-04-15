@@ -115,7 +115,7 @@ namespace BackupUtilityCore
         /// <value><c>true</c> if has excluded file types; otherwise, <c>false</c>.</value>
         public bool HasExcludedFileTypes
         {
-            get => IgnoreHiddenFiles || excludedFileTypes?.Length > 0;
+            get => excludedFileTypes?.Length > 0;
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace BackupUtilityCore
         /// <summary>
         /// Determines whether the current settings are valid.
         /// </summary>
-        /// <value><c>true</c> if valid; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if valid, otherwise <c>false</c>.</value>
         public bool Valid
         {
             get => GetInvalidSettings().Count == 0;
@@ -159,21 +159,30 @@ namespace BackupUtilityCore
 
         #endregion
 
-        public bool IsFileExcluded(string fileName)
+        /// <summary>
+        /// Checks whether a file is excluded from backup.
+        /// </summary>
+        /// <param name="filename">Name of file to check</param>
+        /// <returns>true if excluded</returns>
+        public bool IsFileExcluded(string filename)
         {
-            // Check whether any specific files or file typesare excluded.
-            return !HasExcludedFileTypes || ExcludedFileTypes.Contains(System.IO.Path.GetExtension(fileName.ToLower()));
+            return excludedFileTypes?.Contains(System.IO.Path.GetExtension(filename).TrimStart('.').ToLower()) == true;
         }
 
+        /// <summary>
+        /// Checks whether a directory is excluded from backup.
+        /// </summary>
+        /// <param name="directoryName">Name of directory to check</param>
+        /// <returns>true if excluded</returns>
         public bool IsDirectoryExcluded(string directoryName)
         {
-            return !HasExcludedDirectories || ExcludedDirectories.Contains(directoryName.ToLower());
+            return excludedDirectories?.Contains(directoryName.ToLower()) == true;
         }
 
         /// <summary>
         /// Basic YAML parser for backup settings.
         /// </summary>
-        /// <param name="settingsPath">Path of config file.</param>
+        /// <param name="settingsPath">Path of config file</param>
         /// <returns>BackupSettings object</returns>
         public static BackupSettings ParseFromYaml(string settingsPath)
         {
