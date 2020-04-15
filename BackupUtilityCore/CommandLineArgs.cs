@@ -6,6 +6,101 @@ namespace BackupUtilityCore
     public static class CommandLineArgs
     {
         /// <summary>
+        /// Attempts to parses command line args and returns command type.
+        /// </summary>
+        /// <param name="args">Args to parse</param>
+        /// <param name="commandType">Parsed command type</param>
+        /// <param name="fileArg">Parsed filename (optional arg)</param>
+        /// <returns>true if parse is valid</returns>
+        public static bool TryParseArgs(string[] args, out CommandLineArgType commandType, out string fileArg)
+        {
+            // Method responsible for initializing out params
+            commandType = CommandLineArgType.Unknown;
+            fileArg = "";
+
+            // Support any order of args
+            for (int i = 0; i < args.Length; i++)
+            {
+                CommandLineArgType tempType = GetArgType(args[i]);
+
+                if (tempType == CommandLineArgType.Unknown)
+                {
+                    // Check if rogue command or filename
+                    if (args[i].StartsWith('-'))
+                    {
+                        // Abort
+                        commandType = CommandLineArgType.Unknown;
+                        break;
+                    }
+                    else if (string.IsNullOrEmpty(fileArg))
+                    {
+                        fileArg = args[i];
+                    }
+                    else
+                    {
+                        // Already assigned filename (too many params)
+                        break;
+                    }
+                }
+                else if (commandType == CommandLineArgType.Unknown)
+                {
+                    commandType = tempType;
+                }
+                else
+                {
+                    // Multiple commands - abort
+                    break;
+                }
+            }
+
+            // Validate parse
+            switch (commandType)
+            {
+                case CommandLineArgType.CreateConfig:
+                case CommandLineArgType.ExecuteBackup:
+                    return args.Length == 2 && !string.IsNullOrEmpty(fileArg);
+
+                case CommandLineArgType.Help:
+                case CommandLineArgType.Version:
+                    return args.Length == 1;
+
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines type of command line arg.
+        /// </summary>
+        public static CommandLineArgType GetArgType(string arg)
+        {
+            CommandLineArgType type;
+
+            if (IsHelpArg(arg))
+            {
+                type = CommandLineArgType.Help;
+            }
+            else if (IsVersionArg(arg))
+            {
+                type = CommandLineArgType.Version;
+            }
+            else if (IsCreateConfigArg(arg))
+            {
+                type = CommandLineArgType.CreateConfig;
+            }
+            else if (IsExecuteArg(arg))
+            {
+                type = CommandLineArgType.ExecuteBackup;
+            }
+            else
+            {
+                type = CommandLineArgType.Unknown;
+            }
+
+            return type;
+        }
+
+        /// <summary>
         /// Determines whether argument is requesting help.
         /// </summary>
         public static bool IsHelpArg(string arg)
