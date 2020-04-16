@@ -161,8 +161,6 @@ namespace BackupUtilityCore.Tasks
         /// <returns>Number of files backed up</returns>
         protected int CopyFiles(string sourceSubDir, DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
-            int backupCount = 0;
-
             AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
             // Get target path
@@ -170,6 +168,22 @@ namespace BackupUtilityCore.Tasks
 
             // Get qualifying files only
             var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+
+            // Copy files in current directory
+            int backupCount = CopyFiles(files, targetDir);
+            
+            // Recursive call for sub directories
+            foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
+            {
+                backupCount += CopyFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
+            }
+
+            return backupCount;
+        }
+
+        protected int CopyFiles(IEnumerable<string> files, string targetDir)
+        {
+            int backupCount = 0;
 
             // Reset error count between each directory
             int errorCount = 0;
@@ -203,12 +217,6 @@ namespace BackupUtilityCore.Tasks
 
                         break;
                 }
-            }
-
-            // Recursive call for sub directories
-            foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
-            {
-                backupCount += CopyFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
             }
 
             return backupCount;
