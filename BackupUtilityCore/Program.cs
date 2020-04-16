@@ -49,7 +49,7 @@ namespace BackupUtilityCore
                     case CommandLineArgType.CreateConfig:
                         returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
                         break;
-                        
+
                     case CommandLineArgType.ExecuteBackup:
                         returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
                         break;
@@ -209,7 +209,7 @@ namespace BackupUtilityCore
                 try
                 {
                     // Execute backup
-                    int backupCount = backupTask.Execute(backupSettings);
+                    int backupCount = backupTask.Run(backupSettings);
 
                     // Report total
                     AddToLog($"Total files backed up: {backupCount}");
