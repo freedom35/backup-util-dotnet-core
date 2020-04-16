@@ -137,8 +137,9 @@ namespace BackupUtilityCore.Tasks
 
             int backupCount = 0;
 
-            // Check source exists
-            if (sourceDirInfo.Exists)
+            // Check source exists and whether hidden should be backup up.
+            // (Files within a hidden directory are also considered hidden.)
+            if (sourceDirInfo.Exists && (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0))
             {
                 DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
@@ -162,56 +163,52 @@ namespace BackupUtilityCore.Tasks
         {
             int backupCount = 0;
 
-            // Files in a hidden directory considered hidden.
-            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
+            AddToLog("Backing up DIR", sourceDirInfo.FullName);
+
+            // Get target path
+            string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
+
+            // Get qualifying files only
+            var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+
+            // Reset error count between each directory
+            int errorCount = 0;
+
+            // Copy each file
+            foreach (string file in files)
             {
-                AddToLog("Backing up DIR", sourceDirInfo.FullName);
+                BackupResult result = CopyFile(file, targetDir);
 
-                // Get target path
-                string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
-
-                // Get qualifying files only
-                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
-
-                // Reset error count between each directory
-                int errorCount = 0;
-
-                // Copy each file
-                foreach (string file in files)
+                switch (result)
                 {
-                    BackupResult result = CopyFile(file, targetDir);
+                    case BackupResult.OK:
+                        // Keep track of (new) files backed up
+                        backupCount++;
+                        break;
 
-                    switch (result)
-                    {
-                        case BackupResult.OK:
-                            // Keep track of (new) files backed up
-                            backupCount++;
-                            break;
+                    case BackupResult.AlreadyBackedUp:
+                    case BackupResult.Ineligible:
+                        // Do nothing
+                        break;
 
-                        case BackupResult.AlreadyBackedUp:
-                        case BackupResult.Ineligible:
-                            // Do nothing
-                            break;
+                    default:
+                        // Add file to list for retry
+                        backupErrors.Add(new BackupErrorInfo(result, file, targetDir));
 
-                        default:
-                            // Add file to list for retry
-                            backupErrors.Add(new BackupErrorInfo(result, file, targetDir));
+                        // Abort on high error count
+                        if (++errorCount > 3)
+                        {
+                            throw new Exception("Backup aborted due to excessive errors");
+                        }
 
-                            // Abort on high error count
-                            if (++errorCount > 3)
-                            {
-                                throw new Exception("Backup aborted due to excessive errors");
-                            }
-
-                            break;
-                    }
+                        break;
                 }
+            }
 
-                // Recursive call for sub directories
-                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
-                {
-                    backupCount += CopyFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
-                }
+            // Recursive call for sub directories
+            foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
+            {
+                backupCount += CopyFiles(Path.Combine(sourceSubDir, subDirInfo.Name), subDirInfo, targetDirInfo);
             }
 
             return backupCount;
