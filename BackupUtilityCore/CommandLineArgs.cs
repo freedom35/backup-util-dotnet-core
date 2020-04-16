@@ -1,10 +1,84 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 
 namespace BackupUtilityCore
 {
     public static class CommandLineArgs
     {
+        /// <summary>
+        /// Attempts to parses command line args and returns command type.
+        /// </summary>
+        /// <param name="args">Args to parse</param>
+        /// <param name="commandType">Parsed command type</param>
+        /// <param name="fileArg">Parsed filename (optional arg)</param>
+        /// <returns>true if parse is valid</returns>
+        public static bool TryParseArgs(string[] args, out CommandLineArgType commandType, out string fileArg)
+        {
+            // First arg is command
+            commandType = GetArgType(args.ElementAtOrDefault(0) ?? "");
+
+            // Optional filename arg
+            string filename = args.ElementAtOrDefault(1);
+
+            // Check for value, and not a rogue command
+            if (!string.IsNullOrEmpty(filename) && !filename.StartsWith('-'))
+            {
+                fileArg = filename;
+            }
+            else
+            {
+                // Method responsible for initializing to something
+                fileArg = "";
+            }
+
+            // Validate parse
+            switch (commandType)
+            {
+                case CommandLineArgType.CreateConfig:
+                case CommandLineArgType.ExecuteBackup:
+                    return args.Length == 2 && !string.IsNullOrEmpty(fileArg);
+
+                case CommandLineArgType.Help:
+                case CommandLineArgType.Version:
+                    return args.Length == 1;
+
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Determines type of command line arg.
+        /// </summary>
+        public static CommandLineArgType GetArgType(string arg)
+        {
+            CommandLineArgType type;
+
+            if (IsHelpArg(arg))
+            {
+                type = CommandLineArgType.Help;
+            }
+            else if (IsVersionArg(arg))
+            {
+                type = CommandLineArgType.Version;
+            }
+            else if (IsCreateConfigArg(arg))
+            {
+                type = CommandLineArgType.CreateConfig;
+            }
+            else if (IsExecuteArg(arg))
+            {
+                type = CommandLineArgType.ExecuteBackup;
+            }
+            else
+            {
+                type = CommandLineArgType.Unknown;
+            }
+
+            return type;
+        }
+
         /// <summary>
         /// Determines whether argument is requesting help.
         /// </summary>

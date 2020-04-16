@@ -1,47 +1,42 @@
-﻿using System;
-using System.IO;
-
-namespace BackupUtilityCore
+﻿namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Information on backup error.
+    /// </summary>
     public sealed class BackupErrorInfo
     {
-        public BackupErrorInfo(BackupResult result)
+        public BackupErrorInfo(BackupResult result, string sourceFile, string targetDir)
         {
             Result = result;
+            SourceFile = sourceFile;
+            TargetDir = targetDir;
         }
 
+        /// <summary>
+        /// Result of backup attempt.
+        /// </summary>
         public BackupResult Result
         {
             get;
             private set;
         }
 
-        public DateTime ErrorTime
+        /// <summary>
+        /// Name/path of source file.
+        /// </summary>
+        public string SourceFile
         {
             get;
-        } = DateTime.Now;
-
-        public double MillisecondsSinceError
-        {
-            get => (DateTime.Now - ErrorTime).TotalMilliseconds;
+            private set;
         }
 
-        public string Filename
+        /// <summary>
+        /// Name/path of target directory.
+        /// </summary>
+        public string TargetDir
         {
             get;
-            set;
-        } = "";
-
-        public string SourceSubDir
-        {
-            get;
-            set;
-        } = "";
-
-        public DirectoryInfo TargetDirInfo
-        {
-            get;
-            set;
-        } = null;
+            private set;
+        }
     }
 }

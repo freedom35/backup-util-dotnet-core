@@ -11,59 +11,61 @@ namespace BackupUtilityCore
     /// </summary>
     sealed class Program
     {
+        #region Return Codes
+
+        private const int ReturnOK = 0;
+        private const int ReturnError = 1;
+
+        #endregion
+
         /// <summary>
         /// Entry point for program.
         /// </summary>
         public static int Main(string[] args)
         {
-            // Default to OK
-            int returnCode = 0;
+            int returnCode;
 
             try
             {
-                // Get args of interest
-                string commandArg = args.ElementAtOrDefault(0);
-                string fileArg = args.ElementAtOrDefault(1);
+                // Parse/Verify args
+                if (!CommandLineArgs.TryParseArgs(args, out CommandLineArgType type, out string fileArg))
+                {
+                    type = CommandLineArgType.Unknown;
+                }
 
-                // If no arguments specified, display help 
-                if (string.IsNullOrEmpty(commandArg) || CommandLineArgs.IsHelpArg(commandArg))
+                // Execute command
+                switch (type)
                 {
-                    DisplayHelp();
-                }
-                else if (CommandLineArgs.IsVersionArg(commandArg))
-                {
-                    AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
-                }
-                else if (CommandLineArgs.IsCreateConfigArg(commandArg))
-                {
-                    if (!string.IsNullOrEmpty(fileArg))
-                    {
-                        returnCode = CreateDefaultConfig(fileArg) ? 0 : 1;
-                    }
-                    else
-                    {
+                    case CommandLineArgType.Help:
                         DisplayHelp();
-                        returnCode = 1;
-                    }
-                }
-                else if (CommandLineArgs.IsExecuteArg(commandArg))
-                {
-                    if (!string.IsNullOrEmpty(fileArg))
-                    {
-                        returnCode = ExecuteBackupConfig(fileArg) ? 0 : 1;
-                    }
-                    else
-                    {
+                        returnCode = ReturnOK;
+                        break;
+
+                    case CommandLineArgType.Version:
+                        AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                        returnCode = ReturnOK;
+                        break;
+
+                    case CommandLineArgType.CreateConfig:
+                        returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
+                        break;
+                        
+                    case CommandLineArgType.ExecuteBackup:
+                        returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
+                        break;
+
+                    default:
+                        // Parse failed
                         DisplayHelp();
-                        returnCode = 1;
-                    }
-                }
-                else
-                {
-                    // Unknown command
-                    DisplayHelp();
-                    AddToLog($"{commandArg}: illegal option");
-                    returnCode = 1;
+                        returnCode = ReturnError;
+
+                        // Unknown command
+                        if (args.Length > 0)
+                        {
+                            AddToLog($"{args.First()}: illegal option");
+                        }
+
+                        break;
                 }
             }
             catch (Exception ex)
@@ -77,7 +79,7 @@ namespace BackupUtilityCore
                     AddToLog($"\nStack Trace:\n{ex.StackTrace}");
                 }
 
-                returnCode = 1;
+                returnCode = ReturnError;
             }
 
             return returnCode;

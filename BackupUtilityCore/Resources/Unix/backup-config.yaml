@@ -31,12 +31,6 @@ source_dirs:
  - "/Users/freedom35/Documents/Research & Development"
 
 
-# Directories to one-way sync 
-# (keep target copy in sync with source)
-sync_dirs:
- - .git
-
-
 # Add any excluded directories
 excluded_dirs:
  - obj
