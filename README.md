@@ -4,15 +4,15 @@ Backup Utility is a console app that copies files from multiple source directori
 
 The app is built as a .NET Core console app rather than a service in order to remain portable between Windows and Mac.  
   
-Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to simply backup files to your own network or USB drive.  
+Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to backup files to your own network or USB drive.  
 
-Multiple configurations can be setup and run if you wanted to backup to multiple cloud/target drives.
+Multiple configuration files can be configured with different target directories if you need to backup to multiple cloud drives.
 
-Certain file types or directories may be excluded in order to save space on the target directory. For example, in a developer environment, build type folders (such as bin and obj) can be excluded as these may take up unnecessary space and are easily recreated by rebuilding a project/solution.
+Certain file types or directories may be excluded in order to save space on the target drive. For example, in a developer environment, build type folders (such as bin and obj) can be excluded as these may take up unnecessary space and are easily recreated by rebuilding a project/solution.
 
 Supported configuration files are in YAML format.  
   
-You are welcome to use/update this software unter the terms of the **MIT license**.  
+You are welcome to use/update this software under the terms of the **MIT license**.  
 <br />
   
 ## Requirements
@@ -104,18 +104,19 @@ $ dotnet backuputil.dll -r config1.yaml
 <br />
 
 ## Configuration Settings
-The following settings can be configured within the YAML configuration file. Most settings are required to be defined within the configuration file. If any critical setting is missing, or the value is inappropriate, then the settings will not validate and the backup will not be run. (App will exit with an error.)
+The following settings can be configured within the YAML configuration file. Most settings are required to be defined within the configuration file. If any critical setting is missing, or the value is inappropriate, then the settings will not validate and the backup will not be run and the app will exit with an error.
 
 <br /> 
 
 ### ***backup_type***
 Determines the type of backup to execute *(see table below)*.  
-Settings is required. 
+
+Setting is required. 
 
 
 |Types|Description|
 |:---:|-----|
-|**copy**|Copies the contents of the source directory to the target directory. Any files later deleted from the source directory, will remain in the target diectory.|
+|**copy**|Copies the contents of the source directory to the target directory. Any files later deleted from the source directory, will remain in the target directory.|
 |**sync**|Keeps the target directory in-sync with the source directory. Files deleted from the source directory will also be deleted from the target directory.|
 |**isolated**|Creates isolated backups within the target directory. I.e. Each time a backup is run, a new/separate backup copy is created.|
 
@@ -131,6 +132,7 @@ backup_type: sync
 
 ### ***target_dir***
 Defines the path of the root target backup directory, where the backup will take place.  
+
 Setting is required: Must have a target directory in order to back-up.
 
 *Example config entries:*
@@ -145,26 +147,28 @@ target_dir: /Users/freedom35/Backups
 
 ### ***source_dirs***
 Determines the list of source directories that will be backed up.  
+
 Setting is required: Must have at least one source directory to back-up.
 
 *Example config entries:*
 ```yaml
 source_dirs:
  - C:\Users\freedom35\Projects
- - C:\Users\freedom35\Documents\Specifications
+ - C:\Users\freedom35\Documents\Specs
 ```
 ```yaml
 source_dirs:
  - /Users/freedom35/Projects
- - /Users/freedom35/Documents/Specifications
+ - /Users/freedom35/Documents/Specs
 ```
 
 <br />  
 
 ### ***max_isolation_days***
-Integer value determining the max number of days to keep existing backups. This setting is only used when ***isolated*** is configured as the backup type.  
+Integer value determining the max number of days to keep existing backups.  
+This setting is only used when ***isolated*** is configured as the backup type.  
 
-Set to zero for no max limit (default).  
+Set to zero for no max limit (default value).  
 
 *Example config entries:*
 ```yaml
@@ -193,6 +197,7 @@ ignore_hidden_files: false
 
 ### ***excluded_dirs***
 Determines the list of directories (or sub-directories) that will be ***excluded*** from the backup.  
+
 These directories will not be copied or synced. This can be useful when saving on target storage space.  
 
 Default Value: *None*
@@ -213,6 +218,7 @@ excluded_dirs: []
 
 ### ***excluded_types***
 Determines the list of file types/extensions that will be ***excluded*** from the backup.  
+
 Files with these extensions will not be copied or synced. This can be useful when saving on target storage space.  
 
 Default Value: *None*
