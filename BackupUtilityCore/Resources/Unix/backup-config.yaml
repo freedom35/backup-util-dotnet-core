@@ -1,4 +1,4 @@
-﻿---
+---
 
 ####################################
 # Default Config for Mac
@@ -64,8 +64,5 @@ excluded_types:
  - sdf
  - aps
 
-
- # Hidden files
- ignore_hidden_files: true
 
 ...
