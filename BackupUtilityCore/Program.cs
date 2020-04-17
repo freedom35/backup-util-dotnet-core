@@ -62,7 +62,8 @@ namespace BackupUtilityCore
                         // Unknown command
                         if (args.Length > 0)
                         {
-                            AddToLog($"{args.First()}: illegal option");
+                            // Limit to first few args (prevent abuse)
+                            AddToLog($"{string.Join(' ', args.Take(5))}: illegal option");
                         }
 
                         break;
