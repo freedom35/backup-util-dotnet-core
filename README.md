@@ -80,7 +80,8 @@ $ dotnet backuputil.dll -v
 <br />
   
 ## Creating a Default Config
-A default YAML configuration file can be created using either the **--create** or **-c** argument followed by a config name:  
+A default YAML configuration file can be created using either the **--create** or **-c** argument followed by a config name.  
+The config file path is considered relative to the current directory unless the full path is provided.  
   
 *Examples:*
 ```sh
@@ -89,10 +90,15 @@ $ dotnet backuputil.dll --create config1.yaml
 ```sh
 $ dotnet backuputil.dll -c config1.yaml
 ```
+```sh
+$ dotnet backuputil.dll -c C:\Configs\config1.yaml
+```  
+
 <br />
 
 ## Running a Backup
 The name of the backup configuration file to be run should be provided as a command line argument after either the **--run** or **-r** argument.  
+The config file path is considered relative to the current directory unless the full path is provided.  
   
 *Examples:*  
 ```sh
@@ -101,6 +107,10 @@ $ dotnet backuputil.dll --run config1.yaml
 ```sh
 $ dotnet backuputil.dll -r config1.yaml
 ```
+```sh
+$ dotnet backuputil.dll -r /Users/freedom35/Configs/config1.yaml
+```
+  
 <br />
 
 ## Configuration Settings
