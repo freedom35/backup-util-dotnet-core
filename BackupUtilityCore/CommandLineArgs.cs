@@ -138,8 +138,7 @@ namespace BackupUtilityCore
                 $"  {app} -r config1.yaml",
                 $"  {app} -r {GetExampleConfigPath()}",
                 "",
-                "Note: Config files must be in YAML format.",
-                "",
+                "Note: Config files must be in YAML format."
             };
         }
 

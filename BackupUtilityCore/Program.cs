@@ -63,7 +63,7 @@ namespace BackupUtilityCore
                         if (args.Length > 0)
                         {
                             // Limit to first few args (prevent abuse)
-                            AddToLog($"{string.Join(' ', args.Take(5))}: illegal option");
+                            AddToLog($"{Environment.NewLine}Illegal option: {string.Join(' ', args.Take(5))}");
                         }
 
                         break;
