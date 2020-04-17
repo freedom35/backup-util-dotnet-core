@@ -69,6 +69,7 @@ namespace BackupUtilityTest
         [DataRow("key:  val", true, "key", "val")]
         [DataRow("KEY: VAL", true, "key", "VAL")]
         [DataRow("key: C:\\dir1", true, "key", "C:\\dir1")]
+        [DataRow("key: []", true, "key", "[]")]
         [DataTestMethod]
         public void TestTryGetKeyValue(string input, bool containsKey, string expectedKey, string expectedVal)
         {

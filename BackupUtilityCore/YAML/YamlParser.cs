@@ -67,8 +67,17 @@ namespace BackupUtilityCore.YAML
                     }
                     else
                     {
-                        // New key/value pair
-                        keyValues.Add(key, val);
+                        // Check for an empty list
+                        if (val.Replace(" ", "") == "[]")
+                        {
+                            // Add empty list to dictionary
+                            keyValues.Add(key, new List<string>());
+                        }
+                        else
+                        {
+                            // New key/value pair
+                            keyValues.Add(key, val);
+                        }
 
                         // End any current sequence
                         currentKey = null;
@@ -135,8 +144,8 @@ namespace BackupUtilityCore.YAML
             {
                 // Trim any spaces either side of ':'
                 // Convert keys to lowercase for comparison.
-                key = line.Substring(0, index).TrimEnd().ToLower();
-                val = line.Substring(index + 1).TrimStart();
+                key = line.Substring(0, index).Trim().ToLower();
+                val = line.Substring(index + 1).Trim();
 
                 return true;
             }
