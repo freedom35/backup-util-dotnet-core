@@ -1,5 +1,6 @@
 ﻿using BackupUtilityCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace BackupUtilityTest
 {
@@ -281,6 +282,56 @@ namespace BackupUtilityTest
 
             settings.SourceDirectories = new string[] { "dir2" };
             Assert.AreEqual(0, settings.GetInvalidSettings().Count);
+        }
+
+        [TestMethod]
+        public void TestParseFromYaml()
+        {
+            // Output path for testing
+            string targetPath = TestConfig.CreateNewConfig();
+
+            // Parse newly created file
+            BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);
+
+            // Verify parsed file
+            Assert.IsNotNull(settings);
+            Assert.AreEqual(Path.GetFileName(targetPath), settings.SettingsFilename);
+
+            // Compare values to test-config.yaml (embedded resource)
+            Assert.AreEqual(BackupType.Sync, settings.BackupType);
+            Assert.AreEqual(false, settings.IgnoreHiddenFiles);
+            Assert.AreEqual(14, settings.MaxIsololationDays);
+            Assert.AreEqual(@"C:\Target\Test", settings.TargetDirectory);
+
+            string[] testSource = new string[]
+            {
+                @"C:\Source\Projects",
+                @"C:\Source\Documents"
+            };
+
+            CompareArrays(testSource, settings.SourceDirectories);
+
+            CompareArrays(new string[0], settings.ExcludedDirectories);
+
+            string[] testExcludedDirs = new string[]
+            {
+                "zip"
+            };
+
+            CompareArrays(testExcludedDirs, settings.ExcludedFileTypes);
+
+            // Cleanup
+            File.Delete(targetPath);
+        }
+
+        private void CompareArrays(string[] source, string[] target)
+        {
+            Assert.AreEqual(source.Length, target.Length);
+
+            for (int i = 0; i < source.Length; i++)
+            {
+                Assert.AreEqual(source[i], target[i]);
+            }
         }
     }
 }
