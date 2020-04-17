@@ -72,12 +72,12 @@ namespace BackupUtilityCore
             catch (Exception ex)
             {
                 // Report error
-                AddToLog($"\nError:\n{ex.Message}");
+                AddToLog($"{Environment.NewLine}Error:{Environment.NewLine}{ex.Message}");
 
                 // Check if more details available
                 if (ex.StackTrace != null)
                 {
-                    AddToLog($"\nStack Trace:\n{ex.StackTrace}");
+                    AddToLog($"{Environment.NewLine}Stack Trace:{Environment.NewLine}{ex.StackTrace}");
                 }
 
                 returnCode = ReturnError;
