@@ -6,19 +6,21 @@ namespace BackupUtilityCore
     /// <summary>
     /// Class to access embedded resources within project.
     /// </summary>
-    internal static class EmbeddedResource
+    public static class EmbeddedResource
     {
         /// <summary>
         /// Creates a platform independent copy of the specified resource in target directory.
+        /// (Returns a different resource based on current platform.)
         /// </summary>
         /// <param name="resourceName">Name of resource</param>
         /// <param name="targetPath">Target path where resource is created</param>
-        /// <returns>true if file written of</returns>
-        public static bool CreateCopyFromName(string resourceName, string targetPath)
+        /// <returns>true if file written ok</returns>
+        internal static bool CreateCopyFromName(string resourceName, string targetPath)
         {
             // Different file based on platform
             string resourceDir = Environment.OSVersion.Platform == PlatformID.Unix ? "Unix" : "Windows";
 
+            // Build local resource path
             string resourcePath = $"BackupUtilityCore.Resources.{resourceDir}.{resourceName}";
 
             return CreateCopyFromPath(resourcePath, targetPath);
@@ -29,34 +31,49 @@ namespace BackupUtilityCore
         /// </summary>
         /// <param name="resourcePath">Full path to resource</param>
         /// <param name="targetPath">Target path where resource is created</param>
-        /// <returns>true if file written of</returns>
+        /// <returns>true if file written ok</returns>
         public static bool CreateCopyFromPath(string resourcePath, string targetPath)
         {
-            byte[] resourceBytes = GetResourceBytes(resourcePath);
+            // Open resource as stream
+            using Stream resourceStream = System.Reflection.Assembly.GetCallingAssembly().GetManifestResourceStream(resourcePath);
 
-            // Create stream for writing to a file
-            using FileStream fs = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+            // Read bytes from stream
+            if (TryGetResourceBytes(resourceStream, out byte[] resourceBytes))
+            {
+                // Create stream for writing to a file
+                using FileStream fs = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
 
-            fs.Write(resourceBytes, 0, resourceBytes.Length);
+                fs.Write(resourceBytes, 0, resourceBytes.Length);
 
-            // Verify file written
-            return (fs.Length == resourceBytes.Length);
+                // Verify file written
+                return (fs.Length == resourceBytes.Length);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
-        /// Gets byte array for specified resource.
-        /// (Returns a different resource based on current platform.)
+        /// Gets byte array from stream.
         /// </summary>
-        private static byte[] GetResourceBytes(string resourcePath)
+        private static bool TryGetResourceBytes(Stream resourceStream, out byte[] resourceBytes)
         {
-            // Open resource as stream
-            using Stream s = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath);
+            // Verify stream
+            if (resourceStream != null)
+            {
+                // Read bytes from stream
+                resourceBytes = new byte[resourceStream.Length];
+                resourceStream.Read(resourceBytes, 0, resourceBytes.Length);
 
-            // Read bytes from stream
-            byte[] resourceBytes = new byte[s.Length];
-            s.Read(resourceBytes, 0, resourceBytes.Length);
-
-            return resourceBytes;
+                // Verify all bytes read
+                return (resourceBytes.Length == resourceStream.Length);
+            }
+            else
+            {
+                resourceBytes = null;
+                return false;
+            }
         }
     }
 }

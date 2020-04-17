@@ -1,0 +1,39 @@
+﻿---
+
+####################################
+# Config for Unit Tests
+####################################
+
+
+# Backup type (Copy/Sync/Isolated)
+backup_type: sync
+
+
+# Max number of days to keep backups when using 'isolated' backup type 
+# (zero for no limit)
+max_isolation_days: 14
+
+
+# Hidden files
+ignore_hidden_files: false
+
+
+# Specify root target directory for backup
+target_dir: C:\Target\Test
+
+
+# Add each source directory to backup...
+source_dirs:
+ - C:\Source\Projects
+ - C:\Source\Documents
+
+
+# Add any excluded directories
+excluded_dirs: []
+
+
+# Add extensions for excluded file types
+excluded_types:
+ - zip 
+
+...
