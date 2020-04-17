@@ -170,10 +170,10 @@ namespace BackupUtilityCore
             }
             else
             {
-                const string EmbeddedConfig = "backup-config.yaml";
+                const string EmbeddedConfigName = "backup-config.yaml";
 
                 // Create file using defaults.
-                EmbeddedResource.CreateLocalCopy(EmbeddedConfig, configPath);
+                EmbeddedResource.CreateCopyFromName(EmbeddedConfigName, configPath);
 
                 // Report that file created.
                 AddToLog($"Default config file created: {configName}");
