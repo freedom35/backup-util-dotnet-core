@@ -6,7 +6,7 @@ namespace BackupUtilityCore.Tasks
 {
     public sealed class BackupTaskSync : BackupTaskBase
     {
-        public override string BackupDescription => "SYNC";
+        protected override string BackupDescription => "SYNC";
 
         /// <summary>
         /// Syncs target directory with source directories.
@@ -25,7 +25,7 @@ namespace BackupUtilityCore.Tasks
             {
                 targetDirInfo.Create();
             }
-            
+
             int backupCount = 0;
 
             // Sync each source directory
@@ -141,6 +141,18 @@ namespace BackupUtilityCore.Tasks
             }
 
             return backupCount;
+        }
+
+        private void DeleteFile(string filename)
+        {
+            FileInfo fileInfo = new FileInfo(filename);
+
+            if (fileInfo.Exists)
+            {
+                // Make sure file is not read-only before we delete it.
+                fileInfo.Attributes = FileAttributes.Normal;
+                fileInfo.Delete();
+            }
         }
     }
 }

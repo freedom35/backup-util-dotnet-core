@@ -8,10 +8,16 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
+        #region Constants
+
         /// <summary>
         /// Date format used for directory names.
         /// </summary>
         private const string DirDateFormat = "yyyy-MM-dd HHmmss";
+
+        #endregion
+
+        protected override string BackupDescription => "ISO-COPY";
 
         protected override int PerformBackup()
         {
