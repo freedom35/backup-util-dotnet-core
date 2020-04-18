@@ -1,5 +1,6 @@
 ﻿using BackupUtilityCore;
 using BackupUtilityCore.Tasks;
+using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -39,7 +40,7 @@ namespace BackupUtilityTest
         {
             string testPath = Path.Combine(testRoot, "BackupCopyBase");
 
-            var dirs = BackupDirectory.CreateTest(testPath);
+            var dirs = TestDirectory.Create(testPath);
 
             string rootWorkingDir = dirs.Item1;
             string rootSourceDir = dirs.Item2;
@@ -73,6 +74,12 @@ namespace BackupUtilityTest
 
             // Test results
             VerifyBackup(rootTargetDir, filesCopied, rootSourceDir, sourceFilter);
+
+            // Run copy again
+            filesCopied += task.Run(settings);
+
+            // Should be no new copies - nothing changed
+            VerifyBackup(rootTargetDir, filesCopied, rootSourceDir, sourceFilter);
         }
 
         [TestMethod]
@@ -80,7 +87,7 @@ namespace BackupUtilityTest
         {
             string testPath = Path.Combine(testRoot, "BackupCopyHidden");
 
-            var dirs = BackupDirectory.CreateTest(testPath);
+            var dirs = TestDirectory.Create(testPath);
 
             string rootWorkingDir = dirs.Item1;
             string rootSourceDir = dirs.Item2;
@@ -117,7 +124,7 @@ namespace BackupUtilityTest
         {
             string testPath = Path.Combine(testRoot, "BackupCopyExcludeFile");
 
-            var dirs = BackupDirectory.CreateTest(testPath);
+            var dirs = TestDirectory.Create(testPath);
 
             string rootWorkingDir = dirs.Item1;
             string rootSourceDir = dirs.Item2;
@@ -156,7 +163,7 @@ namespace BackupUtilityTest
         {
             string testPath = Path.Combine(testRoot, "BackupCopyExcludeDir");
 
-            var dirs = BackupDirectory.CreateTest(testPath);
+            var dirs = TestDirectory.Create(testPath);
 
             string rootWorkingDir = dirs.Item1;
             string rootSourceDir = dirs.Item2;

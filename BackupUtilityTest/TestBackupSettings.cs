@@ -1,4 +1,5 @@
 ﻿using BackupUtilityCore;
+using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
@@ -288,7 +289,7 @@ namespace BackupUtilityTest
         public void TestParseFromYaml()
         {
             // Output path for testing
-            string targetPath = BackupConfig.CreateNewConfig();
+            string targetPath = TestConfig.CreateNewConfig();
 
             // Parse newly created file
             BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);

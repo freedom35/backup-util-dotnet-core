@@ -1,5 +1,6 @@
 ﻿using BackupUtilityCore;
 using BackupUtilityCore.Tasks;
+using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -10,30 +11,6 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupIsolatedCopy
     {
-        private string testRoot;
-
-        [TestInitialize]
-        public void InitializeTest()
-        {
-            testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupIsolatedCopy");
-
-            // Ensure removed from previous test
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            // Remove all files (source and target)
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
-        }
-
         [DataRow("2020-04-17 233102", true)]
         [DataRow("2021-01-16 105104-1", true)]
         [DataRow("2019-12-23 015959-2", true)]
@@ -63,9 +40,17 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopyIsolated()
         {
+            string testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupIsolatedCopy");
+
+            // Ensure removed from previous test
+            if (Directory.Exists(testRoot))
+            {
+                Directory.Delete(testRoot, true);
+            }
+
             string testPath = Path.Combine(testRoot, "BackupCopyIsolated");
 
-            var dirs = BackupDirectory.CreateTest(testPath);
+            var dirs = TestDirectory.Create(testPath);
 
             string rootWorkingDir = dirs.Item1;
             string rootSourceDir = dirs.Item2;
@@ -111,6 +96,12 @@ namespace BackupUtilityTest
 
             // Remove handler
             task.Log -= Task_Log;
+
+            // Remove all files (source and target)
+            if (Directory.Exists(testRoot))
+            {
+                Directory.Delete(testRoot, true);
+            }
         }
 
         private void VerifyLatestBackup(string rootTargetDir, int filesCopied, string rootSourceDir)

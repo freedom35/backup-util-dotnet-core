@@ -1,4 +1,5 @@
 ﻿using BackupUtilityCore;
+using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
@@ -13,7 +14,7 @@ namespace BackupUtilityTest
         public void InitializeTest()
         {
             // Output path for testing
-            targetPath = BackupConfig.CreateNewOutputPath();
+            targetPath = TestConfig.CreateNewOutputPath();
 
             // Delete file from any previous test
             File.Delete(targetPath);
@@ -30,7 +31,7 @@ namespace BackupUtilityTest
         public void TestCreateCopyFromPath()
         {
             // Check method finds resource and writes file
-            Assert.IsTrue(EmbeddedResource.CreateCopyFromPath(BackupConfig.ResourcePath, targetPath));
+            Assert.IsTrue(EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath));
 
             // Verify file does exist
             Assert.IsTrue(File.Exists(targetPath));

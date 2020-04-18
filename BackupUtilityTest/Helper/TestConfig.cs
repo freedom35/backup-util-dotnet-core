@@ -2,12 +2,12 @@
 using System;
 using System.IO;
 
-namespace BackupUtilityTest
+namespace BackupUtilityTest.Helper
 {
     /// <summary>
     /// Class to help with config resource for testing.
     /// </summary>
-    internal static class BackupConfig
+    internal static class TestConfig
     {
         /// <summary>
         /// Internal resource path
@@ -40,13 +40,13 @@ namespace BackupUtilityTest
         /// <returns>Path to new file</returns>
         public static string CreateNewConfig()
         {
-            string targetPath = BackupConfig.CreateNewOutputPath();
+            string targetPath = TestConfig.CreateNewOutputPath();
 
             // Ensure file doesn't exist from any previous test
             File.Delete(targetPath);
 
             // Create file using embedded resource
-            EmbeddedResource.CreateCopyFromPath(BackupConfig.ResourcePath, targetPath);
+            EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);
 
             return targetPath;
         }
