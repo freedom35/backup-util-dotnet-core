@@ -10,7 +10,7 @@ using System.Linq;
 namespace BackupUtilityTest
 {
     [TestClass]
-    public sealed class TestBackupIsolatedCopy
+    public sealed class TestBackupTaskIsolatedCopy
     {
         [DataRow("2020-04-17 233102", true)]
         [DataRow("2021-01-16 105104-1", true)]
