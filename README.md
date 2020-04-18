@@ -20,12 +20,12 @@ Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dot
   
 To build the project yourself you will need the [.NET Core SDK](https://dotnet.microsoft.com/download).  
 
-[Visual Studio](https://visualstudio.microsoft.com) is an IDE with built-in support for C# and comes pre-packaged with the .NET Core SDK. Visual Studio is available for [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/).  
+I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual Studio is an IDE with built-in support for C#, comes pre-packaged with the .NET Core SDK, and is available for both [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/).  
 
 Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
 
-## Command Line
+## Usage
 The portable version of the app (**backuputil.dll**) can be executed on either **Windows** or **Mac**.  
 
 To execute the portable version, open a terminal window and change to the directory containing the app.  
@@ -110,6 +110,8 @@ $ dotnet backuputil.dll -r config1.yaml
 ```sh
 $ dotnet backuputil.dll -r /Users/freedom35/Configs/config1.yaml
 ```
+
+Note: For frequent use, you can also run the app via a shortcut or automated script with your configuration file specified in the shortcut settings or script as a command line arg.
   
 <br />
 
