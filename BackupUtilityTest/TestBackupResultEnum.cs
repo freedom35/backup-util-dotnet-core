@@ -15,7 +15,7 @@ namespace BackupUtilityTest
         [DataTestMethod]
         public void TestCanBeRetried(BackupResult result, bool canBeRetried)
         {
-            Assert.AreEqual(canBeRetried,result.CanBeRetried());
+            Assert.AreEqual(canBeRetried, result.CanBeRetried());
         }
 
         [DataRow(BackupResult.OK, "OK")]

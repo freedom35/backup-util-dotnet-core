@@ -60,7 +60,7 @@ namespace BackupUtilityTest
                 {
                     string betaPath = alphaInfo.CreateSubdirectory($"SubBeta{k}").FullName;
 
-                    CreateTestFile(Path.Combine(betaPath, $"beta-file{i}{k}.txt"));
+                    CreateTestFile(Path.Combine(betaPath, $"beta-file{i}{k}.md"));
                 }
             }
 

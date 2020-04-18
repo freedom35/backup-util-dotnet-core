@@ -26,7 +26,7 @@ namespace BackupUtilityTest
         public static string CreateNewOutputPath()
         {
             string now = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-            
+
             // Thread-safe increment
             int newIndex = System.Threading.Interlocked.Increment(ref testIndex);
 
