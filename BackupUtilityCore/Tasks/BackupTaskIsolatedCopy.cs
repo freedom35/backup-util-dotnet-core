@@ -8,43 +8,21 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
-        #region Constants
-
         /// <summary>
         /// Date format used for directory names.
         /// </summary>
         private const string DirDateFormat = "yyyy-MM-dd HHmmss";
 
-        #endregion
-
         protected override string BackupDescription => "ISO-COPY";
 
         protected override int PerformBackup()
         {
-            string targetDir = GetBackupLocation();
-
-            AddToLog("Target DIR", targetDir);
-
             // Delete old backups first before backup - free up space.
             DeleteOldBackups();
 
-            // Check target directory
-            if (!Directory.Exists(targetDir))
-            {
-                Directory.CreateDirectory(targetDir);
-            }
+            string isolatedTargetDir = GetBackupLocation();
 
-            int backupCount = 0;
-
-            // Backup each source directory
-            foreach (string source in BackupSettings.SourceDirectories)
-            {
-                AddToLog("Source DIR", source);
-
-                backupCount += CopyDirectory(source, targetDir);
-            }
-
-            return backupCount;
+            return CopyDirectoryTo(isolatedTargetDir);
         }
 
         /// <summary>

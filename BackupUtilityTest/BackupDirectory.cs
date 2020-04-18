@@ -29,7 +29,7 @@ namespace BackupUtilityTest
             }
 
             // Create root target
-            Directory.CreateDirectory(rootTargetDir);
+            //Directory.CreateDirectory(rootTargetDir);
 
             // Setup source test structure
             DirectoryInfo sourceDirInfo = Directory.CreateDirectory(rootSourceDir);
