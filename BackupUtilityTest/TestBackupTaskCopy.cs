@@ -65,7 +65,9 @@ namespace BackupUtilityTest
             // Add handler to main copy test for debugging output
             task.Log += Task_Log;
 
+            /////////////////////////////////////
             // Copy files
+            /////////////////////////////////////
             int filesCopied = task.Run(settings);
 
             // Filter source files that should have been copied
@@ -75,16 +77,80 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
 
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
             // Run copy again
+            /////////////////////////////////////
             filesCopied = task.Run(settings);
 
             // Should be no new copies - nothing changed
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
+            // Add files, run copy again
+            /////////////////////////////////////
+            // Add first file to root
+            string addedFile1 = Path.Combine(rootSourceDir, "added-file1.txt");
+            TestFile.Create(addedFile1);
+
+            // Add second file to a new sub dir
+            DirectoryInfo addedDirInfo = Directory.CreateDirectory(Path.Combine(rootSourceDir, "added-dir"));
+            string addedFile2 = Path.Combine(addedDirInfo.FullName, "added-file2.txt");
+            TestFile.Create(addedFile2);
+
+            // Run backup again
+            filesCopied = task.Run(settings);
+
+            // Only the new files should be copied
+            Assert.AreEqual(2, filesCopied);
+
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
+            // Modify file, run copy again
+            /////////////////////////////////////
+            TestFile.Modify(addedFile1);
+
+            filesCopied = task.Run(settings);
+
+            // Should only be modified file copied
+            Assert.AreEqual(1, filesCopied);
+
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
+            // Delete file, run copy again
+            /////////////////////////////////////
+            File.Delete(addedFile1);
+
+            filesCopied = task.Run(settings);
+
+            // Should be nothing changed, added file remains in target
+            Assert.AreEqual(0, filesCopied);
+            
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Target should have one more file than source
+            Assert.AreEqual(sourceFiles.Count() + 1, targetCount);
 
             // Remove handler
             task.Log -= Task_Log;
@@ -130,7 +196,10 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
         [TestMethod]
@@ -175,7 +244,10 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
         [TestMethod]
@@ -220,16 +292,16 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
-        private void VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
+        private int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
         {
             // Get all the target files
             var targetFiles = Directory.EnumerateFiles(rootTargetDir, "*.*", SearchOption.AllDirectories);
-
-            // Check expected number of files were copied
-            Assert.AreEqual(sourceFiles.Count(), targetFiles.Count());
 
             // Remove target root from paths
             var targetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/')).ToArray();
@@ -246,6 +318,8 @@ namespace BackupUtilityTest
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
             }
+
+            return targetFiles.Count();
         }
 
         private void Task_Log(object sender, MessageEventArgs e)

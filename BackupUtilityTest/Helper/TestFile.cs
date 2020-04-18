@@ -26,5 +26,23 @@ namespace BackupUtilityTest.Helper
             f.Write(testBytes, 0, testBytes.Length);
             f.Close();
         }
+
+        /// <summary>
+        /// Modifies contents of test file.
+        /// </summary>
+        public static void Modify(string path)
+        {
+            using FileStream f = new FileStream(path, FileMode.Append);
+
+            byte[] testBytes = new byte[]
+            {
+                0x4d,
+                0x4f,
+                0x44
+            };
+
+            f.Write(testBytes, 0, testBytes.Length);
+            f.Close();
+        }
     }
 }
