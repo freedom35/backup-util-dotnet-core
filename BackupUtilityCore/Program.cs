@@ -7,7 +7,8 @@ using System.Reflection;
 namespace BackupUtilityCore
 {
     /// <summary>
-    /// Backup Utility App.
+    /// Backup Utility App
+    /// Created by Alan Barr (GitHub: freedom35)
     /// </summary>
     sealed class Program
     {
