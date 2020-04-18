@@ -106,7 +106,7 @@ namespace BackupUtilityTest
             ///////////////////////////////////////////
             // Test deleting old backups
             ///////////////////////////////////////////
-            
+
             // Rename first backup to be 'older'
             DateTime olderDate = DateTime.Now.AddDays(-5);
             string newDateDir = Path.Combine(rootTargetDir, olderDate.ToString(BackupTaskIsolatedCopy.DirDateFormat));
@@ -135,7 +135,7 @@ namespace BackupUtilityTest
             ///////////////////////////////////////////
             // Cleanup
             ///////////////////////////////////////////
-            
+
             // Remove handler
             task.Log -= Task_Log;
 

@@ -145,7 +145,7 @@ namespace BackupUtilityTest
 
             // Should be nothing changed, added file remains in target
             Assert.AreEqual(0, filesCopied);
-            
+
             // Compare directories
             targetCount = VerifyBackup(sourceFiles, rootTargetDir);
 
