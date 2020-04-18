@@ -12,12 +12,14 @@ namespace BackupUtilityTest
         /// Creates a test directory with dummy files.
         /// </summary>
         /// <param name="name">Name of test</param>
-        /// <returns>workingDir, sourceDir, targetDir</returns>
-        public static Tuple<string, string, string> CreateTest(string name)
+        /// <returns>workingDir, sourceDir, targetDir, hiddenFileCount</returns>
+        public static Tuple<string, string, string, int> CreateTest(string name)
         {
             string now = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
+            ///////////////////////////////////
             // Initialize root dirs
+            ///////////////////////////////////
             string rootWorkingDir = Path.Combine(Environment.CurrentDirectory, $"{name}-{now}");
             string rootSourceDir = Path.Combine(rootWorkingDir, "Source");
             string rootTargetDir = Path.Combine(rootWorkingDir, "Target");
@@ -28,10 +30,14 @@ namespace BackupUtilityTest
                 Directory.Delete(rootWorkingDir, true);
             }
 
+            ///////////////////////////////////
             // Create root target
+            ///////////////////////////////////
             //Directory.CreateDirectory(rootTargetDir);
 
+            ///////////////////////////////////
             // Setup source test structure
+            ///////////////////////////////////
             DirectoryInfo sourceDirInfo = Directory.CreateDirectory(rootSourceDir);
 
             // Create test source
@@ -57,8 +63,30 @@ namespace BackupUtilityTest
                     CreateTestFile(Path.Combine(betaPath, $"beta-file{i}{k}.txt"));
                 }
             }
-            
-            return new Tuple<string, string, string>(rootWorkingDir, rootSourceDir, rootTargetDir);
+
+            ///////////////////////////////////
+            // Add some hidden files
+            ///////////////////////////////////
+            int hiddenFileCount = 0;
+
+            // Add hidden file to source root
+            string hiddenFile = Path.Combine(rootSourceDir, ".hidden-file1.txt");
+            CreateTestFile(hiddenFile);
+            File.SetAttributes(hiddenFile, FileAttributes.Hidden);
+            hiddenFileCount++;
+
+            // Add hidden directory
+            string hiddenDir = Path.Combine(rootSourceDir, ".hidden-dir");
+            DirectoryInfo hiddenDirInfo = Directory.CreateDirectory(hiddenDir);
+            hiddenDirInfo.Attributes |= FileAttributes.Hidden;
+
+            // Add file to hidden directory
+            string hiddenFile2 = Path.Combine(hiddenDir, ".hidden-file2.txt");
+            CreateTestFile(hiddenFile2);
+            //File.SetAttributes(hiddenFile2, FileAttributes.Hidden);
+            hiddenFileCount++;
+
+            return new Tuple<string, string, string, int>(rootWorkingDir, rootSourceDir, rootTargetDir, hiddenFileCount);
         }
 
         /// <summary>

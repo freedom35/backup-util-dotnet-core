@@ -10,27 +10,6 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTestCopy
     {
-        private string rootWorkingDir;
-        private string rootSourceDir;
-        private string rootTargetDir;
-
-        [TestInitialize]
-        public void InitializeTest()
-        {
-            var dirs = BackupDirectory.CreateTest("TestBackupCopy");
-
-            rootWorkingDir = dirs.Item1;
-            rootSourceDir = dirs.Item2;
-            rootTargetDir = dirs.Item3;
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            // Remove test dir (source and target)
-            Directory.Delete(rootWorkingDir, true);
-        }
-
         private void Task_Log(object sender, MessageEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine($"COPY-TEST: {e}");
@@ -39,11 +18,17 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopy()
         {
+            var dirs = BackupDirectory.CreateTest("TestBackupCopyBase");
+
+            string rootWorkingDir = dirs.Item1;
+            string rootSourceDir = dirs.Item2;
+            string rootTargetDir = dirs.Item3;
+
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
                 BackupType = BackupType.Copy,
-                IgnoreHiddenFiles = true,
+                IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
@@ -82,30 +67,83 @@ namespace BackupUtilityTest
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
             }
+
+            // END OF TEST
+            // Remove test dir (source and target)
+            Directory.Delete(rootWorkingDir, true);
         }
 
         [TestMethod]
-        public void TestBackupCopyWithHiddenFile()
+        public void TestBackupCopyExcludeHiddenFiles()
+        {
+            var dirs = BackupDirectory.CreateTest("TestBackupCopyHidden");
+
+            string rootWorkingDir = dirs.Item1;
+            string rootSourceDir = dirs.Item2;
+            string rootTargetDir = dirs.Item3;
+            int hiddenFileCount = dirs.Item4;
+
+            // Create settings
+            BackupSettings settings = new BackupSettings()
+            {
+                BackupType = BackupType.Copy,
+                IgnoreHiddenFiles = true,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = new string[] { rootSourceDir }
+            };
+
+            BackupTaskCopy task = new BackupTaskCopy()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            task.Log += Task_Log;
+
+            // Copy files
+            int filesCopied = task.Run(settings);
+
+            // Remove handler
+            task.Log -= Task_Log;
+
+            // Get source files
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
+            var targetFiles = Directory.EnumerateFiles(rootTargetDir, "*.*", SearchOption.AllDirectories);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count() - hiddenFileCount, filesCopied);
+            Assert.AreEqual(sourceFiles.Count() - hiddenFileCount, targetFiles.Count());
+
+            // Remove target root from paths
+            string[] targetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/')).ToArray();
+
+            // Compare directories (except hidden)
+            foreach (string file in sourceFiles.Where(f => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden)))
+            {
+                // Remove source root
+                string sourceFileWithoutRoot = file.Substring(Path.GetPathRoot(rootSourceDir).Length);
+
+                // Check it was copied
+                Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
+            }
+
+            // END OF TEST
+            // Remove test dir (source and target)
+            Directory.Delete(rootWorkingDir, true);
+        }
+
+        [TestMethod]
+        public void TestBackupCopyExcludeFileTypes()
         {
             // Create settings
-            
+
             // Run task
 
             // Compare directories
         }
 
         [TestMethod]
-        public void TestBackupCopyWithExcludedFile()
-        {
-            // Create settings
-
-            // Run task
-
-            // Compare directories
-        }
-
-        [TestMethod]
-        public void TestBackupCopyWithExcludedDir()
+        public void TestBackupCopyExcludeDirectories()
         {
             // Create settings
 
