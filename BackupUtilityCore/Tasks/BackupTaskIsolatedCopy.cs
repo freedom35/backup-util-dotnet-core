@@ -11,14 +11,17 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Date format used for directory names.
         /// </summary>
-        private const string DirDateFormat = "yyyy-MM-dd HHmmss";
+        public const string DirDateFormat = "yyyy-MM-dd HHmmss";
 
         protected override string BackupDescription => "ISO-COPY";
 
         protected override int PerformBackup()
         {
             // Delete old backups first before backup - free up space.
-            DeleteOldBackups();
+            if (BackupSettings.MaxIsololationDays > 0)
+            {
+                DeleteOldBackups();
+            }
 
             string isolatedTargetDir = GetBackupLocation();
 
@@ -48,6 +51,24 @@ namespace BackupUtilityCore.Tasks
             return targetPath;
         }
 
+        /// <summary>
+        /// Tries to parse isolated date/time from directory name.
+        /// </summary>
+        /// <param name="dir">Name of directory</param>
+        /// <param name="dirDate">Parsed date/time from directory</param>
+        /// <returns>true if parse successful</returns>
+        public static bool TryParseDateFromIsolatedDirectory(string dir, out DateTime dirDate)
+        {
+            // Check for additional identifier (and remove)
+            if (dir.Length > DirDateFormat.Length)
+            {
+                dir = dir.Substring(0, DirDateFormat.Length);
+            }
+
+            // TryParse directory names for ones with date formats
+            return DateTime.TryParseExact(dir, DirDateFormat, null, System.Globalization.DateTimeStyles.None, out dirDate);
+        }
+
         private void DeleteOldBackups()
         {
             AddToLog("Deleting old backups...");
@@ -65,14 +86,8 @@ namespace BackupUtilityCore.Tasks
                     // Get name only, not full path
                     string name = dirInfo.Name;
 
-                    // Check for additional identifier (and remove)
-                    if (name.Length > DirDateFormat.Length)
-                    {
-                        name = name.Substring(0, DirDateFormat.Length);
-                    }
-
                     // TryParse directory names for ones with date formats
-                    if (DateTime.TryParseExact(name, DirDateFormat, null, System.Globalization.DateTimeStyles.None, out DateTime dirDate))
+                    if (TryParseDateFromIsolatedDirectory(name, out DateTime dirDate))
                     {
                         // Check age of backup
                         if ((now - dirDate).TotalDays > maxAgeDays)
