@@ -62,13 +62,11 @@ namespace BackupUtilityTest
                 MinFileWriteWaitTime = 0
             };
 
+            // Add handler to main copy test for debugging output
             task.Log += Task_Log;
 
             // Copy files
             int filesCopied = task.Run(settings);
-
-            // Remove handler
-            task.Log -= Task_Log;
 
             // Filter source files that should have been copied
             var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
@@ -87,6 +85,9 @@ namespace BackupUtilityTest
 
             // Compare directories
             VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Remove handler
+            task.Log -= Task_Log;
         }
 
         [TestMethod]
