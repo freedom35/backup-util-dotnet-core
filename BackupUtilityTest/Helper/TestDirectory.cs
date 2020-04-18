@@ -78,12 +78,12 @@ namespace BackupUtilityTest.Helper
             // Add hidden directory
             string hiddenDir = Path.Combine(rootSourceDir, ".hidden-dir");
             DirectoryInfo hiddenDirInfo = Directory.CreateDirectory(hiddenDir);
-            hiddenDirInfo.Attributes |= FileAttributes.Hidden;
+            hiddenDirInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
 
             // Add file to hidden directory
             string hiddenFile2 = Path.Combine(hiddenDir, ".hidden-file2.txt");
             TestFile.Create(hiddenFile2);
-            //File.SetAttributes(hiddenFile2, FileAttributes.Hidden);
+            //File.SetAttributes(hiddenFile2, FileAttributes.Hidden); // App considers files in hidden dir also hidden
             hiddenFileCount++;
 
             return new Tuple<string, string, string, int>(rootWorkingDir, rootSourceDir, rootTargetDir, hiddenFileCount);
