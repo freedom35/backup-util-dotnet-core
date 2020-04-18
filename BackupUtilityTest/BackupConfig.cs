@@ -7,7 +7,7 @@ namespace BackupUtilityTest
     /// <summary>
     /// Class to help with config resource for testing.
     /// </summary>
-    internal static class TestConfig
+    internal static class BackupConfig
     {
         /// <summary>
         /// Internal resource path
@@ -40,13 +40,13 @@ namespace BackupUtilityTest
         /// <returns>Path to new file</returns>
         public static string CreateNewConfig()
         {
-            string targetPath = TestConfig.CreateNewOutputPath();
+            string targetPath = BackupConfig.CreateNewOutputPath();
 
             // Ensure file doesn't exist from any previous test
             File.Delete(targetPath);
 
             // Create file using embedded resource
-            EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);
+            EmbeddedResource.CreateCopyFromPath(BackupConfig.ResourcePath, targetPath);
 
             return targetPath;
         }

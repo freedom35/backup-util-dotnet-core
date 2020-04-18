@@ -48,6 +48,25 @@ namespace BackupUtilityCore.Tasks
             get => backupErrors.Count;
         }
 
+        /// <summary>
+        /// Determines whether retry is enabled (if initial backup fails).
+        /// </summary>
+        public bool RetryEnabled
+        {
+            get;
+            set;
+        } = true;
+
+        /// <summary>
+        /// Determines the minimum wait time from when file was last written before backing up.
+        /// Value in milliseconds.
+        /// </summary>
+        public int MinFileWriteWaitTime
+        {
+            get;
+            set;
+        } = 500;
+
         #endregion
 
         /// <summary>
@@ -78,10 +97,13 @@ namespace BackupUtilityCore.Tasks
                 AddToLog($"Running backup ({BackupDescription})");
 
                 // Run sub-class logic
-                PerformBackup();
+                backupCount = PerformBackup();
 
                 // Retry errors if possible (depends on issue)
-                backupCount += RetryErrors();
+                if (RetryEnabled)
+                {
+                    backupCount += RetryErrors();
+                }
 
                 // Log any files that couldn't be backed-up (or failed retry)
                 foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
@@ -169,7 +191,7 @@ namespace BackupUtilityCore.Tasks
             {
                 result = BackupResult.Ineligible;
             }
-            else if ((DateTime.UtcNow - sourceFileInfo.LastWriteTimeUtc).TotalMilliseconds < 500)
+            else if ((DateTime.UtcNow - sourceFileInfo.LastWriteTimeUtc).TotalMilliseconds < MinFileWriteWaitTime)
             {
                 result = BackupResult.WriteInProgress;
             }

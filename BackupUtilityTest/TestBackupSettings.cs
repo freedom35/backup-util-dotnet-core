@@ -288,13 +288,14 @@ namespace BackupUtilityTest
         public void TestParseFromYaml()
         {
             // Output path for testing
-            string targetPath = TestConfig.CreateNewConfig();
+            string targetPath = BackupConfig.CreateNewConfig();
 
             // Parse newly created file
             BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);
 
             // Verify parsed file
             Assert.IsNotNull(settings);
+            Assert.IsTrue(settings.Valid);
             Assert.AreEqual(Path.GetFileName(targetPath), settings.SettingsFilename);
 
             // Compare values to test-config.yaml (embedded resource)
