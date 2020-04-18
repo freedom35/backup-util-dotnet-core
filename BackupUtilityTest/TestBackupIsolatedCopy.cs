@@ -75,7 +75,9 @@ namespace BackupUtilityTest
 
             task.Log += Task_Log;
 
+            ///////////////////////////////////////////
             // Copy files
+            ///////////////////////////////////////////
             int filesCopied1 = task.Run(settings);
 
             // Filter source files that should have been copied
@@ -83,12 +85,16 @@ namespace BackupUtilityTest
             int sourceCount = sourceFiles.Count();
 
             // Test results of 1st back
-            VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied1);
+            string dateSubDir = VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied1);
 
             // Verify 1 backup
             Assert.AreEqual(sourceCount, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
 
-            // Run again - should create another directory (double file count)
+            ///////////////////////////////////////////
+            // Run again -
+            // should create another directory
+            // (double file count)
+            ///////////////////////////////////////////
             int filesCopied2 = task.Run(settings);
 
             // Test results of 2nd backup
@@ -97,6 +103,39 @@ namespace BackupUtilityTest
             // Verify there are 2 backups
             Assert.AreEqual(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
 
+            ///////////////////////////////////////////
+            // Test deleting old backups
+            ///////////////////////////////////////////
+            
+            // Rename first backup to be 'older'
+            DateTime olderDate = DateTime.Now.AddDays(-5);
+            string newDateDir = Path.Combine(rootTargetDir, olderDate.ToString(BackupTaskIsolatedCopy.DirDateFormat));
+
+            // Rename directory
+            Directory.Move(Path.Combine(rootTargetDir, dateSubDir), newDateDir);
+
+            // Verify 'old' backup now exists
+            Assert.IsTrue(Directory.Exists(newDateDir));
+
+            // Set max isolation days
+            settings.MaxIsololationDays = 1;
+
+            // Run backup
+            int filesCopied3 = task.Run(settings);
+
+            // Test results of 3rd backup
+            VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied3);
+
+            // Verify there are still 2 backups (old one deleted, and one new one)
+            Assert.AreEqual(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
+
+            // Verify 'old' backup no longer exists
+            Assert.IsFalse(Directory.Exists(newDateDir));
+
+            ///////////////////////////////////////////
+            // Cleanup
+            ///////////////////////////////////////////
+            
             // Remove handler
             task.Log -= Task_Log;
 
@@ -107,7 +146,7 @@ namespace BackupUtilityTest
             }
         }
 
-        private void VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
+        private string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
         {
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
@@ -142,6 +181,8 @@ namespace BackupUtilityTest
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
             }
+
+            return dateSubDir;
         }
 
         private void Task_Log(object sender, MessageEventArgs e)
