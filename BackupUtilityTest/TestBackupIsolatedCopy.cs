@@ -3,6 +3,7 @@ using BackupUtilityCore.Tasks;
 using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -77,10 +78,12 @@ namespace BackupUtilityTest
             // Copy files
             int filesCopied1 = task.Run(settings);
 
-            int sourceCount = Directory.GetFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Length;
+            // Filter source files that should have been copied
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
+            int sourceCount = sourceFiles.Count();
 
             // Test results of 1st back
-            VerifyLatestBackup(rootTargetDir, filesCopied1, rootSourceDir);
+            VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied1);
 
             // Verify 1 backup
             Assert.AreEqual(sourceCount, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
@@ -89,7 +92,7 @@ namespace BackupUtilityTest
             int filesCopied2 = task.Run(settings);
 
             // Test results of 2nd backup
-            VerifyLatestBackup(rootTargetDir, filesCopied2, rootSourceDir);
+            VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied2);
 
             // Verify there are 2 backups
             Assert.AreEqual(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
@@ -104,11 +107,8 @@ namespace BackupUtilityTest
             }
         }
 
-        private void VerifyLatestBackup(string rootTargetDir, int filesCopied, string rootSourceDir)
+        private void VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
         {
-            // Filter source files that should have been copied
-            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
-
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
@@ -130,11 +130,14 @@ namespace BackupUtilityTest
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetFilesWithoutRoots.Count());
 
+            // Get length of root string to be removed
+            int rootSourceLength = Path.GetPathRoot(sourceFiles.First()).Length;
+
             // Compare directories
             foreach (string file in sourceFiles)
             {
                 // Remove source root
-                string sourceFileWithoutRoot = file.Substring(Path.GetPathRoot(rootSourceDir).Length);
+                string sourceFileWithoutRoot = file.Substring(rootSourceLength);
 
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
