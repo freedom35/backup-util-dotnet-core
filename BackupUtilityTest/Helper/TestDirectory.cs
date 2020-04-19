@@ -69,7 +69,7 @@ namespace BackupUtilityTest.Helper
             // Add hidden directory
             string hiddenDir = Path.Combine(rootSourceDir, ".hidden-dir");
             DirectoryInfo hiddenDirInfo = Directory.CreateDirectory(hiddenDir);
-            hiddenDirInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden | FileAttributes.ReadOnly;
+            hiddenDirInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
 
             // Add file to hidden directory
             string hiddenFile2 = Path.Combine(hiddenDir, ".hidden-file2.txt");
