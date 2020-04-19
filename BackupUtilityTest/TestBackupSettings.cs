@@ -11,6 +11,16 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupSettings
     {
+        private static string testRoot;
+
+        [ClassInitialize()]
+        public static void InitializeTest(TestContext testContext)
+        {
+            testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupSettings");
+
+            Directory.CreateDirectory(testRoot);
+        }
+
         [TestMethod]
         public void TestBackupTypeProp()
         {
@@ -292,7 +302,7 @@ namespace BackupUtilityTest
         public void TestParseFromYaml()
         {
             // Output path for testing
-            string targetPath = TestConfig.CreateNewConfig();
+            string targetPath = TestConfig.CreateNewConfig(testRoot);
 
             // Parse newly created file
             BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);
@@ -324,9 +334,6 @@ namespace BackupUtilityTest
             };
 
             CompareArrays(testExcludedDirs, settings.ExcludedFileTypes);
-
-            // Cleanup
-            File.Delete(targetPath);
         }
 
         private void CompareArrays(string[] source, string[] target)

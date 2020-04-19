@@ -22,8 +22,8 @@ namespace BackupUtilityTest.Helper
         /// <summary>
         /// Creates a config name for test purposes.
         /// </summary>
-        /// <returns></returns>
-        public static string CreateNewOutputPath()
+        /// <returns>Config path</returns>
+        public static string CreateNewOutputPath(string testRoot)
         {
             string now = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
@@ -31,19 +31,16 @@ namespace BackupUtilityTest.Helper
             int newIndex = System.Threading.Interlocked.Increment(ref testIndex);
 
             // Output path for testing
-            return Path.Combine(Environment.CurrentDirectory, $"{now}-{newIndex}.yaml");
+            return Path.Combine(testRoot, $"{now}-{newIndex}.yaml");
         }
 
         /// <summary>
         /// Creates a new config file for testing.
         /// </summary>
         /// <returns>Path to new file</returns>
-        public static string CreateNewConfig()
+        public static string CreateNewConfig(string testRoot)
         {
-            string targetPath = TestConfig.CreateNewOutputPath();
-
-            // Ensure file doesn't exist from any previous test
-            File.Delete(targetPath);
+            string targetPath = TestConfig.CreateNewOutputPath(testRoot);
 
             // Create file using embedded resource
             EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);

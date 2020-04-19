@@ -11,28 +11,22 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestEmbeddedResource
     {
-        private string targetPath;
+        private static string testRoot;
 
-        [TestInitialize]
-        public void InitializeTest()
+        [ClassInitialize()]
+        public static void InitializeTest(TestContext testContext)
         {
-            // Output path for testing
-            targetPath = TestConfig.CreateNewOutputPath();
+            testRoot = Path.Combine(testContext.TestRunDirectory, "TestEmbeddedResource");
 
-            // Delete file from any previous test
-            File.Delete(targetPath);
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            // Remove file after test
-            File.Delete(targetPath);
+            Directory.CreateDirectory(testRoot);
         }
 
         [TestMethod]
         public void TestCreateCopyFromPath()
         {
+            // Output path for testing
+            string targetPath = TestConfig.CreateNewOutputPath(testRoot);
+
             // Check method finds resource and writes file
             Assert.IsTrue(EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath));
 
