@@ -59,64 +59,68 @@ namespace BackupUtilityCore.Tasks
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
-            //////////////////////////////////////////////////////
-            // Remove directories from target not in source
-            // (Remove before copying new files to free up space)
-            //////////////////////////////////////////////////////
+            // Get qualifying files only
+            var sourceFiles = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
 
-            // Get current source/target directories
-            DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
-            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
-
-            // Need to check for directories that exist in target but not in source
-            foreach (DirectoryInfo target in targetDirectories)
+            // Check if previous backup taken place
+            if (targetDirInfo.Exists)
             {
-                // Only sub-dir name will match (ignore case), full paths are from different locations
-                if (!sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0))
+                //////////////////////////////////////////////////////
+                // Remove directories from target not in source
+                // (Remove before copying new files to free up space)
+                //////////////////////////////////////////////////////
+
+                // Get current source/target directories
+                DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+                DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+
+                // Need to check for directories that exist in target but not in source
+                foreach (DirectoryInfo target in targetDirectories)
                 {
-                    try
+                    // Only sub-dir name will match (ignore case), full paths are from different locations
+                    if (!sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0))
                     {
-                        // Delete recursively
-                        target.Delete(true);
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("SYNC ERROR", ie.Message);
+                        try
+                        {
+                            // Delete recursively
+                            target.Delete(true);
+                        }
+                        catch (IOException ie)
+                        {
+                            AddToLog("SYNC ERROR", ie.Message);
+                        }
                     }
                 }
-            }
 
-            //////////////////////////////////////////////////////
-            // Remove files from target not in source
-            // (Remove before copying new files to free up space)
-            //////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////
+                // Remove files from target not in source
+                // (Remove before copying new files to free up space)
+                //////////////////////////////////////////////////////                
 
-            // Get current source files
-            var sourceFiles = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly);
+                // Get names only as lowercase for comparison
+                string[] sourceFileNames = sourceFiles.Select(f => Path.GetFileName(f).ToLower()).ToArray();
 
-            // Get names only as lowercase for comparison
-            string[] sourceFileNames = sourceFiles.Select(f => Path.GetFileName(f).ToLower()).ToArray();
+                // Get full paths to target (maintain case, UNIX names can be case sensitive.)
+                string[] targetFiles = Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).ToArray();
 
-            // Get full paths to target (maintain case, UNIX names can be case sensitive.)
-            string[] targetFiles = Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).ToArray();
-
-            // Need to check for files that exist in target but not in source
-            foreach (string file in targetFiles)
-            {
-                // Compare names as lowercase
-                string nameOnly = Path.GetFileName(file).ToLower();
-
-                // Only name will match, full paths are from different locations
-                if (!sourceFileNames.Contains(nameOnly))
+                // Need to check for files that exist in target but not in source
+                foreach (string file in targetFiles)
                 {
-                    try
+                    // Compare names as lowercase
+                    string nameOnly = Path.GetFileName(file).ToLower();
+
+                    // Only name will match, full paths are from different locations
+                    if (!sourceFileNames.Contains(nameOnly))
                     {
-                        // Delete using full path
-                        DeleteFile(file);
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("SYNC ERROR", ie.Message);
+                        try
+                        {
+                            // Delete using full path
+                            DeleteFile(file);
+                        }
+                        catch (IOException ie)
+                        {
+                            AddToLog("SYNC ERROR", ie.Message);
+                        }
                     }
                 }
             }
@@ -132,12 +136,12 @@ namespace BackupUtilityCore.Tasks
             /////////////////////////////////////////////
             foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
             {
-                // Update directories
-                sourceDir = Path.Combine(sourceDir, subDirInfo.Name);
-                targetDir = Path.Combine(targetDir, subDirInfo.Name);
+                // Get sub-directories
+                string subSourceDir = Path.Combine(sourceDir, subDirInfo.Name);
+                string subTargetDir = Path.Combine(targetDir, subDirInfo.Name);
 
                 // Recursive call
-                backupCount += SyncDirectories(sourceDir, targetDir);
+                backupCount += SyncDirectories(subSourceDir, subTargetDir);
             }
 
             return backupCount;

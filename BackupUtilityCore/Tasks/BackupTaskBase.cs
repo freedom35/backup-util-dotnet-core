@@ -94,7 +94,7 @@ namespace BackupUtilityCore.Tasks
             // Validate settings
             if (BackupSettings?.Valid == true)
             {
-                AddToLog($"Running backup ({BackupDescription})");
+                AddToLog($"Running backup ({BackupDescription})...");
 
                 // Run sub-class logic
                 backupCount = PerformBackup();
