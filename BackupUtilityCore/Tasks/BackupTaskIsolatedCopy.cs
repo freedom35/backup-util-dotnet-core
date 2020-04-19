@@ -23,7 +23,7 @@ namespace BackupUtilityCore.Tasks
         {
             // Delete old backups first before backup - free up space.
             DeleteOldBackups();
-            
+
             // Get new target directory for backup
             string isolatedTargetDir = GetBackupLocation();
 
