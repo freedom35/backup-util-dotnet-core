@@ -140,13 +140,29 @@ namespace BackupUtilityTest
 
             filesCopied = task.Run(settings);
 
-            // Should be nothing changed, added file remains in target
+            // Should be nothing added, new file removed from target
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
             targetCount = VerifyBackup(sourceFiles, rootTargetDir);
 
             // File should also have been deleted from target
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
+            // Delete directory, run copy again
+            /////////////////////////////////////
+            addedDirInfo.Delete(true);
+
+            filesCopied = task.Run(settings);
+
+            // Should be nothing added
+            Assert.AreEqual(0, filesCopied);
+
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Dir and contents should also have been deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             // Remove handler
