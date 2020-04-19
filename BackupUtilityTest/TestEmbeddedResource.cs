@@ -22,12 +22,24 @@ namespace BackupUtilityTest
         }
 
         [TestMethod]
+        public void TestCreateDefaultConfig()
+        {
+            string targetPath = Path.Combine(testRoot, "default-embedded-config.yaml");
+
+            // Create copy of resource within BackupUtilityCore
+            Assert.IsTrue(EmbeddedResource.CreateDefaultConfig(targetPath));
+
+            // Verify file does exist
+            Assert.IsTrue(File.Exists(targetPath));
+        }
+
+        [TestMethod]
         public void TestCreateCopyFromPath()
         {
             // Output path for testing
-            string targetPath = TestConfig.CreateNewOutputPath(testRoot);
+            string targetPath = Path.Combine(testRoot, "test-embedded-config.yaml");
 
-            // Check method finds resource and writes file
+            // Create copy of resource within BackupUtilityTest
             Assert.IsTrue(EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath));
 
             // Verify file does exist

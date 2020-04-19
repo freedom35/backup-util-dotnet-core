@@ -9,19 +9,20 @@ namespace BackupUtilityCore
     public static class EmbeddedResource
     {
         /// <summary>
-        /// Creates a platform independent copy of the specified resource in target directory.
+        /// Creates a platform independent copy of the default config in the target directory.
         /// (Returns a different resource based on current platform.)
         /// </summary>
-        /// <param name="resourceName">Name of resource</param>
         /// <param name="targetPath">Target path where resource is created</param>
         /// <returns>true if file written ok</returns>
-        internal static bool CreateCopyFromName(string resourceName, string targetPath)
+        public static bool CreateDefaultConfig(string targetPath)
         {
+            const string EmbeddedConfigName = "backup-config.yaml";
+
             // Different file based on platform
             string resourceDir = Environment.OSVersion.Platform == PlatformID.Unix ? "Unix" : "Windows";
 
             // Build local resource path
-            string resourcePath = $"BackupUtilityCore.Resources.{resourceDir}.{resourceName}";
+            string resourcePath = $"BackupUtilityCore.Resources.{resourceDir}.{EmbeddedConfigName}";
 
             return CreateCopyFromPath(resourcePath, targetPath);
         }

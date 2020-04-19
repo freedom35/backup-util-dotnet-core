@@ -75,6 +75,7 @@ namespace BackupUtilityTest
                 MinFileWriteWaitTime = 0
             };
 
+            // Add handler for debug
             task.Log += Task_Log;
 
             ///////////////////////////////////////////

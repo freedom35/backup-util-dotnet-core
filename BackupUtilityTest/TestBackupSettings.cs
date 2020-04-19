@@ -301,8 +301,10 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestParseFromYaml()
         {
-            // Output path for testing
-            string targetPath = TestConfig.CreateNewConfig(testRoot);
+            string targetPath = Path.Combine(testRoot, "test-parse-config.yaml");
+
+            // Create copy of local resource
+            EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);
 
             // Parse newly created file
             BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);

@@ -178,18 +178,18 @@ namespace BackupUtilityCore
                 AddToLog($"Config file already exists: {configName}");
                 return false;
             }
-            else
+            else if (EmbeddedResource.CreateDefaultConfig(configPath))
             {
-                const string EmbeddedConfigName = "backup-config.yaml";
-
-                // Create file using defaults.
-                EmbeddedResource.CreateCopyFromName(EmbeddedConfigName, configPath);
-
                 // Report that file created.
                 AddToLog($"Default config file created: {configName}");
                 AddToLog("*** UPDATE CONFIGURATION BEFORE RUNNING APP ***");
 
                 return true;
+            }
+            else
+            {
+                AddToLog($"FAILED to create config: {configName}");
+                return false;
             }
         }
 
