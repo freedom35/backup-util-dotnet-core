@@ -149,8 +149,8 @@ namespace BackupUtilityTest
             // Compare directories
             targetCount = VerifyBackup(sourceFiles, rootTargetDir);
 
-            // Target should have one more file than source
-            Assert.AreEqual(sourceFiles.Count() + 1, targetCount);
+            // File should also have been deleted from target
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             // Remove handler
             task.Log -= Task_Log;

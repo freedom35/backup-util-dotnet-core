@@ -216,6 +216,9 @@ namespace BackupUtilityCore.Tasks
                         if (!targetFileInfo.Directory.Exists)
                         {
                             targetFileInfo.Directory.Create();
+
+                            // Preserve source directory attributes (hidden etc.)
+                            targetFileInfo.Directory.Attributes = sourceFileInfo.Directory.Attributes;
                         }
                         else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
                         {
