@@ -206,13 +206,10 @@ namespace BackupUtilityCore
             }
 
             // Parse args for backup settings
-            BackupSettings backupSettings = BackupSettings.ParseFromYaml(configPath);
-
-            // Check config parsed ok
-            if (backupSettings.Valid)
+            if (BackupSettings.TryParseFromYaml(configPath, out BackupType backupType, out BackupSettings backupSettings))
             {
                 // Create backup object
-                BackupTaskBase backupTask = CreateBackupTask(backupSettings.BackupType);
+                BackupTaskBase backupTask = CreateBackupTask(backupType);
 
                 // Add handler for output
                 backupTask.Log += AddToLog;
@@ -238,12 +235,17 @@ namespace BackupUtilityCore
             {
                 AddToLog($"Config file {backupSettings.SettingsFilename} is not valid.");
 
+                // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
+                if (!Enum.IsDefined(typeof(BackupType), backupType))
+                {
+                    AddToLog($"backup_type: setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
+                }
+
                 // Add some additional info to log...
                 foreach (KeyValuePair<string, string> invalidSetting in backupSettings.GetInvalidSettings())
                 {
                     AddToLog($"{invalidSetting.Key}: {invalidSetting.Value}");
                 }
-
 
                 return false;
             }
@@ -259,7 +261,7 @@ namespace BackupUtilityCore
                 BackupType.Copy => new BackupTaskCopy(),
                 BackupType.Sync => new BackupTaskSync(),
                 BackupType.Isolated => new BackupTaskIsolatedCopy(),
-                _ => throw new NotImplementedException($"Backup task not implemented for '{backupType}'."),
+                _ => throw new NotImplementedException($"Backup task not implemented for '{backupType}'.")
             };
         }
     }

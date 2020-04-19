@@ -36,7 +36,6 @@ namespace BackupUtilityTest
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
-                BackupType = BackupType.Copy,
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
@@ -156,7 +155,6 @@ namespace BackupUtilityTest
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
-                BackupType = BackupType.Copy,
                 IgnoreHiddenFiles = true,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
@@ -202,7 +200,6 @@ namespace BackupUtilityTest
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
-                BackupType = BackupType.Copy,
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir },
@@ -249,7 +246,6 @@ namespace BackupUtilityTest
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
-                BackupType = BackupType.Copy,
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir },

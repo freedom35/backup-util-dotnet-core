@@ -19,15 +19,6 @@ namespace BackupUtilityCore
         #region Properties
 
         /// <summary>
-        /// Determines type of backup.
-        /// </summary>
-        public BackupType BackupType
-        {
-            get;
-            set;
-        } = (BackupType)(-1);
-
-        /// <summary>
         /// Gets or sets the source directories.
         /// </summary>
         /// <value>The source directories.</value>
@@ -153,13 +144,16 @@ namespace BackupUtilityCore
         }
 
         /// <summary>
-        /// Basic YAML parser for backup settings.
+        /// Parses backup settings from a YAML file.
         /// </summary>
         /// <param name="settingsPath">Path of config file</param>
-        /// <returns>BackupSettings object</returns>
-        public static BackupSettings ParseFromYaml(string settingsPath)
+        /// <param name="backupType">Type of backup</param>
+        /// <param name="settings">BackupSettings object</param>
+        /// <returns>true if parsed okreturns>
+        public static bool TryParseFromYaml(string settingsPath, out BackupType backupType, out BackupSettings settings)
         {
-            BackupSettings settings = new BackupSettings()
+            // Initialize settings object
+            settings = new BackupSettings()
             {
                 SettingsFilename = System.IO.Path.GetFileName(settingsPath)
             };
@@ -175,7 +169,12 @@ namespace BackupUtilityCore
 
             if (keyValuePairs.TryGetValue("backup_type", out object configBackupType) && Enum.TryParse(configBackupType.ToString(), true, out BackupType type))
             {
-                settings.BackupType = type;
+                backupType = type;
+            }
+            else
+            {
+                // Invalidate
+                backupType = (BackupType)(-1);
             }
 
             if (keyValuePairs.TryGetValue("target_dir", out object targetDir) && targetDir is string targetDirAsString)
@@ -212,7 +211,8 @@ namespace BackupUtilityCore
                 settings.MaxIsololationDays = daysAsInt;
             }
 
-            return settings;
+            // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
+            return Enum.IsDefined(typeof(BackupType), backupType) && settings.Valid;
         }
 
         /// <summary>
@@ -221,12 +221,6 @@ namespace BackupUtilityCore
         public Dictionary<string, string> GetInvalidSettings()
         {
             Dictionary<string, string> invalidSettings = new Dictionary<string, string>();
-
-            // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
-            if (!Enum.IsDefined(typeof(BackupType), BackupType))
-            {
-                invalidSettings.Add("backup_type", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
-            }
 
             // Must have a target
             if (string.IsNullOrEmpty(TargetDirectory))

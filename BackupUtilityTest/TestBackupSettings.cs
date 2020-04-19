@@ -22,24 +22,6 @@ namespace BackupUtilityTest
         }
 
         [TestMethod]
-        public void TestBackupTypeProp()
-        {
-            BackupType type = BackupType.Sync;
-
-            BackupSettings settings = new BackupSettings()
-            {
-                BackupType = type
-            };
-
-            Assert.AreEqual(type, settings.BackupType);
-
-            // Change and re-test
-            type = BackupType.Copy;
-            settings.BackupType = type;
-            Assert.AreEqual(type, settings.BackupType);
-        }
-
-        [TestMethod]
         public void TestSourceDirectoriesProp()
         {
             string[] dirs = new string[]
@@ -218,10 +200,6 @@ namespace BackupUtilityTest
 
             settings.SourceDirectories = new string[] { "dir2" };
 
-            Assert.IsFalse(settings.Valid);
-
-            settings.BackupType = BackupType.Copy;
-
             // All requirements now set
             Assert.IsTrue(settings.Valid);
 
@@ -286,9 +264,6 @@ namespace BackupUtilityTest
             BackupSettings settings = new BackupSettings();
 
             // Critical settings not valid by default
-            Assert.AreEqual(3, settings.GetInvalidSettings().Count);
-
-            settings.BackupType = BackupType.Copy;
             Assert.AreEqual(2, settings.GetInvalidSettings().Count);
 
             settings.TargetDirectory = "dir1";
@@ -307,7 +282,7 @@ namespace BackupUtilityTest
             EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);
 
             // Parse newly created file
-            BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);
+            Assert.IsTrue(BackupSettings.TryParseFromYaml(targetPath, out BackupType backupType, out BackupSettings settings));
 
             // Verify parsed file
             Assert.IsNotNull(settings);
@@ -315,7 +290,7 @@ namespace BackupUtilityTest
             Assert.AreEqual(Path.GetFileName(targetPath), settings.SettingsFilename);
 
             // Compare values to test-config.yaml (embedded resource)
-            Assert.AreEqual(BackupType.Sync, settings.BackupType);
+            Assert.AreEqual(BackupType.Sync, backupType);
             Assert.AreEqual(false, settings.IgnoreHiddenFiles);
             Assert.AreEqual(14, settings.MaxIsololationDays);
             Assert.AreEqual(@"C:\Target\Test", settings.TargetDirectory);
