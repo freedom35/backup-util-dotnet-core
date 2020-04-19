@@ -2,7 +2,7 @@
 
 Backup Utility is a console app that copies files from multiple source directories to a common target directory.  
 
-The app is built as a .NET Core console app rather than a service in order to remain portable between Windows and Mac.  
+The app is built as a .NET Core console app rather than a service in order to remain portable between Windows, Mac, and Linux.  
   
 Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to backup files to your own network or USB drive.  
 
@@ -17,6 +17,8 @@ You are welcome to use/update this software under the terms of the **MIT license
   
 ## Requirements
 Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed.  
+
+Config files (YAML) can be edited using any text editor.
   
 To build the project you will need the [.NET Core SDK](https://dotnet.microsoft.com/download).  
 
@@ -24,7 +26,7 @@ I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual St
 <br />
 
 ## Usage
-The portable version of the app (**backuputil.dll**) can be executed on either **Windows** or **Mac**.  
+The portable version of the app (**backuputil.dll**) can be executed on either **Windows**, **Mac**, or **Linux**.  
 
 To execute the portable version, open a terminal window and change to the directory containing the app.  
 
@@ -42,7 +44,7 @@ The specific command line with vary depending on the OS:
 $ backuputil
 ```
 
-**Mac:**
+**Mac / Linux:**
 ```sh
 $ ./backuputil
 ```
