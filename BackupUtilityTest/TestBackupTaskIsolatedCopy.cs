@@ -44,10 +44,7 @@ namespace BackupUtilityTest
             string testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupIsolatedCopy");
 
             // Ensure removed from previous test
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
+            TestDirectory.DeleteIfExists(testRoot);
 
             string testPath = Path.Combine(testRoot, "BackupCopyIsolated");
 
@@ -140,10 +137,7 @@ namespace BackupUtilityTest
             task.Log -= Task_Log;
 
             // Remove all files (source and target)
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
+            TestDirectory.DeleteIfExists(testRoot);
         }
 
         private string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)

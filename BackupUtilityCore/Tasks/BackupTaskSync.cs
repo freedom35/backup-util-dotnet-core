@@ -82,8 +82,7 @@ namespace BackupUtilityCore.Tasks
                     {
                         try
                         {
-                            // Delete recursively
-                            target.Delete(true);
+                            DeleteDirectory(target);
                         }
                         catch (IOException ie)
                         {
@@ -145,18 +144,6 @@ namespace BackupUtilityCore.Tasks
             }
 
             return backupCount;
-        }
-
-        private void DeleteFile(string filename)
-        {
-            FileInfo fileInfo = new FileInfo(filename);
-
-            if (fileInfo.Exists)
-            {
-                // Make sure file is not read-only before we delete it.
-                fileInfo.Attributes = FileAttributes.Normal;
-                fileInfo.Delete();
-            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace BackupUtilityTest.Helper
 {
@@ -25,10 +26,7 @@ namespace BackupUtilityTest.Helper
             string rootTargetDir = Path.Combine(rootWorkingDir, "Target");
 
             // Ensure any previous test removed so starting fresh
-            if (Directory.Exists(rootWorkingDir))
-            {
-                Directory.Delete(rootWorkingDir, true);
-            }
+            TestDirectory.DeleteIfExists(rootWorkingDir);
 
             ///////////////////////////////////
             // Create root target
@@ -78,7 +76,7 @@ namespace BackupUtilityTest.Helper
             // Add hidden directory
             string hiddenDir = Path.Combine(rootSourceDir, ".hidden-dir");
             DirectoryInfo hiddenDirInfo = Directory.CreateDirectory(hiddenDir);
-            hiddenDirInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+            hiddenDirInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden | FileAttributes.ReadOnly;
 
             // Add file to hidden directory
             string hiddenFile2 = Path.Combine(hiddenDir, ".hidden-file2.txt");
@@ -87,6 +85,25 @@ namespace BackupUtilityTest.Helper
             hiddenFileCount++;
 
             return new Tuple<string, string, string, int>(rootWorkingDir, rootSourceDir, rootTargetDir, hiddenFileCount);
+        }
+
+        public static void DeleteIfExists(string dirName)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(dirName);
+
+            if (directoryInfo.Exists)
+            {
+                // Order by longest directory  - will be the most sub-dir (work backwards)
+                foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
+                {
+                    // Ensure not read-only so can be deleted 
+                    di.Attributes = FileAttributes.Normal;
+                    di.Delete(true);
+                }
+
+                // Delete recursively
+                directoryInfo.Delete(true);
+            }
         }
     }
 }

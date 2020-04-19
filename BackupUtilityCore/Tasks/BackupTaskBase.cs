@@ -252,6 +252,32 @@ namespace BackupUtilityCore.Tasks
             return result;
         }
 
+        protected void DeleteFile(string filename)
+        {
+            FileInfo fileInfo = new FileInfo(filename);
+
+            if (fileInfo.Exists)
+            {
+                // Make sure file is not read-only before we delete it.
+                fileInfo.Attributes = FileAttributes.Normal;
+                fileInfo.Delete();
+            }
+        }
+
+        protected void DeleteDirectory(DirectoryInfo directoryInfo)
+        {
+            // Order by longest directory  - will be the most sub-dir (work backwards)
+            foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
+            {
+                // Ensure not read-only so can be deleted 
+                di.Attributes = FileAttributes.Normal;
+                di.Delete(true);
+            }
+
+            // Delete recursively
+            directoryInfo.Delete(true);
+        }
+
         private int RetryErrors()
         {
             int backupCount = 0;

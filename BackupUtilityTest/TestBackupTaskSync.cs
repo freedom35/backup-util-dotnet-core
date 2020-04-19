@@ -20,20 +20,14 @@ namespace BackupUtilityTest
             testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupTaskSync");
 
             // Ensure removed from previous test
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
+            TestDirectory.DeleteIfExists(testRoot);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
             // Remove all files (source and target)
-            if (Directory.Exists(testRoot))
-            {
-                Directory.Delete(testRoot, true);
-            }
+            TestDirectory.DeleteIfExists(testRoot);
         }
 
         [TestMethod]

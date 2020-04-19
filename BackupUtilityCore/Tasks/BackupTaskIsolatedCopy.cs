@@ -95,9 +95,7 @@ namespace BackupUtilityCore.Tasks
                             try
                             {
                                 AddToLog($"Deleting: {dirInfo.FullName}");
-
-                                // Delete recursively
-                                dirInfo.Delete(true);
+                                DeleteDirectory(dirInfo);
                             }
                             catch (IOException ie)
                             {
