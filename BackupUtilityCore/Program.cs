@@ -92,7 +92,9 @@ namespace BackupUtilityCore
         /// </summary>
         private static void AddToLog(object _, MessageEventArgs e)
         {
-            AddToLog(e.ToString(Console.BufferWidth));
+            // Make 1 less that buffer width to ensure it fits 
+            // (may not be quite enough room for the entire last char)
+            AddToLog(e.ToString(Console.BufferWidth - 1));
         }
 
         /// <summary>
