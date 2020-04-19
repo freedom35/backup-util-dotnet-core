@@ -15,34 +15,23 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskCopy
     {
-        private string testRoot;
+        private static string testRoot;
 
-        [TestInitialize]
-        public void InitializeTest()
+        [ClassInitialize()]
+        public static void InitializeTest(TestContext testContext)
         {
-            testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupTaskCopy");
-
-            // Ensure removed from previous test
-            TestDirectory.DeleteIfExists(testRoot);
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            // Remove all files (source and target)
-            TestDirectory.DeleteIfExists(testRoot);
+            testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupTaskCopy");
         }
 
         [TestMethod]
         public void TestBackupCopy()
         {
-            string testPath = Path.Combine(testRoot, "BackupCopyBase");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupCopyBase");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             // Create settings
             BackupSettings settings = new BackupSettings()
@@ -156,14 +145,13 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopyExcludeHiddenFiles()
         {
-            string testPath = Path.Combine(testRoot, "BackupCopyHidden");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupCopyHidden");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
-            int hiddenFileCount = dirs.Item4;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
+            int hiddenFileCount = dirs.Item3;
 
             // Create settings
             BackupSettings settings = new BackupSettings()
@@ -202,13 +190,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopyExcludeFileTypes()
         {
-            string testPath = Path.Combine(testRoot, "BackupCopyExcludeFile");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupCopyExcludeFile");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             string[] excludedTypes = new string[] { "md", "bmp" };
 
@@ -250,13 +237,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopyExcludeDirectories()
         {
-            string testPath = Path.Combine(testRoot, "BackupCopyExcludeDir");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupCopyExcludeDir");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
 

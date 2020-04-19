@@ -15,6 +15,14 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskIsolatedCopy
     {
+        private static string testRoot;
+
+        [ClassInitialize()]
+        public static void InitializeTest(TestContext testContext)
+        {
+            testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupIsolatedCopy");
+        }
+
         [DataRow("2020-04-17 233102", true)]
         [DataRow("2021-01-16 105104-1", true)]
         [DataRow("2019-12-23 015959-2", true)]
@@ -44,18 +52,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupCopyIsolated()
         {
-            string testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupIsolatedCopy");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupCopyIsolated");
 
-            // Ensure removed from previous test
-            TestDirectory.DeleteIfExists(testRoot);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string testPath = Path.Combine(testRoot, "BackupCopyIsolated");
-
-            var dirs = TestDirectory.Create(testPath);
-
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             // Create settings
             BackupSettings settings = new BackupSettings()
@@ -138,9 +140,6 @@ namespace BackupUtilityTest
 
             // Remove handler
             task.Log -= Task_Log;
-
-            // Remove all files (source and target)
-            TestDirectory.DeleteIfExists(testRoot);
         }
 
         private string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)

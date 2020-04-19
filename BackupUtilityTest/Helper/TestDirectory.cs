@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace BackupUtilityTest.Helper
 {
@@ -12,24 +11,18 @@ namespace BackupUtilityTest.Helper
         /// <summary>
         /// Creates a test directory with dummy files.
         /// </summary>
-        /// <param name="name">Name of test</param>
-        /// <returns>workingDir, sourceDir, targetDir, hiddenFileCount</returns>
-        public static Tuple<string, string, string, int> Create(string name)
+        /// <param name="rootWorkingDir">Root directory for test</param>
+        /// <returns>sourceDir, targetDir, hiddenFileCount</returns>
+        public static Tuple<string, string, int> Create(string rootWorkingDir)
         {
-            string now = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-
             ///////////////////////////////////
             // Initialize root dirs
             ///////////////////////////////////
-            string rootWorkingDir = Path.Combine(Environment.CurrentDirectory, $"{name}-{now}");
             string rootSourceDir = Path.Combine(rootWorkingDir, "Source");
             string rootTargetDir = Path.Combine(rootWorkingDir, "Target");
 
-            // Ensure any previous test removed so starting fresh
-            TestDirectory.DeleteIfExists(rootWorkingDir);
-
             ///////////////////////////////////
-            // Create root target
+            // Create root target - created by task
             ///////////////////////////////////
             //Directory.CreateDirectory(rootTargetDir);
 
@@ -84,30 +77,7 @@ namespace BackupUtilityTest.Helper
             //File.SetAttributes(hiddenFile2, FileAttributes.Hidden); // App considers files in hidden dir also hidden
             hiddenFileCount++;
 
-            return new Tuple<string, string, string, int>(rootWorkingDir, rootSourceDir, rootTargetDir, hiddenFileCount);
-        }
-
-        /// <summary>
-        /// Deletes directory, even if read-only.
-        /// </summary>
-        public static void DeleteIfExists(string dirName)
-        {
-            DirectoryInfo directoryInfo = new DirectoryInfo(dirName);
-
-            if (directoryInfo.Exists)
-            {
-                // Order by longest directory  - will be the most sub-dir (work backwards)
-                foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
-                {
-                    // Ensure not read-only so can be deleted 
-                    di.Attributes = FileAttributes.Normal;
-                    di.Delete(true);
-                }
-
-                // Delete recursively
-                directoryInfo.Attributes = FileAttributes.Normal;
-                directoryInfo.Delete(true);
-            }
+            return new Tuple<string, string, int>(rootSourceDir, rootTargetDir, hiddenFileCount);
         }
     }
 }

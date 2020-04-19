@@ -15,34 +15,23 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskSync
     {
-        private string testRoot;
+        private static string testRoot;
 
-        [TestInitialize]
-        public void InitializeTest()
+        [ClassInitialize()]
+        public static void InitializeTest(TestContext testContext)
         {
-            testRoot = Path.Combine(Environment.CurrentDirectory, "TestBackupTaskSync");
-
-            // Ensure removed from previous test
-            TestDirectory.DeleteIfExists(testRoot);
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            // Remove all files (source and target)
-            TestDirectory.DeleteIfExists(testRoot);
+            testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupTaskSync");
         }
 
         [TestMethod]
         public void TestBackupSync()
         {
-            string testPath = Path.Combine(testRoot, "BackupSyncBase");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncBase");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             // Create settings
             BackupSettings settings = new BackupSettings()
@@ -170,6 +159,13 @@ namespace BackupUtilityTest
             /////////////////////////////////////
             settings.IgnoreHiddenFiles = true;
 
+            // Return non-hidden
+            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden);
+
+            // Refresh expected source files
+            sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
+
+            // Run task again
             filesCopied = task.Run(settings);
 
             // Should be nothing added
@@ -188,14 +184,13 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupSyncExcludeHiddenFiles()
         {
-            string testPath = Path.Combine(testRoot, "BackupSyncHidden");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncHidden");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
-            int hiddenFileCount = dirs.Item4;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
+            int hiddenFileCount = dirs.Item3;
 
             // Create settings
             BackupSettings settings = new BackupSettings()
@@ -234,13 +229,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupSyncExcludeFileTypes()
         {
-            string testPath = Path.Combine(testRoot, "BackupSyncExcludeFile");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncExcludeFile");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             string[] excludedTypes = new string[] { "md", "bmp" };
 
@@ -282,13 +276,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupSyncExcludeDirectories()
         {
-            string testPath = Path.Combine(testRoot, "BackupSyncExcludeDir");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncExcludeDir");
 
-            var dirs = TestDirectory.Create(testPath);
+            var dirs = TestDirectory.Create(rootWorkingDir);
 
-            string rootWorkingDir = dirs.Item1;
-            string rootSourceDir = dirs.Item2;
-            string rootTargetDir = dirs.Item3;
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
 
             string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
 
