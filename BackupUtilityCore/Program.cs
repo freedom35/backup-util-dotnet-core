@@ -155,15 +155,15 @@ namespace BackupUtilityCore
             }
 
             // Check whether full path or just file supplied.
-            if (!System.IO.Path.IsPathRooted(configName))
-            {
-                // Add current directory to path.
-                return System.IO.Path.Combine(Environment.CurrentDirectory, configName);
-            }
-            else
+            if (System.IO.Path.IsPathRooted(configName))
             {
                 // Already contains path
                 return configName;
+            }
+            else
+            {
+                // Add current directory to path.
+                return System.IO.Path.Combine(Environment.CurrentDirectory, configName);
             }
         }
 
