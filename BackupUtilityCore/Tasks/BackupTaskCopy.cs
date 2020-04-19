@@ -3,10 +3,17 @@ using System.Linq;
 
 namespace BackupUtilityCore.Tasks
 {
+    /// <summary>
+    /// Backup task for copying files from source to target.
+    /// </summary>
     public class BackupTaskCopy : BackupTaskBase
     {
         protected override string BackupDescription => "COPY";
 
+        /// <summary>
+        /// Copies source directories to target directory.
+        /// </summary>
+        /// <returns>Number of new files copied</returns>
         protected override int PerformBackup()
         {
             return CopyDirectoryTo(BackupSettings.TargetDirectory);

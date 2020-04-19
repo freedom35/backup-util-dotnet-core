@@ -87,11 +87,17 @@ namespace BackupUtilityCore
             return returnCode;
         }
 
+        /// <summary>
+        /// Event handler for backup task logging.
+        /// </summary>
         private static void AddToLog(object _, MessageEventArgs e)
         {
             AddToLog(e.ToString(Console.BufferWidth));
         }
 
+        /// <summary>
+        /// Log output is console window.
+        /// </summary>
         private static void AddToLog(string message)
         {
             Console.WriteLine(message);
@@ -136,6 +142,9 @@ namespace BackupUtilityCore
             }
         }
 
+        /// <summary>
+        /// Gets full path for the config name, appends yaml extension if missing.
+        /// </summary>
         private static string GetConfigPath(string configName)
         {
             // Add default yaml extension if none given
@@ -240,6 +249,9 @@ namespace BackupUtilityCore
             }
         }
 
+        /// <summary>
+        /// Returns appropriate sub-class based on backup type.
+        /// </summary>
         private static BackupTaskBase CreateBackupTask(BackupType backupType)
         {
             return backupType switch

@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.Tasks.BackupTaskCopy
+    /// </summary>
     [TestClass]
     public sealed class TestBackupTaskCopy
     {

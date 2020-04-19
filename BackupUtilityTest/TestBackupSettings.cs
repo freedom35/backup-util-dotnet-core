@@ -5,6 +5,9 @@ using System.IO;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.BackupSettings
+    /// </summary>
     [TestClass]
     public sealed class TestBackupSettings
     {

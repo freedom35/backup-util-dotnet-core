@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BackupUtilityCore.Tasks
 {
+    /// <summary>
+    /// Backup task for syncing target directory with source directories.
+    /// </summary>
     public sealed class BackupTaskSync : BackupTaskBase
     {
         protected override string BackupDescription => "SYNC";

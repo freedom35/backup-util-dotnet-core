@@ -3,6 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.BackupResultEnum
+    /// </summary>
     [TestClass]
     public sealed class TestBackupResultEnum
     {

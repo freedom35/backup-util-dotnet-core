@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.Tasks.BackupTaskSync
+    /// </summary>
     [TestClass]
     public sealed class TestBackupTaskSync
     {
@@ -176,7 +179,7 @@ namespace BackupUtilityTest
 
         private void Task_Log(object sender, MessageEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"COPY-TEST: {e}");
+            System.Diagnostics.Debug.WriteLine($"SYNC-TEST: {e}");
         }
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace BackupUtilityTest
 {
     /// <summary>
-    /// Test cases for YamlParser.
+    /// Test cases for BackupUtilityCore.YAML.YamlParser
     /// </summary>
     [TestClass]
     public sealed class TestYamlParser

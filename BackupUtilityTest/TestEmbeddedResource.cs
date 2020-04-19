@@ -5,6 +5,9 @@ using System.IO;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.EmbeddedResource
+    /// </summary>
     [TestClass]
     public sealed class TestEmbeddedResource
     {

@@ -87,6 +87,9 @@ namespace BackupUtilityTest.Helper
             return new Tuple<string, string, string, int>(rootWorkingDir, rootSourceDir, rootTargetDir, hiddenFileCount);
         }
 
+        /// <summary>
+        /// Deletes directory, even if read-only.
+        /// </summary>
         public static void DeleteIfExists(string dirName)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(dirName);

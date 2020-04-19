@@ -4,6 +4,9 @@ using System.Reflection;
 
 namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Class for handling command line args relating to the app.
+    /// </summary>
     public static class CommandLineArgs
     {
         /// <summary>

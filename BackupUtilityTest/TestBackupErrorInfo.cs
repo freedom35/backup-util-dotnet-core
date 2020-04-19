@@ -3,6 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.BackupErrorInfo
+    /// </summary>
     [TestClass]
     public sealed class TestBackupErrorInfo
     {

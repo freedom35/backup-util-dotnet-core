@@ -9,6 +9,9 @@ using System.Linq;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.Tasks.BackupTaskIsolatedCopy
+    /// </summary>
     [TestClass]
     public sealed class TestBackupTaskIsolatedCopy
     {
@@ -181,7 +184,7 @@ namespace BackupUtilityTest
 
         private void Task_Log(object sender, MessageEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"COPY-ISO-TEST: {e}");
+            System.Diagnostics.Debug.WriteLine($"ISO-COPY-TEST: {e}");
         }
     }
 }

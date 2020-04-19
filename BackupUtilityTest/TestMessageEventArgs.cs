@@ -3,6 +3,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BackupUtilityTest
 {
+    /// <summary>
+    /// Test cases for BackupUtilityCore.MessageEventArgs
+    /// </summary>
     [TestClass]
     public sealed class TestMessageEventArgs
     {

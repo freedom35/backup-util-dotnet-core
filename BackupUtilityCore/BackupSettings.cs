@@ -4,12 +4,14 @@ using System.Linq;
 
 namespace BackupUtilityCore
 {
+    /// <summary>
+    /// Settings for a backup task.
+    /// </summary>
     public sealed class BackupSettings
     {
         #region Members
 
         private string[] excludedDirectories = new string[0];
-
         private string[] excludedFileTypes = new string[0];
 
         #endregion

@@ -4,27 +4,30 @@ using System.IO;
 namespace BackupUtilityCore.Tasks
 {
     /// <summary>
-    /// Same logic as copy, just starting in a new root dir with each copy.
+    /// Same logic as copy task, just starting in a new root dir with each copy.
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
+        protected override string BackupDescription => "ISO-COPY";
+
         /// <summary>
         /// Date format used for directory names.
         /// </summary>
         public const string DirDateFormat = "yyyy-MM-dd HHmmss";
 
-        protected override string BackupDescription => "ISO-COPY";
-
+        /// <summary>
+        /// Creates a new backup copy in a new directory.
+        /// </summary>
+        /// <returns>Number of files copied in new backup</returns>
         protected override int PerformBackup()
         {
             // Delete old backups first before backup - free up space.
-            if (BackupSettings.MaxIsololationDays > 0)
-            {
-                DeleteOldBackups();
-            }
-
+            DeleteOldBackups();
+            
+            // Get new target directory for backup
             string isolatedTargetDir = GetBackupLocation();
 
+            // Base call
             return CopyDirectoryTo(isolatedTargetDir);
         }
 
@@ -69,37 +72,45 @@ namespace BackupUtilityCore.Tasks
             return DateTime.TryParseExact(dir, DirDateFormat, null, System.Globalization.DateTimeStyles.None, out dirDate);
         }
 
+        /// <summary>
+        /// Deletes backups older than specified.
+        /// Backup age is based on root directory name - contains date created.
+        /// </summary>
         private void DeleteOldBackups()
         {
-            AddToLog("Deleting old backups...");
-
-            int maxAgeDays = BackupSettings.MaxIsololationDays;
-            DateTime now = DateTime.Now;
-
-            DirectoryInfo targetRoot = new DirectoryInfo(BackupSettings.TargetDirectory);
-
-            if (targetRoot.Exists)
+            // Check enabled
+            if (BackupSettings.MaxIsololationDays > 0)
             {
-                // Enumerate directories in root
-                foreach (DirectoryInfo dirInfo in targetRoot.EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
-                {
-                    // Get name only, not full path
-                    string name = dirInfo.Name;
+                AddToLog("Deleting old backups...");
 
-                    // TryParse directory names for ones with date formats
-                    if (TryParseDateFromIsolatedDirectory(name, out DateTime dirDate))
+                int maxAgeDays = BackupSettings.MaxIsololationDays;
+                DateTime now = DateTime.Now;
+
+                DirectoryInfo targetRoot = new DirectoryInfo(BackupSettings.TargetDirectory);
+
+                if (targetRoot.Exists)
+                {
+                    // Enumerate directories in root
+                    foreach (DirectoryInfo dirInfo in targetRoot.EnumerateDirectories("*", SearchOption.TopDirectoryOnly))
                     {
-                        // Check age of backup
-                        if ((now - dirDate).TotalDays > maxAgeDays)
+                        // Get name only, not full path
+                        string name = dirInfo.Name;
+
+                        // TryParse directory names for ones with date formats
+                        if (TryParseDateFromIsolatedDirectory(name, out DateTime dirDate))
                         {
-                            try
+                            // Check age of backup
+                            if ((now - dirDate).TotalDays > maxAgeDays)
                             {
-                                AddToLog($"Deleting: {dirInfo.FullName}");
-                                DeleteDirectory(dirInfo);
-                            }
-                            catch (IOException ie)
-                            {
-                                AddToLog("I/O ERROR", ie.Message);
+                                try
+                                {
+                                    AddToLog($"Deleting: {dirInfo.FullName}");
+                                    DeleteDirectory(dirInfo);
+                                }
+                                catch (IOException ie)
+                                {
+                                    AddToLog("I/O ERROR", ie.Message);
+                                }
                             }
                         }
                     }

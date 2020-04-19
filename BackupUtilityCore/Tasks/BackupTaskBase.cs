@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace BackupUtilityCore.Tasks
 {
+    /// <summary>
+    /// Base class for backup task.
+    /// </summary>
     public abstract class BackupTaskBase
     {
         #region Members
@@ -127,13 +130,22 @@ namespace BackupUtilityCore.Tasks
             AddToLog(message, string.Empty);
         }
 
+        /// <summary>
+        /// Raises logging event.
+        /// </summary>
         protected void AddToLog(string message, string arg)
         {
             // Check event handled
             Log?.Invoke(this, new MessageEventArgs(message, arg));
         }
 
-        protected int CopyFiles(IEnumerable<string> files, string targetDir)
+        /// <summary>
+        /// Copies source files to target directory.
+        /// </summary>
+        /// <param name="sourceFiles">File paths to copy</param>
+        /// <param name="targetDir">Target directory where to copy files</param>
+        /// <returns>Number of files copied</returns>
+        protected int CopyFiles(IEnumerable<string> sourceFiles, string targetDir)
         {
             int backupCount = 0;
 
@@ -141,7 +153,7 @@ namespace BackupUtilityCore.Tasks
             int errorCount = 0;
 
             // Copy each file
-            foreach (string file in files)
+            foreach (string file in sourceFiles)
             {
                 BackupResult result = CopyFile(file, targetDir);
 
@@ -252,6 +264,9 @@ namespace BackupUtilityCore.Tasks
             return result;
         }
 
+        /// <summary>
+        /// Deletes file, even if read-only.
+        /// </summary>
         protected void DeleteFile(string filename)
         {
             FileInfo fileInfo = new FileInfo(filename);
@@ -264,6 +279,9 @@ namespace BackupUtilityCore.Tasks
             }
         }
 
+        /// <summary>
+        /// Deletes directory, even if flagged as read-only.
+        /// </summary>
         protected void DeleteDirectory(DirectoryInfo directoryInfo)
         {
             // Order by longest directory  - will be the most sub-dir (work backwards)
@@ -278,6 +296,11 @@ namespace BackupUtilityCore.Tasks
             directoryInfo.Delete(true);
         }
 
+        /// <summary>
+        /// Will re-attempt to backup files that failed during original backup.
+        /// (Retry depends on reason they failed)
+        /// </summary>
+        /// <returns>Number of files successfully backed-up by retry</returns>
         private int RetryErrors()
         {
             int backupCount = 0;
