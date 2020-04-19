@@ -355,5 +355,32 @@ namespace BackupUtilityCore.Tasks
 
             return backupCount;
         }
+
+        /// <summary>
+        /// Gets the directory name where the source starts.
+        /// </summary>
+        /// <param name="sourceDir">Name of source directory</param>
+        /// <param name="targetDir">Name of target directory</param>
+        /// <returns>Part of source directory where source/target directories differ</returns>
+        protected string GetSourceSubDir(string sourceDir, string targetDir)
+        {
+            // Ensure stay within array bounds
+            int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
+
+            // Don't return index at root
+            int i = Path.GetPathRoot(sourceDir).Length;
+
+            // Find first char where directories differ
+            for (; i < maxLen; i++)
+            {
+                if (sourceDir[i] != targetDir[i])
+                {
+                    break;
+                }
+            }
+
+            // Return string after position where they differ
+            return sourceDir.Substring(i);
+        }
     }
 }

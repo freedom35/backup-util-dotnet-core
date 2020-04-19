@@ -79,5 +79,32 @@ namespace BackupUtilityTest.Helper
 
             return new Tuple<string, string, int>(rootSourceDir, rootTargetDir, hiddenFileCount);
         }
+
+        /// <summary>
+        /// Gets the index where the source directory differs from the target.
+        /// </summary>
+        /// <param name="sourceDir">Name of source dir</param>
+        /// <param name="targetDir">Name of target dir</param>
+        /// <returns>Index position where they differ</returns>
+        public static int IndexOfSourceSubDir(string sourceDir, string targetDir)
+        {
+            // Ensure stay within array bounds
+            int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
+
+            // Don't return index at root
+            int i = 0;
+
+            // Find first char where directories differ
+            for (; i < maxLen; i++)
+            {
+                if (sourceDir[i] != targetDir[i])
+                {
+                    break;
+                }
+            }
+
+            // Return position where they differ
+            return i;
+        }
     }
 }

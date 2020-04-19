@@ -167,7 +167,7 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), targetFilesWithoutRoots.Count());
 
             // Get length of root string to be removed
-            int rootSourceLength = Path.GetPathRoot(sourceFiles.First()).Length;
+            int rootSourceLength = TestDirectory.IndexOfSourceSubDir(sourceFiles.First(), rootTargetDir);
 
             // Compare directories
             foreach (string file in sourceFiles)

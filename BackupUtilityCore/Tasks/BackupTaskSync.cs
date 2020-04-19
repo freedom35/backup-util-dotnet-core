@@ -38,7 +38,9 @@ namespace BackupUtilityCore.Tasks
 
                 // Get source path without root
                 DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
-                string sourceSubDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
+
+                // Remove common root path
+                string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
 
                 // Append source sub-dir to target
                 string targetSubDir = Path.Combine(targetDir, sourceSubDir);

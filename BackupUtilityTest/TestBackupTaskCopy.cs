@@ -290,7 +290,7 @@ namespace BackupUtilityTest
             var targetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/')).ToArray();
 
             // Get length of root string to be removed
-            int rootSourceLength = Path.GetPathRoot(sourceFiles.First()).Length;
+            int rootSourceLength = TestDirectory.IndexOfSourceSubDir(sourceFiles.First(), rootTargetDir);
 
             // Compare directories
             foreach (string file in sourceFiles)

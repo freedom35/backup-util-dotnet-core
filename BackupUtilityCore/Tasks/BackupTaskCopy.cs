@@ -63,8 +63,8 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
-                // Remove root path
-                string sourceSubDir = sourceDirInfo.FullName.Substring(sourceDirInfo.Root.Name.Length);
+                // Remove common root path
+                string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
 
                 // Get target path
                 string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
