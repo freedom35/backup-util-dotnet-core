@@ -105,6 +105,7 @@ namespace BackupUtilityTest.Helper
                 }
 
                 // Delete recursively
+                directoryInfo.Attributes = FileAttributes.Normal;
                 directoryInfo.Delete(true);
             }
         }

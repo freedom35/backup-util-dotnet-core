@@ -284,15 +284,22 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         protected void DeleteDirectory(DirectoryInfo directoryInfo)
         {
-            // Order by longest directory  - will be the most sub-dir (work backwards)
+            // Order subs by longest directory - will be the most sub-dir (work backwards)
             foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
             {
-                // Ensure not read-only so can be deleted 
-                di.Attributes = FileAttributes.Normal;
-                di.Delete(true);
+                RemoveReadOnlyAndDeleteDirectory(di);
             }
 
-            // Delete recursively
+            // Delete root
+            RemoveReadOnlyAndDeleteDirectory(directoryInfo);
+        }
+
+        private void RemoveReadOnlyAndDeleteDirectory(DirectoryInfo directoryInfo)
+        {
+            // Ensure not read-only so can be deleted 
+            directoryInfo.Attributes = FileAttributes.Normal;
+
+            // Delete recursively (may contain files)
             directoryInfo.Delete(true);
         }
 

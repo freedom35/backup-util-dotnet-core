@@ -63,7 +63,7 @@ namespace BackupUtilityCore.Tasks
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
             // Get qualifying files only
-            var sourceFiles = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+            var sourceFiles = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileTypeExcluded(f));
 
             // Check if previous backup taken place
             if (targetDirInfo.Exists)
@@ -81,7 +81,15 @@ namespace BackupUtilityCore.Tasks
                 foreach (DirectoryInfo target in targetDirectories)
                 {
                     // Only sub-dir name will match (ignore case), full paths are from different locations
-                    if (!sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0))
+                    bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
+
+                    // Remove if directory is now excluded
+                    remove |= BackupSettings.IsDirectoryExcluded(target.Name);
+
+                    // Remove if hidden options changed
+                    remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
+
+                    if (remove)
                     {
                         try
                         {
@@ -112,7 +120,15 @@ namespace BackupUtilityCore.Tasks
                     string nameOnly = Path.GetFileName(file).ToLower();
 
                     // Only name will match, full paths are from different locations
-                    if (!sourceFileNames.Contains(nameOnly))
+                    bool remove = !sourceFileNames.Contains(nameOnly);
+
+                    // Remove if ext is now excluded
+                    remove |= BackupSettings.IsFileTypeExcluded(file);
+
+                    // Remove if hidden options changed
+                    remove |= BackupSettings.IgnoreHiddenFiles && (File.GetAttributes(file) & FileAttributes.Hidden) > 0;
+
+                    if (remove)
                     {
                         try
                         {
@@ -127,23 +143,29 @@ namespace BackupUtilityCore.Tasks
                 }
             }
 
-            //////////////////////////////////////////////////////
-            // Copy files from source not in target
-            // (Or replace old files)
-            //////////////////////////////////////////////////////
-            int backupCount = CopyFiles(sourceFiles, targetDir);
+            int backupCount = 0;
 
-            /////////////////////////////////////////////
-            // Sync sub directories
-            /////////////////////////////////////////////
-            foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
+            // Check whether backing up hidden directories
+            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                // Get sub-directories
-                string subSourceDir = Path.Combine(sourceDir, subDirInfo.Name);
-                string subTargetDir = Path.Combine(targetDir, subDirInfo.Name);
+                //////////////////////////////////////////////////////
+                // Copy files from source not in target
+                // (Or replace old files)
+                //////////////////////////////////////////////////////
+                backupCount = CopyFiles(sourceFiles, targetDir);
 
-                // Recursive call
-                backupCount += SyncDirectories(subSourceDir, subTargetDir);
+                /////////////////////////////////////////////
+                // Sync sub directories
+                /////////////////////////////////////////////
+                foreach (DirectoryInfo subDirInfo in sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).Where(d => !BackupSettings.IsDirectoryExcluded(d.Name)))
+                {
+                    // Get sub-directories
+                    string subSourceDir = Path.Combine(sourceDir, subDirInfo.Name);
+                    string subTargetDir = Path.Combine(targetDir, subDirInfo.Name);
+
+                    // Recursive call
+                    backupCount += SyncDirectories(subSourceDir, subTargetDir);
+                }
             }
 
             return backupCount;

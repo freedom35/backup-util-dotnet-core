@@ -59,7 +59,7 @@ namespace BackupUtilityCore.Tasks
 
             // Check source exists and whether hidden should be backup up.
             // (Files within a hidden directory are also considered hidden.)
-            if (sourceDirInfo.Exists && (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0))
+            if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
                 AddToLog("Backing up DIR", sourceDirInfo.FullName);
 
@@ -70,7 +70,7 @@ namespace BackupUtilityCore.Tasks
                 string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
 
                 // Get qualifying files only
-                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileExcluded(f));
+                var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileTypeExcluded(f));
 
                 // Copy files in current directory
                 backupCount = CopyFiles(files, targetDir);

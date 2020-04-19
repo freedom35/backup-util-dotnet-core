@@ -243,10 +243,10 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = types
             };
 
-            Assert.IsTrue(settings.IsFileExcluded("readme.txt"));
-            Assert.IsTrue(settings.IsFileExcluded("README.MD"));
+            Assert.IsTrue(settings.IsFileTypeExcluded("readme.txt"));
+            Assert.IsTrue(settings.IsFileTypeExcluded("README.MD"));
 
-            Assert.IsFalse(settings.IsFileExcluded("Program.cs"));
+            Assert.IsFalse(settings.IsFileTypeExcluded("Program.cs"));
         }
 
         [TestMethod]

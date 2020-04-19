@@ -36,7 +36,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestBackupSync()
         {
-            string testPath = Path.Combine(testRoot, "BackupSync");
+            string testPath = Path.Combine(testRoot, "BackupSyncBase");
 
             var dirs = TestDirectory.Create(testPath);
 
@@ -165,8 +165,166 @@ namespace BackupUtilityTest
             // Dir and contents should also have been deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
+            /////////////////////////////////////
+            // Change hidden files, run copy again
+            /////////////////////////////////////
+            settings.IgnoreHiddenFiles = true;
+
+            filesCopied = task.Run(settings);
+
+            // Should be nothing added
+            Assert.AreEqual(0, filesCopied);
+
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Dir and contents should also have been deleted from target
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
             // Remove handler
             task.Log -= Task_Log;
+        }
+
+        [TestMethod]
+        public void TestBackupSyncExcludeHiddenFiles()
+        {
+            string testPath = Path.Combine(testRoot, "BackupSyncHidden");
+
+            var dirs = TestDirectory.Create(testPath);
+
+            string rootWorkingDir = dirs.Item1;
+            string rootSourceDir = dirs.Item2;
+            string rootTargetDir = dirs.Item3;
+            int hiddenFileCount = dirs.Item4;
+
+            // Create settings
+            BackupSettings settings = new BackupSettings()
+            {
+                BackupType = BackupType.Sync,
+                IgnoreHiddenFiles = true,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = new string[] { rootSourceDir }
+            };
+
+            BackupTaskSync task = new BackupTaskSync()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            // Copy files
+            int filesCopied = task.Run(settings);
+
+            // Return non-hidden
+            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden);
+
+            // Filter source files that should have been copied
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(sourceFiles.Count(), filesCopied);
+
+            // Compare directories
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+        }
+
+        [TestMethod]
+        public void TestBackupSyncExcludeFileTypes()
+        {
+            string testPath = Path.Combine(testRoot, "BackupSyncExcludeFile");
+
+            var dirs = TestDirectory.Create(testPath);
+
+            string rootWorkingDir = dirs.Item1;
+            string rootSourceDir = dirs.Item2;
+            string rootTargetDir = dirs.Item3;
+
+            string[] excludedTypes = new string[] { "md", "bmp" };
+
+            // Create settings
+            BackupSettings settings = new BackupSettings()
+            {
+                BackupType = BackupType.Sync,
+                IgnoreHiddenFiles = false,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = new string[] { rootSourceDir },
+                ExcludedFileTypes = excludedTypes
+            };
+
+            BackupTaskSync task = new BackupTaskSync()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            // Copy files
+            int filesCopied = task.Run(settings);
+
+            // Return without ext
+            bool sourceFilter(string f) => !excludedTypes.Contains(Path.GetExtension(f).TrimStart('.'));
+
+            // Filter source files that should have been copied
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(sourceFiles.Count(), filesCopied);
+
+            // Compare directories
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+        }
+
+        [TestMethod]
+        public void TestBackupSyncExcludeDirectories()
+        {
+            string testPath = Path.Combine(testRoot, "BackupSyncExcludeDir");
+
+            var dirs = TestDirectory.Create(testPath);
+
+            string rootWorkingDir = dirs.Item1;
+            string rootSourceDir = dirs.Item2;
+            string rootTargetDir = dirs.Item3;
+
+            string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
+
+            // Create settings
+            BackupSettings settings = new BackupSettings()
+            {
+                BackupType = BackupType.Sync,
+                IgnoreHiddenFiles = false,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = new string[] { rootSourceDir },
+                ExcludedDirectories = excludedDirs
+            };
+
+            BackupTaskSync task = new BackupTaskSync()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            // Copy files
+            int filesCopied = task.Run(settings);
+
+            // Check none of source directories are excluded
+            bool sourceFilter(string f) => f.Split(Path.DirectorySeparatorChar).All(s => !excludedDirs.Contains(s));
+
+            // Filter source files that should have been copied
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(sourceFiles.Count(), filesCopied);
+
+            // Compare directories
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
         private int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)

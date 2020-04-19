@@ -137,7 +137,7 @@ namespace BackupUtilityCore
         /// </summary>
         /// <param name="filename">Name of file to check</param>
         /// <returns>true if excluded</returns>
-        public bool IsFileExcluded(string filename)
+        public bool IsFileTypeExcluded(string filename)
         {
             return excludedFileTypes?.Contains(System.IO.Path.GetExtension(filename).TrimStart('.').ToLower()) == true;
         }
