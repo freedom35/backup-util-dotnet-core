@@ -224,7 +224,7 @@ namespace BackupUtilityCore.Tasks
                 }
                 else
                 {
-                    AddToLog("Backing up file", sourceFileInfo.FullName);
+                    AddToLog("NEW FILE", sourceFileInfo.FullName);
 
                     try
                     {
