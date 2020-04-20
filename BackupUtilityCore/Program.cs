@@ -230,7 +230,7 @@ namespace BackupUtilityCore
                 }
 
                 // Return error if backup had issues
-                return backupTask.ErrorCount == 0;
+                return backupTask.CompletedWithoutError;
             }
             else
             {

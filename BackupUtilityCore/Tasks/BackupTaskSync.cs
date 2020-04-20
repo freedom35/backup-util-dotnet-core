@@ -151,14 +151,7 @@ namespace BackupUtilityCore.Tasks
 
                 if (remove)
                 {
-                    try
-                    {
-                        DeleteDirectory(target);
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("SYNC ERROR", ie.Message);
-                    }
+                    DeleteDirectory(target);
                 }
             }
         }
@@ -191,15 +184,8 @@ namespace BackupUtilityCore.Tasks
 
                 if (remove)
                 {
-                    try
-                    {
-                        // Delete using full path
-                        DeleteFile(file);
-                    }
-                    catch (IOException ie)
-                    {
-                        AddToLog("SYNC ERROR", ie.Message);
-                    }
+                    // Delete using full path
+                    DeleteFile(file);
                 }
             }
         }

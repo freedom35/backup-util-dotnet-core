@@ -13,8 +13,8 @@ namespace BackupUtilityCore.Tasks
     {
         #region Members
 
-        private readonly List<BackupErrorInfo> backupErrors = new List<BackupErrorInfo>();
-
+        private readonly List<BackupErrorInfo> backupCopyErrors = new List<BackupErrorInfo>();
+        
         #endregion
 
         #region Delegates / Events
@@ -44,11 +44,11 @@ namespace BackupUtilityCore.Tasks
         }
 
         /// <summary>
-        /// Number of errors occurred during backup task.
+        /// Determines whether an error occurred during backup task.
         /// </summary>
-        public int ErrorCount
+        public bool CompletedWithoutError
         {
-            get => backupErrors.Count;
+            get => backupCopyErrors.Count == 0;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace BackupUtilityCore.Tasks
             AddToLog($"Running backup ({BackupType.ToString().ToUpper()})...");
 
             // Ensure reset
-            backupErrors.Clear();
+            backupCopyErrors.Clear();
 
             // Run sub-class logic
             int backupCount = PerformBackup();
@@ -103,17 +103,17 @@ namespace BackupUtilityCore.Tasks
             // Retry errors if possible (depends on issue)
             if (RetryEnabled)
             {
-                backupCount += RetryErrors();
+                backupCount += RetryCopyErrors();
             }
 
             // Log any files that couldn't be backed-up (or failed retry)
-            foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
+            foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupCopyErrors.GroupBy(e => e.Result))
             {
                 AddToLog($"Unable to backup ({retryGroup.Key.GetDescription()}):");
 
                 foreach (BackupErrorInfo retryError in retryGroup)
                 {
-                    AddToLog(retryError.SourceFile);
+                    AddToLog(string.Empty, retryError.SourceFile);
                 }
             }
 
@@ -194,7 +194,7 @@ namespace BackupUtilityCore.Tasks
 
                     default:
                         // Add file to list for retry
-                        backupErrors.Add(new BackupErrorInfo(result, file, targetDir));
+                        backupCopyErrors.Add(new BackupErrorInfo(result, file, targetDir));
 
                         // Abort on high error count
                         if (++errorCount > 3)
@@ -269,14 +269,14 @@ namespace BackupUtilityCore.Tasks
                     }
                     catch (PathTooLongException pe)
                     {
-                        AddToLog("PATH ERROR", pe.Message);
+                        AddToLog("ERROR", pe.Message);
 
                         // Max length will vary by OS and environment settings.
                         result = BackupResult.PathTooLong;
                     }
                     catch (IOException ie)
                     {
-                        AddToLog("I/O ERROR", ie.Message);
+                        AddToLog("ERROR", ie.Message);
 
                         // File may be locked or in-use by another process
                         result = BackupResult.Exception;
@@ -298,9 +298,20 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog($"DELETING", fileInfo.FullName);
 
-                // Make sure file is not read-only before we delete it.
-                fileInfo.Attributes = FileAttributes.Normal;
-                fileInfo.Delete();
+                try
+                {
+                    // Make sure file is not read-only before we delete it.
+                    fileInfo.Attributes = FileAttributes.Normal;
+                    fileInfo.Delete();
+                }
+                catch (UnauthorizedAccessException ue)
+                {
+                    AddToLog("ERROR", ue.Message);
+                }
+                catch (IOException ie)
+                {
+                    AddToLog("ERROR", ie.Message);
+                }                
             }
         }
 
@@ -323,11 +334,22 @@ namespace BackupUtilityCore.Tasks
 
         private void RemoveReadOnlyAndDeleteDirectory(DirectoryInfo directoryInfo)
         {
-            // Ensure not read-only so can be deleted 
-            directoryInfo.Attributes = FileAttributes.Normal;
+            try
+            {
+                // Ensure not read-only so can be deleted 
+                directoryInfo.Attributes = FileAttributes.Normal;
 
-            // Delete recursively (may contain files)
-            directoryInfo.Delete(true);
+                // Delete recursively (may contain files)
+                directoryInfo.Delete(true);
+            }
+            catch (UnauthorizedAccessException ue)
+            {
+                AddToLog("ERROR", ue.Message);
+            }
+            catch (IOException ie)
+            {
+                AddToLog("ERROR", ie.Message);
+            }
         }
 
         /// <summary>
@@ -335,12 +357,12 @@ namespace BackupUtilityCore.Tasks
         /// (Retry depends on reason they failed)
         /// </summary>
         /// <returns>Number of files successfully backed-up by retry</returns>
-        private int RetryErrors()
+        private int RetryCopyErrors()
         {
             int backupCount = 0;
 
             // Get the errors that can be retried
-            List<BackupErrorInfo> retryErrors = backupErrors.Where(err => err.Result.CanBeRetried()).ToList();
+            List<BackupErrorInfo> retryErrors = backupCopyErrors.Where(err => err.Result.CanBeRetried()).ToList();
 
             if (retryErrors.Count > 0)
             {
@@ -372,7 +394,7 @@ namespace BackupUtilityCore.Tasks
                             retryErrors.RemoveAt(i--);
 
                             // Also remove from master list
-                            backupErrors.Remove(errorInfo);
+                            backupCopyErrors.Remove(errorInfo);
                         }
                     }
                 }

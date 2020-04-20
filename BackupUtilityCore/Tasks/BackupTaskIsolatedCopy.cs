@@ -102,14 +102,7 @@ namespace BackupUtilityCore.Tasks
                             // Check age of backup
                             if ((now - dirDate).TotalDays > maxAgeDays)
                             {
-                                try
-                                {
-                                    DeleteDirectory(dirInfo);
-                                }
-                                catch (IOException ie)
-                                {
-                                    AddToLog("I/O ERROR", ie.Message);
-                                }
+                                DeleteDirectory(dirInfo);
                             }
                         }
                     }
