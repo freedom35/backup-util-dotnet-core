@@ -55,6 +55,22 @@ namespace BackupUtilityTest
             // Check not truncated When below max
             e = new MessageEventArgs("Message", "12");
             Assert.AreEqual("Message  - 12", e.ToString(30));
+
+            // Check edge cases
+            e = new MessageEventArgs("Message", "Arg");
+            Assert.AreEqual("Message  - Arg", e.ToString(0));
+
+            e = new MessageEventArgs("Message", "Arg");
+            Assert.AreEqual("Message  - Arg", e.ToString(1));
+
+            e = new MessageEventArgs("Message", "Arg");
+            Assert.AreEqual("Message  - Arg", e.ToString(-1));
+
+            e = new MessageEventArgs("Message", "Arg");
+            Assert.AreEqual("Message  - Arg", e.ToString(int.MaxValue - 1));
+
+            e = new MessageEventArgs("Message", "Arg");
+            Assert.AreEqual("Message  - Arg", e.ToString(int.MaxValue));
         }
     }
 }
