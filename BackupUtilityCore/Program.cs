@@ -73,13 +73,15 @@ namespace BackupUtilityCore
             catch (Exception ex)
             {
                 // Report error
-                AddToLog($"{Environment.NewLine}Error:{Environment.NewLine}{ex.Message}");
+                AddToLog($"ERROR - {ex.Message}");
 
+#if DEBUG
                 // Check if more details available
                 if (ex.StackTrace != null)
                 {
                     AddToLog($"{Environment.NewLine}Stack Trace:{Environment.NewLine}{ex.StackTrace}");
                 }
+#endif
 
                 returnCode = ReturnError;
             }
