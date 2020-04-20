@@ -229,7 +229,7 @@ namespace BackupUtilityCore
             // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
             if (!Enum.IsDefined(typeof(BackupType), BackupType))
             {
-                invalidSettings.Add("backup_type:", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
+                invalidSettings.Add("backup_type", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
             }
 
             // Must have a target
