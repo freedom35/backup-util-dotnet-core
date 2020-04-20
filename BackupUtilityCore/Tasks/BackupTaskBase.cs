@@ -129,7 +129,7 @@ namespace BackupUtilityCore.Tasks
 
                 foreach (BackupErrorInfo retryError in retryGroup)
                 {
-                    AddToLog($"{retryError.SourceFile}");
+                    AddToLog(retryError.SourceFile);
                 }
             }
 
@@ -233,7 +233,7 @@ namespace BackupUtilityCore.Tasks
                 }
                 else
                 {
-                    AddToLog("NEW FILE", sourceFileInfo.FullName);
+                    AddToLog("COPYING", sourceFileInfo.FullName);
 
                     try
                     {

@@ -19,7 +19,7 @@ namespace BackupUtilityCore.Tasks
         {
             string targetDir = BackupSettings.TargetDirectory;
 
-            AddToLog("Target DIR", targetDir);
+            AddToLog("TARGET", targetDir);
 
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
@@ -34,7 +34,7 @@ namespace BackupUtilityCore.Tasks
             // Sync each source directory
             foreach (string sourceDir in BackupSettings.SourceDirectories)
             {
-                AddToLog("Source DIR", sourceDir);
+                AddToLog("SOURCE", sourceDir);
 
                 // Get source path without root
                 DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
@@ -59,7 +59,7 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private int SyncDirectories(string sourceDir, string targetDir)
         {
-            AddToLog("Syncing DIR", sourceDir);
+            AddToLog("SYNCING", sourceDir);
 
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);

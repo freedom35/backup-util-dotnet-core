@@ -21,7 +21,7 @@ namespace BackupUtilityCore.Tasks
 
         protected int CopyDirectoryTo(string targetDir)
         {
-            AddToLog("Target DIR", targetDir);
+            AddToLog("TARGET", targetDir);
 
             // Check target directory
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
@@ -36,7 +36,7 @@ namespace BackupUtilityCore.Tasks
             // Backup each source directory
             foreach (string sourceDir in BackupSettings.SourceDirectories)
             {
-                AddToLog("Source DIR", sourceDir);
+                AddToLog("SOURCE", sourceDir);
 
                 DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 

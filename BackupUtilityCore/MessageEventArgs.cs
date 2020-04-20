@@ -50,7 +50,7 @@ namespace BackupUtilityCore
 
             if (!string.IsNullOrEmpty(Arg))
             {
-                const int MinPadding = 10;
+                const int MinPadding = 8;
 
                 // Add some padding for consistent output
                 string paddedMessage = Message.PadRight(MinPadding) + " - ";
