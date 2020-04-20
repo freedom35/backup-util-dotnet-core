@@ -27,9 +27,9 @@ namespace BackupUtilityCore.Tasks
         #region Properties
 
         /// <summary>
-        /// Description of task.
+        /// Type of backup.
         /// </summary>
-        protected abstract string BackupDescription
+        protected abstract BackupType BackupType
         {
             get;
         }
@@ -90,16 +90,19 @@ namespace BackupUtilityCore.Tasks
             {
                 throw new ArgumentNullException("backupSettings");
             }
-            else
+            else if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
             {
-                // Update property value
-                BackupSettings = backupSettings;
+                // Something not right
+                throw new ArgumentException($"Backup type in settings ({backupSettings.BackupType}) does not match backup task type ({BackupType})");
             }
+
+            // Update property value
+            BackupSettings = backupSettings;
 
             // Ensure reset
             backupErrors.Clear();
 
-            AddToLog($"Running backup ({BackupDescription})...");
+            AddToLog($"Running backup ({BackupType.ToString().ToUpper()})...");
 
             // Run sub-class logic
             int backupCount = PerformBackup();

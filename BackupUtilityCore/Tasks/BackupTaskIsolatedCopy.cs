@@ -8,7 +8,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
-        protected override string BackupDescription => "ISO-COPY";
+        protected override BackupType BackupType => BackupType.Isolated;
 
         /// <summary>
         /// Date format used for directory names.

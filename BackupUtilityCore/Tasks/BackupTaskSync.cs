@@ -9,7 +9,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskSync : BackupTaskBase
     {
-        protected override string BackupDescription => "SYNC";
+        protected override BackupType BackupType => BackupType.Sync;
 
         /// <summary>
         /// Syncs target directory with source directories.

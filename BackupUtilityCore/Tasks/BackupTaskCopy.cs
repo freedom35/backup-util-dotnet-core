@@ -8,7 +8,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public class BackupTaskCopy : BackupTaskBase
     {
-        protected override string BackupDescription => "COPY";
+        protected override BackupType BackupType => BackupType.Copy;
 
         /// <summary>
         /// Copies source directories to target directory.
