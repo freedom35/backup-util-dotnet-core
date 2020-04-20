@@ -61,8 +61,6 @@ namespace BackupUtilityCore.Tasks
             // (Files within a hidden directory are also considered hidden.)
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                AddToLog("Backing up DIR", sourceDirInfo.FullName);
-
                 // Remove common root path
                 string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
 
