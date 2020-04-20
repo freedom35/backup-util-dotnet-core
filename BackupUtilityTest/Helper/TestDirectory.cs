@@ -12,13 +12,14 @@ namespace BackupUtilityTest.Helper
         /// Creates a test directory with dummy files.
         /// </summary>
         /// <param name="rootWorkingDir">Root directory for test</param>
+        /// <param name="sourceSubDir">Sub directory for test</param>
         /// <returns>sourceDir, targetDir, hiddenFileCount</returns>
-        public static Tuple<string, string, int> Create(string rootWorkingDir)
+        public static Tuple<string, string, int> Create(string rootWorkingDir, string sourceSubDir = "Source")
         {
             ///////////////////////////////////
             // Initialize root dirs
             ///////////////////////////////////
-            string rootSourceDir = Path.Combine(rootWorkingDir, "Source");
+            string rootSourceDir = Path.Combine(rootWorkingDir, sourceSubDir);
             string rootTargetDir = Path.Combine(rootWorkingDir, "Target");
 
             ///////////////////////////////////

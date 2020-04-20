@@ -29,6 +29,14 @@ namespace BackupUtilityCore.Tasks
             {
                 targetDirInfo.Create();
             }
+            else
+            {
+                // Get info on directories
+                DirectoryInfo[] sourceDirectoryInfos = BackupSettings.SourceDirectories.Select(s => new DirectoryInfo(s)).ToArray();
+
+                // Remove directories no longer in config
+                DeleteSourceDirectoriesFromTarget(sourceDirectoryInfos, targetDirInfo);
+            }
             
             int backupCount = 0;
 
@@ -46,8 +54,7 @@ namespace BackupUtilityCore.Tasks
                 // Append source sub-dir to target
                 string targetSubDir = Path.Combine(targetDir, sourceSubDir);
 
-                // Only remove files from within source directories, not entire target dir - 
-                // may be other files in there that need to be kept.
+                // Sync within the source directories
                 backupCount += SyncDirectories(sourceDir, targetSubDir);
             }
 
@@ -111,12 +118,23 @@ namespace BackupUtilityCore.Tasks
         }
 
         /// <summary>
-        /// Deletes any directories in the target directory that are not listed in source array.
+        /// Deletes any directories in the target directory that are not in the source directory.
         /// </summary>
         private void DeleteSourceDirectoriesFromTarget(DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
-            // Get current source/target directories
+            // Get current source directories
             DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+            
+            // Delete missing ones
+            DeleteSourceDirectoriesFromTarget(sourceDirectories, targetDirInfo);
+        }
+
+        /// <summary>
+        /// Deletes any directories in the target directory that are not listed in source array.
+        /// </summary>
+        private void DeleteSourceDirectoriesFromTarget(DirectoryInfo[] sourceDirectories, DirectoryInfo targetDirInfo)
+        {
+            // Get current target directories
             DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
 
             // Need to check for directories that exist in target but not in source

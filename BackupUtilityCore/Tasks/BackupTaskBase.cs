@@ -86,32 +86,16 @@ namespace BackupUtilityCore.Tasks
         /// <returns>Number of files backed up</returns>
         public int Run(BackupSettings backupSettings)
         {
-            if (backupSettings == null)
-            {
-                throw new ArgumentNullException("backupSettings");
-            }
-            else if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
-            {
-                // Something not right
-                throw new ArgumentException($"Backup type in settings ({backupSettings.BackupType}) does not match backup task type ({BackupType})");
-            }
+            // Checks before running backup
+            CheckSettings(backupSettings);
 
             // Update property value
             BackupSettings = backupSettings;
 
-            // Ensure reset
-            backupErrors.Clear();
-
             AddToLog($"Running backup ({BackupType.ToString().ToUpper()})...");
 
-            // Verify all sources exist before proceeding
-            string missingSource = BackupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
-
-            // Warn - maybe typo in config
-            if (!string.IsNullOrEmpty(missingSource))
-            {
-                throw new DirectoryNotFoundException($"Source directory does not exist: {missingSource}");
-            }
+            // Ensure reset
+            backupErrors.Clear();
 
             // Run sub-class logic
             int backupCount = PerformBackup();
@@ -136,6 +120,32 @@ namespace BackupUtilityCore.Tasks
             AddToLog("COMPLETE", $"Backed up {backupCount} new files");
 
             return backupCount;
+        }
+
+        /// <summary>
+        /// Throws exception if settings check fails.
+        /// </summary>
+        private void CheckSettings(BackupSettings backupSettings)
+        {
+            if (backupSettings == null)
+            {
+                throw new ArgumentNullException("backupSettings");
+            }
+            
+            if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
+            {
+                // Something not right
+                throw new ArgumentException($"Backup type in settings ({backupSettings.BackupType}) does not match backup task type ({BackupType})");
+            }
+
+            // Verify all sources exist before proceeding
+            string missingSource = backupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
+
+            // Warn - maybe typo in config
+            if (!string.IsNullOrEmpty(missingSource))
+            {
+                throw new DirectoryNotFoundException($"Source directory does not exist: {missingSource}");
+            }
         }
 
         protected void AddToLog(string message)

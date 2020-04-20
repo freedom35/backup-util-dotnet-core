@@ -316,6 +316,71 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
+        [TestMethod]
+        public void TestBackupSyncDelete()
+        {
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncDelete");
+
+            var dirs = TestDirectory.Create(rootWorkingDir, "Source1");
+
+            string rootSourceDir1 = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
+
+            // Create 2nd source copy
+            var dirs2 = TestDirectory.Create(rootWorkingDir, "Source2");
+            string rootSourceDir2 = dirs2.Item1;
+
+            // Create settings
+            BackupSettings settings = new BackupSettings()
+            {
+                IgnoreHiddenFiles = false,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = new string[] { rootSourceDir1, rootSourceDir2 }
+            };
+
+            BackupTaskSync task = new BackupTaskSync()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            /////////////////////////////////////
+            // Copy files
+            /////////////////////////////////////
+            int filesCopied = task.Run(settings);
+
+            // Filter source files that should have been copied
+            var sourceFiles1 = Directory.EnumerateFiles(rootSourceDir1, "*.*", SearchOption.AllDirectories);
+            var sourceFiles2 = Directory.EnumerateFiles(rootSourceDir2, "*.*", SearchOption.AllDirectories);
+
+            var sourceFiles = sourceFiles1.Concat(sourceFiles2);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(sourceFiles.Count(), filesCopied);
+
+            // Compare directories
+            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            /////////////////////////////////////
+            // Remove 2nd directory
+            /////////////////////////////////////
+            settings.SourceDirectories = new string[] { rootSourceDir1 }; 
+
+            filesCopied = task.Run(settings);
+
+            // Should be nothing added
+            Assert.AreEqual(0, filesCopied);
+
+            // Compare directories
+            targetCount = VerifyBackup(sourceFiles1, rootTargetDir);
+
+            // 2nd dir and contents should also have been deleted from target
+            Assert.AreEqual(sourceFiles1.Count(), targetCount);
+        }
+
         private int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
         {
             // Get all the target files
