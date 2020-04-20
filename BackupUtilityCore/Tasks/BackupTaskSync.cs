@@ -20,6 +20,9 @@ namespace BackupUtilityCore.Tasks
         {
             string targetDir = BackupSettings.TargetDirectory;
 
+            // Get target location of source directories
+            string[] sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
+
             AddToLog("TARGET", targetDir);
 
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
@@ -31,34 +34,76 @@ namespace BackupUtilityCore.Tasks
             }
             else
             {
-                // Get info on directories
-                DirectoryInfo[] sourceDirectoryInfos = BackupSettings.SourceDirectories.Select(s => new DirectoryInfo(s)).ToArray();
-
                 // Remove directories no longer in config
-                DeleteSourceDirectoriesFromTarget(sourceDirectoryInfos, targetDirInfo);
+                RemoveOrphanedBranches(sourceDirsInTarget, targetDirInfo);
             }
-            
+
             int backupCount = 0;
 
+            // Should be same, but safety check
+            int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, sourceDirsInTarget.Length);
+
             // Sync each source directory
-            foreach (string sourceDir in BackupSettings.SourceDirectories)
+            for (int i = 0; i < maxSource; i++)
             {
+                string sourceDir = BackupSettings.SourceDirectories[i];
+
                 AddToLog("SOURCE", sourceDir);
 
-                // Get source path without root
-                DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
-
-                // Remove common root path
-                string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
-
-                // Append source sub-dir to target
-                string targetSubDir = Path.Combine(targetDir, sourceSubDir);
-
                 // Sync within the source directories
-                backupCount += SyncDirectories(sourceDir, targetSubDir);
+                backupCount += SyncDirectories(sourceDir, sourceDirsInTarget[i]);
             }
 
             return backupCount;
+        }
+
+        /// <summary>
+        /// Gets the sub directory where each source will be located in the target directory.
+        /// </summary>
+        private string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
+        {
+            List<string> dirs = new List<string>();
+
+            foreach (string source in sourceDirectories)
+            {
+                // Remove common root path
+                string sourceSubDir = GetSourceSubDir(source, targetDir);
+
+                // Append source sub-dir to target
+                string sourceDirInTarget = Path.Combine(targetDir, sourceSubDir);
+
+                dirs.Add(sourceDirInTarget);
+            }
+
+            return dirs.ToArray();
+        }
+
+        /// <summary>
+        /// Removes directories from branches in target that are no longer in any source directories.
+        /// </summary>
+        private void RemoveOrphanedBranches(string[] sourceSubDirs, DirectoryInfo targetDirInfo)
+        {
+            // Get current target directories
+            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+
+            // Need to check for directories that exist in target but not in source
+            foreach (DirectoryInfo targetSubInfo in targetDirectories)
+            {
+                // Check for sub directory in sources
+                string targetSub = sourceSubDirs.FirstOrDefault(s => s.StartsWith(targetSubInfo.FullName, StringComparison.OrdinalIgnoreCase));
+
+                // If directory not found, then orphaned - delete
+                // Otherwise, keep searching branch until full directories match
+                if (string.IsNullOrEmpty(targetSub))
+                {
+                    DeleteDirectory(targetSubInfo);
+                }
+                else if (targetSub.Length != targetSubInfo.FullName.Length)
+                {
+                    // if not the same dir as source, keep checking sub directories
+                    RemoveOrphanedBranches(sourceSubDirs, targetSubInfo);
+                }
+            }
         }
 
         /// <summary>
@@ -124,7 +169,7 @@ namespace BackupUtilityCore.Tasks
         {
             // Get current source directories
             DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
-            
+
             // Delete missing ones
             DeleteSourceDirectoriesFromTarget(sourceDirectories, targetDirInfo);
         }

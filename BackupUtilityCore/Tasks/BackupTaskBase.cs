@@ -14,7 +14,7 @@ namespace BackupUtilityCore.Tasks
         #region Members
 
         private readonly List<BackupErrorInfo> backupCopyErrors = new List<BackupErrorInfo>();
-        
+
         #endregion
 
         #region Delegates / Events
@@ -131,7 +131,7 @@ namespace BackupUtilityCore.Tasks
             {
                 throw new ArgumentNullException("backupSettings");
             }
-            
+
             if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
             {
                 // Something not right
@@ -311,7 +311,7 @@ namespace BackupUtilityCore.Tasks
                 catch (IOException ie)
                 {
                     AddToLog("ERROR", ie.Message);
-                }                
+                }
             }
         }
 
