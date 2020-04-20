@@ -154,7 +154,7 @@ namespace BackupUtilityTest
             var isolatedTargetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/'));
 
             // Target will have date root - get latest one
-            string dateSubDir = isolatedTargetFilesWithoutRoots.Last().Split(Path.DirectorySeparatorChar).First();
+            string dateSubDir = isolatedTargetFilesWithoutRoots.OrderByDescending(f => f).Last().Split(Path.DirectorySeparatorChar).First();
 
             // Check format is correct
             Assert.IsTrue(BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory(dateSubDir, out DateTime dirDate));
