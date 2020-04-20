@@ -13,6 +13,11 @@ namespace BackupUtilityCore.Tasks
         protected override BackupType BackupType => BackupType.Sync;
 
         /// <summary>
+        /// Target location of source directories
+        /// </summary>
+        private string[] sourceDirsInTarget = new string[0];
+
+        /// <summary>
         /// Syncs target directory with source directories.
         /// </summary>
         /// <returns>Number of new files backed up</returns>
@@ -21,7 +26,7 @@ namespace BackupUtilityCore.Tasks
             string targetDir = BackupSettings.TargetDirectory;
 
             // Get target location of source directories
-            string[] sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
+            sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
 
             AddToLog("TARGET", targetDir);
 
@@ -188,8 +193,8 @@ namespace BackupUtilityCore.Tasks
                 // Only sub-dir name will match (ignore case), full paths are from different locations
                 bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
 
-                // Remove if directory is now excluded
-                remove |= BackupSettings.IsDirectoryExcluded(target.Name);
+                // Remove if directory is now excluded, but not overridden by a source
+                remove |= BackupSettings.IsDirectoryExcluded(target.Name) && !sourceDirsInTarget.Any(s => s.StartsWith(target.FullName, StringComparison.OrdinalIgnoreCase));
 
                 // Remove if hidden options changed
                 remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
