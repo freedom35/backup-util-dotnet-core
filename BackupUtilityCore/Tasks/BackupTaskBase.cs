@@ -286,6 +286,8 @@ namespace BackupUtilityCore.Tasks
 
             if (fileInfo.Exists)
             {
+                AddToLog($"DELETING", fileInfo.FullName);
+
                 // Make sure file is not read-only before we delete it.
                 fileInfo.Attributes = FileAttributes.Normal;
                 fileInfo.Delete();
@@ -297,6 +299,8 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         protected void DeleteDirectory(DirectoryInfo directoryInfo)
         {
+            AddToLog($"DELETING", directoryInfo.FullName);
+
             // Order subs by longest directory - will be the most sub-dir (work backwards)
             foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
             {

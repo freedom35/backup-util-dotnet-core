@@ -59,8 +59,6 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private int SyncDirectories(string sourceDir, string targetDir)
         {
-            AddToLog("SYNCING", sourceDir);
-
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 

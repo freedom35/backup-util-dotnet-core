@@ -104,7 +104,6 @@ namespace BackupUtilityCore.Tasks
                             {
                                 try
                                 {
-                                    AddToLog($"DELETING", dirInfo.FullName);
                                     DeleteDirectory(dirInfo);
                                 }
                                 catch (IOException ie)
