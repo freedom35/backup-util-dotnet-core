@@ -237,7 +237,7 @@ namespace BackupUtilityCore.Tasks
                 FileInfo targetFileInfo = new FileInfo(targetPath);
 
                 // Check whether file previously backed up (and not changed)
-                if (targetFileInfo.Exists && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
+                if (targetFileInfo.Exists && targetFileInfo.Length == sourceFileInfo.Length && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
                 {
                     result = BackupResult.AlreadyBackedUp;
                 }
