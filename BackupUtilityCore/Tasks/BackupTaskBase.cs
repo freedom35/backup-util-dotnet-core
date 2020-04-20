@@ -124,7 +124,7 @@ namespace BackupUtilityCore.Tasks
                 }
             }
 
-            AddToLog("COMPLETE", $"Backed up {backupCount} files");
+            AddToLog("COMPLETE", $"Backed up {backupCount} new files");
 
             return backupCount;
         }
