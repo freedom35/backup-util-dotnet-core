@@ -323,7 +323,7 @@ namespace BackupUtilityCore.Tasks
             AddToLog($"DELETING", directoryInfo.FullName);
 
             // Order subs by longest directory - will be the most sub-dir (work backwards)
-            foreach (DirectoryInfo di in directoryInfo.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
+            foreach (DirectoryInfo di in directoryInfo.GetDirectories("*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
             {
                 RemoveReadOnlyAndDeleteDirectory(di);
             }
