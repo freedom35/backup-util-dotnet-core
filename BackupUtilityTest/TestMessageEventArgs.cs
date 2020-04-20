@@ -31,11 +31,11 @@ namespace BackupUtilityTest
 
             // Check not truncated for base to string
             e = new MessageEventArgs("Message", "ARG");
-            Assert.AreEqual("Message:         ARG", e.ToString());
+            Assert.AreEqual("Message:    ARG", e.ToString());
 
             // Check not truncated
             e = new MessageEventArgs("Message", "###############");
-            Assert.AreEqual("Message:         ###############", e.ToString());
+            Assert.AreEqual("Message:    ###############", e.ToString());
         }
 
         [TestMethod]
@@ -50,11 +50,11 @@ namespace BackupUtilityTest
 
             // Check truncated from start
             e = new MessageEventArgs("Message", "1234567890");
-            Assert.AreEqual("Message:         ~90", e.ToString(20));
+            Assert.AreEqual("Message:    ~4567890", e.ToString(20));
 
             // Check not truncated When below max
             e = new MessageEventArgs("Message", "12");
-            Assert.AreEqual("Message:         12", e.ToString(30));
+            Assert.AreEqual("Message:    12", e.ToString(30));
         }
     }
 }
