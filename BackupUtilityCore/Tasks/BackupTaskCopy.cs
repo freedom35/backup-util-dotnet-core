@@ -8,7 +8,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public class BackupTaskCopy : BackupTaskBase
     {
-        protected override string BackupDescription => "COPY";
+        protected override BackupType BackupType => BackupType.Copy;
 
         /// <summary>
         /// Copies source directories to target directory.
@@ -21,7 +21,7 @@ namespace BackupUtilityCore.Tasks
 
         protected int CopyDirectoryTo(string targetDir)
         {
-            AddToLog("Target DIR", targetDir);
+            AddToLog("TARGET", targetDir);
 
             // Check target directory
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
@@ -36,7 +36,7 @@ namespace BackupUtilityCore.Tasks
             // Backup each source directory
             foreach (string sourceDir in BackupSettings.SourceDirectories)
             {
-                AddToLog("Source DIR", sourceDir);
+                AddToLog("SOURCE", sourceDir);
 
                 DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
 
@@ -61,8 +61,6 @@ namespace BackupUtilityCore.Tasks
             // (Files within a hidden directory are also considered hidden.)
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                AddToLog("Backing up DIR", sourceDirInfo.FullName);
-
                 // Remove common root path
                 string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
 

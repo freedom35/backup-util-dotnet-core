@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskSync : BackupTaskBase
     {
-        protected override string BackupDescription => "SYNC";
+        protected override BackupType BackupType => BackupType.Sync;
 
         /// <summary>
         /// Syncs target directory with source directories.
@@ -19,7 +20,10 @@ namespace BackupUtilityCore.Tasks
         {
             string targetDir = BackupSettings.TargetDirectory;
 
-            AddToLog("Target DIR", targetDir);
+            // Get target location of source directories
+            string[] sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
+
+            AddToLog("TARGET", targetDir);
 
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
@@ -28,29 +32,78 @@ namespace BackupUtilityCore.Tasks
             {
                 targetDirInfo.Create();
             }
+            else
+            {
+                // Remove directories no longer in config
+                RemoveOrphanedBranches(sourceDirsInTarget, targetDirInfo);
+            }
 
             int backupCount = 0;
 
+            // Should be same, but safety check
+            int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, sourceDirsInTarget.Length);
+
             // Sync each source directory
-            foreach (string sourceDir in BackupSettings.SourceDirectories)
+            for (int i = 0; i < maxSource; i++)
             {
-                AddToLog("Source DIR", sourceDir);
+                string sourceDir = BackupSettings.SourceDirectories[i];
 
-                // Get source path without root
-                DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
+                AddToLog("SOURCE", sourceDir);
 
-                // Remove common root path
-                string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
-
-                // Append source sub-dir to target
-                string targetSubDir = Path.Combine(targetDir, sourceSubDir);
-
-                // Only remove files from within source directories, not entire target dir - 
-                // may be other files in there that need to be kept.
-                backupCount += SyncDirectories(sourceDir, targetSubDir);
+                // Sync within the source directories
+                backupCount += SyncDirectories(sourceDir, sourceDirsInTarget[i]);
             }
 
             return backupCount;
+        }
+
+        /// <summary>
+        /// Gets the sub directory where each source will be located in the target directory.
+        /// </summary>
+        private string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
+        {
+            List<string> dirs = new List<string>();
+
+            foreach (string source in sourceDirectories)
+            {
+                // Remove common root path
+                string sourceSubDir = GetSourceSubDir(source, targetDir);
+
+                // Append source sub-dir to target
+                string sourceDirInTarget = Path.Combine(targetDir, sourceSubDir);
+
+                dirs.Add(sourceDirInTarget);
+            }
+
+            return dirs.ToArray();
+        }
+
+        /// <summary>
+        /// Removes directories from branches in target that are no longer in any source directories.
+        /// </summary>
+        private void RemoveOrphanedBranches(string[] sourceSubDirs, DirectoryInfo targetDirInfo)
+        {
+            // Get current target directories
+            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+
+            // Need to check for directories that exist in target but not in source
+            foreach (DirectoryInfo targetSubInfo in targetDirectories)
+            {
+                // Check for sub directory in sources
+                string targetSub = sourceSubDirs.FirstOrDefault(s => s.StartsWith(targetSubInfo.FullName, StringComparison.OrdinalIgnoreCase));
+
+                // If directory not found, then orphaned - delete
+                // Otherwise, keep searching branch until full directories match
+                if (string.IsNullOrEmpty(targetSub))
+                {
+                    DeleteDirectory(targetSubInfo);
+                }
+                else if (targetSub.Length != targetSubInfo.FullName.Length)
+                {
+                    // if not the same dir as source, keep checking sub directories
+                    RemoveOrphanedBranches(sourceSubDirs, targetSubInfo);
+                }
+            }
         }
 
         /// <summary>
@@ -59,8 +112,6 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private int SyncDirectories(string sourceDir, string targetDir)
         {
-            AddToLog("Syncing DIR", sourceDir);
-
             DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
             DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
 
@@ -74,75 +125,13 @@ namespace BackupUtilityCore.Tasks
                 // Remove directories from target not in source
                 // (Remove before copying new files to free up space)
                 //////////////////////////////////////////////////////
-
-                // Get current source/target directories
-                DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
-                DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
-
-                // Need to check for directories that exist in target but not in source
-                foreach (DirectoryInfo target in targetDirectories)
-                {
-                    // Only sub-dir name will match (ignore case), full paths are from different locations
-                    bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
-
-                    // Remove if directory is now excluded
-                    remove |= BackupSettings.IsDirectoryExcluded(target.Name);
-
-                    // Remove if hidden options changed
-                    remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
-
-                    if (remove)
-                    {
-                        try
-                        {
-                            DeleteDirectory(target);
-                        }
-                        catch (IOException ie)
-                        {
-                            AddToLog("SYNC ERROR", ie.Message);
-                        }
-                    }
-                }
+                DeleteSourceDirectoriesFromTarget(sourceDirInfo, targetDirInfo);
 
                 //////////////////////////////////////////////////////
                 // Remove files from target not in source
                 // (Remove before copying new files to free up space)
                 //////////////////////////////////////////////////////                
-
-                // Get names only as lowercase for comparison
-                string[] sourceFileNames = sourceFiles.Select(f => Path.GetFileName(f).ToLower()).ToArray();
-
-                // Get full paths to target (maintain case, UNIX names can be case sensitive.)
-                string[] targetFiles = Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).ToArray();
-
-                // Need to check for files that exist in target but not in source
-                foreach (string file in targetFiles)
-                {
-                    // Compare names as lowercase
-                    string nameOnly = Path.GetFileName(file).ToLower();
-
-                    // Only name will match, full paths are from different locations
-                    bool remove = !sourceFileNames.Contains(nameOnly);
-
-                    // Remove if ext is now excluded
-                    remove |= BackupSettings.IsFileTypeExcluded(file);
-
-                    // Remove if hidden options changed
-                    remove |= BackupSettings.IgnoreHiddenFiles && (File.GetAttributes(file) & FileAttributes.Hidden) > 0;
-
-                    if (remove)
-                    {
-                        try
-                        {
-                            // Delete using full path
-                            DeleteFile(file);
-                        }
-                        catch (IOException ie)
-                        {
-                            AddToLog("SYNC ERROR", ie.Message);
-                        }
-                    }
-                }
+                DeleteSourceFilesFromTarget(sourceFiles, targetDirInfo);
             }
 
             int backupCount = 0;
@@ -171,6 +160,79 @@ namespace BackupUtilityCore.Tasks
             }
 
             return backupCount;
+        }
+
+        /// <summary>
+        /// Deletes any directories in the target directory that are not in the source directory.
+        /// </summary>
+        private void DeleteSourceDirectoriesFromTarget(DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
+        {
+            // Get current source directories
+            DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+
+            // Delete missing ones
+            DeleteSourceDirectoriesFromTarget(sourceDirectories, targetDirInfo);
+        }
+
+        /// <summary>
+        /// Deletes any directories in the target directory that are not listed in source array.
+        /// </summary>
+        private void DeleteSourceDirectoriesFromTarget(DirectoryInfo[] sourceDirectories, DirectoryInfo targetDirInfo)
+        {
+            // Get current target directories
+            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+
+            // Need to check for directories that exist in target but not in source
+            foreach (DirectoryInfo target in targetDirectories)
+            {
+                // Only sub-dir name will match (ignore case), full paths are from different locations
+                bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
+
+                // Remove if directory is now excluded
+                remove |= BackupSettings.IsDirectoryExcluded(target.Name);
+
+                // Remove if hidden options changed
+                remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
+
+                if (remove)
+                {
+                    DeleteDirectory(target);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deletes any target files that are not listed in the source array.
+        /// </summary>
+        private void DeleteSourceFilesFromTarget(IEnumerable<string> sourceFiles, DirectoryInfo targetDirInfo)
+        {
+            // Get names only as lowercase for comparison
+            string[] sourceFileNames = sourceFiles.Select(f => Path.GetFileName(f).ToLower()).ToArray();
+
+            // Get full paths to target (maintain case, UNIX names can be case sensitive.)
+            string[] targetFiles = Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).ToArray();
+
+            // Need to check for files that exist in target but not in source
+            foreach (string file in targetFiles)
+            {
+                // Compare names as lowercase
+                string nameOnly = Path.GetFileName(file).ToLower();
+
+                // Only name will match, full paths are from different locations
+                bool remove = !sourceFileNames.Contains(nameOnly);
+
+                // Remove if ext is now excluded
+                remove |= BackupSettings.IsFileTypeExcluded(file);
+
+                // Remove if hidden options changed
+                remove |= BackupSettings.IgnoreHiddenFiles && (File.GetAttributes(file) & FileAttributes.Hidden) > 0;
+
+                if (remove)
+                {
+                    // Delete using full path
+                    DeleteFile(file);
+                }
+            }
         }
     }
 }

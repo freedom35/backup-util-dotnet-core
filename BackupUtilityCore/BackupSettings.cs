@@ -121,14 +121,14 @@ namespace BackupUtilityCore
         }
 
         /// <summary>
-        /// Gets or sets the name of the settings file.
+        /// Gets or sets the name of the settings file (if created via parse).
         /// </summary>
         /// <value>The name of the settings file.</value>
         public string SettingsFilename
         {
             get;
             private set;
-        }
+        } = "";
 
         #endregion
 
@@ -153,21 +153,25 @@ namespace BackupUtilityCore
         }
 
         /// <summary>
-        /// Basic YAML parser for backup settings.
+        /// Parses backup settings from a YAML file.
         /// </summary>
         /// <param name="settingsPath">Path of config file</param>
-        /// <returns>BackupSettings object</returns>
-        public static BackupSettings ParseFromYaml(string settingsPath)
+        /// <param name="settings">BackupSettings object</param>
+        /// <returns>true if parsed ok<returns>
+        public static bool TryParseFromYaml(string settingsPath, out BackupSettings settings)
         {
-            BackupSettings settings = new BackupSettings()
-            {
-                SettingsFilename = System.IO.Path.GetFileName(settingsPath)
-            };
-
             ///////////////////////////////////////////
             // Parse config from file
             ///////////////////////////////////////////
             Dictionary<string, object> keyValuePairs = YAML.YamlParser.ParseFile(settingsPath);
+
+            ///////////////////////////////////////////
+            // Initialize settings object
+            ///////////////////////////////////////////
+            settings = new BackupSettings()
+            {
+                SettingsFilename = System.IO.Path.GetFileName(settingsPath)
+            };
 
             ///////////////////////////////////////////
             // Check key/values for expected settings
@@ -212,7 +216,7 @@ namespace BackupUtilityCore
                 settings.MaxIsololationDays = daysAsInt;
             }
 
-            return settings;
+            return settings.Valid;
         }
 
         /// <summary>
@@ -225,7 +229,7 @@ namespace BackupUtilityCore
             // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
             if (!Enum.IsDefined(typeof(BackupType), BackupType))
             {
-                invalidSettings.Add("backup_type", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
+                invalidSettings.Add("backup_type:", $"setting is missing or associated value is invalid, valid values are: {string.Join(" / ", Enum.GetNames(typeof(BackupType)))}");
             }
 
             // Must have a target

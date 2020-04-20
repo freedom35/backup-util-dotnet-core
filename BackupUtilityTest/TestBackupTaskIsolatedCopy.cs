@@ -62,7 +62,6 @@ namespace BackupUtilityTest
             // Create settings
             BackupSettings settings = new BackupSettings()
             {
-                BackupType = BackupType.Isolated,
                 MaxIsololationDays = 0,
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,

@@ -8,7 +8,7 @@ namespace BackupUtilityCore.Tasks
     /// </summary>
     public sealed class BackupTaskIsolatedCopy : BackupTaskCopy
     {
-        protected override string BackupDescription => "ISO-COPY";
+        protected override BackupType BackupType => BackupType.Isolated;
 
         /// <summary>
         /// Date format used for directory names.
@@ -102,15 +102,7 @@ namespace BackupUtilityCore.Tasks
                             // Check age of backup
                             if ((now - dirDate).TotalDays > maxAgeDays)
                             {
-                                try
-                                {
-                                    AddToLog($"Deleting: {dirInfo.FullName}");
-                                    DeleteDirectory(dirInfo);
-                                }
-                                catch (IOException ie)
-                                {
-                                    AddToLog("I/O ERROR", ie.Message);
-                                }
+                                DeleteDirectory(dirInfo);
                             }
                         }
                     }

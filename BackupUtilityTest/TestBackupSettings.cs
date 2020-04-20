@@ -220,7 +220,7 @@ namespace BackupUtilityTest
 
             Assert.IsFalse(settings.Valid);
 
-            settings.BackupType = BackupType.Copy;
+            settings.BackupType = BackupType.Sync;
 
             // All requirements now set
             Assert.IsTrue(settings.Valid);
@@ -307,7 +307,7 @@ namespace BackupUtilityTest
             EmbeddedResource.CreateCopyFromPath(TestConfig.ResourcePath, targetPath);
 
             // Parse newly created file
-            BackupSettings settings = BackupSettings.ParseFromYaml(targetPath);
+            Assert.IsTrue(BackupSettings.TryParseFromYaml(targetPath, out BackupSettings settings));
 
             // Verify parsed file
             Assert.IsNotNull(settings);

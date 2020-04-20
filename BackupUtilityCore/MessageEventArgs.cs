@@ -50,11 +50,13 @@ namespace BackupUtilityCore
 
             if (!string.IsNullOrEmpty(Arg))
             {
+                const int MinPadding = 8;
+
                 // Add some padding for consistent output
-                string paddedMessage = $"{Message}: ".PadRight(17);
+                string paddedMessage = Message.PadRight(MinPadding) + " - ";
                 string arg = Arg;
 
-                eventAsString = $"{paddedMessage}{arg}";
+                eventAsString = paddedMessage + arg;
 
                 // Truncate to console buffer width otherwise will overflow onto new line.
                 if (eventAsString.Length > maxLength)

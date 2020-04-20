@@ -73,13 +73,15 @@ namespace BackupUtilityCore
             catch (Exception ex)
             {
                 // Report error
-                AddToLog($"{Environment.NewLine}Error:{Environment.NewLine}{ex.Message}");
+                AddToLog($"ERROR - {ex.Message}");
 
+#if DEBUG
                 // Check if more details available
                 if (ex.StackTrace != null)
                 {
                     AddToLog($"{Environment.NewLine}Stack Trace:{Environment.NewLine}{ex.StackTrace}");
                 }
+#endif
 
                 returnCode = ReturnError;
             }
@@ -92,7 +94,9 @@ namespace BackupUtilityCore
         /// </summary>
         private static void AddToLog(object _, MessageEventArgs e)
         {
-            AddToLog(e.ToString(Console.BufferWidth));
+            // Make 1 less that buffer width to ensure it fits 
+            // (may not be quite enough room for the entire last char)
+            AddToLog(e.ToString(Console.BufferWidth - 1));
         }
 
         /// <summary>
@@ -206,10 +210,7 @@ namespace BackupUtilityCore
             }
 
             // Parse args for backup settings
-            BackupSettings backupSettings = BackupSettings.ParseFromYaml(configPath);
-
-            // Check config parsed ok
-            if (backupSettings.Valid)
+            if (BackupSettings.TryParseFromYaml(configPath, out BackupSettings backupSettings))
             {
                 // Create backup object
                 BackupTaskBase backupTask = CreateBackupTask(backupSettings.BackupType);
@@ -220,10 +221,7 @@ namespace BackupUtilityCore
                 try
                 {
                     // Execute backup
-                    int backupCount = backupTask.Run(backupSettings);
-
-                    // Report total
-                    AddToLog($"Total files backed up: {backupCount}");
+                    backupTask.Run(backupSettings);
                 }
                 finally
                 {
@@ -232,7 +230,7 @@ namespace BackupUtilityCore
                 }
 
                 // Return error if backup had issues
-                return backupTask.ErrorCount == 0;
+                return backupTask.CompletedWithoutError;
             }
             else
             {
@@ -243,7 +241,6 @@ namespace BackupUtilityCore
                 {
                     AddToLog($"{invalidSetting.Key}: {invalidSetting.Value}");
                 }
-
 
                 return false;
             }
@@ -259,7 +256,7 @@ namespace BackupUtilityCore
                 BackupType.Copy => new BackupTaskCopy(),
                 BackupType.Sync => new BackupTaskSync(),
                 BackupType.Isolated => new BackupTaskIsolatedCopy(),
-                _ => throw new NotImplementedException($"Backup task not implemented for '{backupType}'."),
+                _ => throw new NotImplementedException($"Backup task not implemented for '{backupType}'.")
             };
         }
     }
