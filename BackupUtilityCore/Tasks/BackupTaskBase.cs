@@ -86,41 +86,42 @@ namespace BackupUtilityCore.Tasks
         /// <returns>Number of files backed up</returns>
         public int Run(BackupSettings backupSettings)
         {
-            // Update property value
-            BackupSettings = backupSettings ?? default;
+            if (backupSettings == null)
+            {
+                throw new ArgumentNullException("backupSettings");
+            }
+            else
+            {
+                // Update property value
+                BackupSettings = backupSettings;
+            }
 
             // Ensure reset
             backupErrors.Clear();
 
-            int backupCount = 0;
+            AddToLog($"Running backup ({BackupDescription})...");
 
-            // Validate settings
-            if (BackupSettings?.Valid == true)
+            // Run sub-class logic
+            int backupCount = PerformBackup();
+
+            // Retry errors if possible (depends on issue)
+            if (RetryEnabled)
             {
-                AddToLog($"Running backup ({BackupDescription})...");
-
-                // Run sub-class logic
-                backupCount = PerformBackup();
-
-                // Retry errors if possible (depends on issue)
-                if (RetryEnabled)
-                {
-                    backupCount += RetryErrors();
-                }
-
-                // Log any files that couldn't be backed-up (or failed retry)
-                foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
-                {
-                    AddToLog($"Unable to backup ({retryGroup.Key.GetDescription()}):");
-
-                    foreach (BackupErrorInfo retryError in retryGroup)
-                    {
-                        AddToLog($"{retryError.SourceFile}");
-                    }
-                }
-
-                AddToLog("COMPLETE", $"Backed up {backupCount} files");
+                backupCount += RetryErrors();
             }
+
+            // Log any files that couldn't be backed-up (or failed retry)
+            foreach (IGrouping<BackupResult, BackupErrorInfo> retryGroup in backupErrors.GroupBy(e => e.Result))
+            {
+                AddToLog($"Unable to backup ({retryGroup.Key.GetDescription()}):");
+
+                foreach (BackupErrorInfo retryError in retryGroup)
+                {
+                    AddToLog($"{retryError.SourceFile}");
+                }
+            }
+
+            AddToLog("COMPLETE", $"Backed up {backupCount} files");
 
             return backupCount;
         }
