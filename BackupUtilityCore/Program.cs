@@ -219,10 +219,7 @@ namespace BackupUtilityCore
                 try
                 {
                     // Execute backup
-                    int backupCount = backupTask.Run(backupSettings);
-
-                    // Report total
-                    AddToLog($"Total files backed up: {backupCount}");
+                    backupTask.Run(backupSettings);
                 }
                 finally
                 {
