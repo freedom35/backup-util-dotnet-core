@@ -28,7 +28,7 @@ namespace BackupUtilityCore.Tasks
             {
                 targetDirInfo.Create();
             }
-
+            
             int backupCount = 0;
 
             // Sync each source directory

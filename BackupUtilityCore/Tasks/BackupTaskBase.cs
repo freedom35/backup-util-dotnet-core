@@ -104,6 +104,15 @@ namespace BackupUtilityCore.Tasks
 
             AddToLog($"Running backup ({BackupType.ToString().ToUpper()})...");
 
+            // Verify all sources exist before proceeding
+            string missingSource = BackupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
+
+            // Warn - maybe typo in config
+            if (!string.IsNullOrEmpty(missingSource))
+            {
+                throw new DirectoryNotFoundException($"Source directory does not exist: {missingSource}");
+            }
+
             // Run sub-class logic
             int backupCount = PerformBackup();
 
