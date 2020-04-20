@@ -322,24 +322,15 @@ namespace BackupUtilityCore.Tasks
         {
             AddToLog($"DELETING", directoryInfo.FullName);
 
-            // Order subs by longest directory - will be the most sub-dir (work backwards)
-            foreach (DirectoryInfo di in directoryInfo.GetDirectories("*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName.Length))
-            {
-                RemoveReadOnlyAndDeleteDirectory(di);
-            }
+            // Remove read-only from sub directories
+            RemoveReadOnlyAttributes(directoryInfo.GetDirectories());
 
-            // Delete root
-            RemoveReadOnlyAndDeleteDirectory(directoryInfo);
-        }
+            // Remove from root
+            RemoveReadOnlyFromDirectory(directoryInfo);
 
-        private void RemoveReadOnlyAndDeleteDirectory(DirectoryInfo directoryInfo)
-        {
             try
             {
-                // Ensure not read-only so can be deleted 
-                directoryInfo.Attributes = FileAttributes.Normal;
-
-                // Delete recursively (may contain files)
+                // Delete recursively
                 directoryInfo.Delete(true);
             }
             catch (UnauthorizedAccessException ue)
@@ -349,6 +340,36 @@ namespace BackupUtilityCore.Tasks
             catch (IOException ie)
             {
                 AddToLog("ERROR", ie.Message);
+            }
+        }
+
+        /// <summary>
+        /// Removes read-only attribute from directories and their sub-directories. 
+        /// </summary>
+        private void RemoveReadOnlyAttributes(IEnumerable<DirectoryInfo> directories)
+        {
+            foreach (DirectoryInfo di in directories)
+            {
+                RemoveReadOnlyFromDirectory(di);
+
+                // Recursive - remove from sub dirs too
+                RemoveReadOnlyAttributes(di.EnumerateDirectories());
+            }
+        }
+
+        /// <summary>
+        /// Removes read-only attribute from directory.
+        /// (Also removed from files in directory)
+        /// </summary>
+        private void RemoveReadOnlyFromDirectory(DirectoryInfo di)
+        {
+            // Ensure not read-only so can be deleted 
+            di.Attributes = FileAttributes.Normal;
+
+            // Remove from files too
+            foreach (FileInfo fi in di.EnumerateFiles())
+            {
+                fi.Attributes = FileAttributes.Normal;
             }
         }
 
