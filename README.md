@@ -27,9 +27,8 @@ I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual St
 
 ## Publishing
 Once the .NET Core SDK has been installed, you can **publish** the app for usage via Visual Studio or the [command line](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
-Note: When using Visual Studio, the Backup Utility project is configured to output a portable cross-platform dll by default.  
 
-To publish via the command line, browse to the project directory and run one of the following commands:
+To publish via the command line, browse to the **BackupUtilityCore** project directory and run one of the following commands, depending on your OS:
 
 **Cross-Platform dll:**
 ```sh
