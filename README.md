@@ -2,7 +2,7 @@
 
 Backup Utility is a console app that copies files from multiple source directories to a common target directory.  
 
-The app is built as a .NET Core console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
+The app is written as a .NET Core console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
   
 Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to backup files to your own network or USB drive.  
 
@@ -25,6 +25,34 @@ To build the project you will need the [.NET Core SDK](https://dotnet.microsoft.
 I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual Studio is an IDE with built-in support for C#, comes pre-packaged with the .NET Core SDK, and is available for both [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/). Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
 
+## Publishing
+Once the .NET Core SDK has been installed, you can **publish** the app for usage via Visual Studio or the [command line](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
+Note: When using Visual Studio, the Backup Utility project is configured to output a portable cross-platform dll by default.  
+
+To publish via the command line, browse to the project directory and run one of the following commands:
+
+**Cross-Platform dll:**
+```sh
+$ dotnet publish
+```  
+
+**Windows Executable:**
+```sh
+$ dotnet publish -r win-64
+``` 
+
+**Mac Executable:**
+```sh
+$ dotnet publish -r osx-64
+``` 
+
+**Linux Executable:**
+```sh
+$ dotnet publish -r linux-64
+```  
+For further options, refer to the [.NET Core publishing documentation](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
+<br />
+
 ## Usage
 The portable version of the app (**backuputil.dll**) can be executed on either **Windows**, **macOS**, or **Linux**.  
 
@@ -35,9 +63,9 @@ The portable app (**backuputil.dll**) can be executed using the .NET Core framew
 $ dotnet backuputil.dll
 ```  
 
-Alternatively, if the project has been built to target the local platform, the app directory will also contain a native bootstrap file (with an exe/app extension) for executing the app.  
+Alternatively, if the project has been [published](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-runtime-dependent) to target the local platform, the **publish** directory will also contain a native bootstrap file for executing the app.  
 
-The specific command line with vary depending on the OS:
+The specific command line to run the **executable** with vary depending on the OS:
 
 **Windows:**
 ```sh
@@ -48,8 +76,6 @@ $ backuputil
 ```sh
 $ ./backuputil
 ```
-  
-Note: .NET Core projects can also be configured to build a self-contained exe/app, but these are platform specific. The Backup Utility project is configured to be portable by default.  
 <br />
 
 ## Help
