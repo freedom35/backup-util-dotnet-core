@@ -33,22 +33,22 @@ To publish via the command line, browse to the project directory and run one of 
 
 **Cross-Platform dll:**
 ```sh
-$ dotnet publish
+$ dotnet publish -c release
 ```  
 
 **Windows Executable:**
 ```sh
-$ dotnet publish -r win-64
+$ dotnet publish -c release -r win-x64
 ``` 
 
 **Mac Executable:**
 ```sh
-$ dotnet publish -r osx-64
+$ dotnet publish -c release -r osx-x64
 ``` 
 
 **Linux Executable:**
 ```sh
-$ dotnet publish -r linux-64
+$ dotnet publish -c release -r linux-x64
 ```  
 For further options, refer to the [.NET Core publishing documentation](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
 <br />
