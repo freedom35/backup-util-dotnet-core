@@ -9,16 +9,13 @@
     <Description>Command line backup utility targeting .NET Core framework.</Description>
     <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
     <AssemblyName>backuputil</AssemblyName>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="backup-config.yaml" />
     <None Remove="Resources\Unix\backup-config.yaml" />
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
