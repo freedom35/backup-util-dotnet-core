@@ -16,11 +16,11 @@ You are welcome to use/update this software under the terms of the **MIT license
 <br />
   
 ## Requirements
-Executing the app requires [.NET Core](https://dotnet.microsoft.com/download/dotnet-core) framework v3.1 to be installed.  
+Executing the app requires [.NET Core Runtime](https://dotnet.microsoft.com/download) 3.1 to be installed.  
 
 Config files (YAML) can be edited using any text editor.
   
-To build the project you will need the [.NET Core SDK](https://dotnet.microsoft.com/download).  
+To build the project you will need the [.NET Core SDK 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1).  
 
 I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual Studio is an IDE with built-in support for C#, comes pre-packaged with the .NET Core SDK, and is available for both [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/). Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
