@@ -112,6 +112,9 @@ namespace BackupUtilityCore
             // Include version of app DLL in help
             string helpTitle = $"Help for Backup Utility v{Assembly.GetExecutingAssembly().GetName().Version}";
 
+            // Include license info
+            string licenseInfo = "MIT License";
+
             // Include copyright info, convert '©' to plain ASCII for console output.
             string copyright = Assembly.GetExecutingAssembly().GetCustomAttributes(false).OfType<AssemblyCopyrightAttribute>().First().Copyright.Replace("©", "(c)");
 
@@ -121,6 +124,7 @@ namespace BackupUtilityCore
             // Add header
             AddToLog("".PadRight(borderLen, '-'));
             AddToLog(CenterText(helpTitle, borderLen));
+            AddToLog(CenterText(licenseInfo, borderLen));
             AddToLog(CenterText(copyright, borderLen));
             AddToLog("".PadRight(borderLen, '-'));
 
