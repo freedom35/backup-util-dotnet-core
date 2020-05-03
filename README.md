@@ -18,19 +18,19 @@ You are welcome to use/update this software under the terms of the **MIT license
 ## Requirements
 Executing the app requires [.NET Core Runtime](https://dotnet.microsoft.com/download) 3.1 to be installed.  
 
-Config files (YAML) can be edited using any text editor.
+Config files (**YAML**) can be edited using any text editor. See section ***Creating a Default Config*** below for creating a default/starter config file.
   
-To build the project you will need the [.NET Core SDK 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1).  
+To build the project you will need the [.NET Core SDK 3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1). Building the project will create a **cross-platform DLL** in either the **debug** or **release** directory, depending on your current build configuration.  
 
 I recommend using [Visual Studio](https://visualstudio.microsoft.com). Visual Studio is an IDE with built-in support for C#, comes pre-packaged with the .NET Core SDK, and is available for both [Windows](https://visualstudio.microsoft.com/vs/) or [Mac](https://visualstudio.microsoft.com/vs/mac/). Other options include using a code editor such as [Visual Studio Code](https://code.visualstudio.com) with a C# extension installed.  
 <br />
 
 ## Publishing
-Once the .NET Core SDK has been installed, you can **publish** the app for usage via Visual Studio or the [command line](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
+Once the .NET Core SDK has been installed, you can **publish** the app via Visual Studio or the [command line](https://docs.microsoft.com/en-us/dotnet/core/deploying/). This enables you to create an OS specific executable should you wish to do so.  
 
-To publish via the command line, browse to the **BackupUtilityCore** project directory and run one of the following commands, depending on your OS:
+To publish via the command line, browse to the **BackupUtilityCore** project directory and run one of the following commands, depending on your target OS:
 
-**Cross-Platform dll:**
+**Cross-Platform DLL:**
 ```sh
 $ dotnet publish -c release
 ```  
