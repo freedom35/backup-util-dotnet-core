@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <Copyright>Copyright © Alan Barr 2020</Copyright>
     <Authors>Alan Barr (GitHub: freedom35)</Authors>
     <Description>Command line backup utility targeting .NET Core framework.</Description>

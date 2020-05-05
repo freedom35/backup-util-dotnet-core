@@ -34,6 +34,18 @@ namespace BackupUtilityCore
     public static class BackupResultEnumExtension
     {
         /// <summary>
+        /// Determines whether the result is considered an error.
+        /// </summary>
+        /// <param name="result">BackupResult value</param>
+        /// <returns>true if an error</returns>
+        public static bool IsError(this BackupResult result)
+        {
+            return result == BackupResult.Exception
+                || result == BackupResult.WriteInProgress
+                || result == BackupResult.PathTooLong;
+        }
+
+        /// <summary>
         /// Determines whether the result is suitable for retry.
         /// </summary>
         /// <param name="result">BackupResult value</param>

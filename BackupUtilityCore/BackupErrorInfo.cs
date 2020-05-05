@@ -18,7 +18,7 @@
         public BackupResult Result
         {
             get;
-            private set;
+            set;
         }
 
         /// <summary>

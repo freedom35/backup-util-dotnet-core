@@ -148,6 +148,9 @@ namespace BackupUtilityCore.Tasks
             }
         }
 
+        /// <summary>
+        /// Raises logging event.
+        /// </summary>
         protected void AddToLog(string message)
         {
             AddToLog(message, string.Empty);
@@ -405,16 +408,26 @@ namespace BackupUtilityCore.Tasks
                     // Retry certain errors, check if files finished writing
                     for (int i = 0; i < retryErrors.Count; i++)
                     {
-                        BackupErrorInfo errorInfo = retryErrors[0];
+                        BackupErrorInfo errorInfo = retryErrors[i];
 
-                        // Retry backup
-                        if (CopyFile(errorInfo.SourceFile, errorInfo.TargetDir) == BackupResult.OK)
+                        // Retry backup - result/error may have changed
+                        errorInfo.Result = CopyFile(errorInfo.SourceFile, errorInfo.TargetDir);
+
+                        // Success, increment count
+                        if (errorInfo.Result == BackupResult.OK)
                         {
-                            // Success
                             backupCount++;
-                            retryErrors.RemoveAt(i--);
+                        }
 
-                            // Also remove from master list
+                        // Check new result can still be retried
+                        if (!errorInfo.Result.CanBeRetried())
+                        {
+                            retryErrors.RemoveAt(i--);
+                        }
+
+                        // If no longer an error, remove from master list
+                        if (!errorInfo.Result.IsError())
+                        {
                             backupCopyErrors.Remove(errorInfo);
                         }
                     }
