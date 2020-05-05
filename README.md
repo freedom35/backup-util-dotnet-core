@@ -59,7 +59,7 @@ To execute the portable version, open a terminal window and change to the direct
 
 The portable app (**backuputil.dll**) can be executed using the .NET Core framework using the following command:
 ```sh
-$ dotnet backuputil.dll
+$ dotnet backuputil.dll [option] [<filename>]
 ```  
 
 Alternatively, if the project has been [published](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-runtime-dependent) to target the local platform, the **publish** directory will also contain a native bootstrap file for executing the app.  
@@ -68,17 +68,17 @@ The specific command line to run the **executable** with vary depending on the O
 
 **Windows:**
 ```sh
-$ backuputil
+$ backuputil [option] [<filename>]
 ```
 
 **Mac / Linux:**
 ```sh
-$ ./backuputil
+$ ./backuputil [option] [<filename>]
 ```
 <br />
 
 ## Help
-Help info can be displayed in the console using the **--help**, **-h**, or **-?** argument:  
+Help info can be displayed in the console using the **--help**, **-h**, or **-?** option:  
   
 *Examples:*
 ```sh
@@ -93,7 +93,7 @@ $ dotnet backuputil.dll -?
 <br />
   
 ## Version
-Version info can be displayed in the console using the **--version** or **-v** argument:  
+Version info can be displayed in the console using the **--version** or **-v** option:  
   
 *Examples:*
 ```sh
@@ -105,7 +105,7 @@ $ dotnet backuputil.dll -v
 <br />
   
 ## Creating a Default Config
-A default YAML configuration file can be created using either the **--create** or **-c** argument followed by a config name.  
+A default YAML configuration file can be created using either the **--create** or **-c** option followed by a config name.  
 The config file path is considered relative to the current directory unless the full path is provided.  
   
 *Examples:*
@@ -122,7 +122,7 @@ $ dotnet backuputil.dll -c C:\Configs\config1.yaml
 <br />
 
 ## Running a Backup
-The name of the backup configuration file to be run should be provided as a command line argument after either the **--run** or **-r** argument.  
+The name of the backup configuration file to be run should be provided as a command line argument after either the **--run** or **-r** option.  
 The config file path is considered relative to the current directory unless the full path is provided.  
   
 *Examples:*  
