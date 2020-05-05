@@ -28,46 +28,59 @@ namespace BackupUtilityCore
 
             try
             {
-                // Parse/Verify args
-                if (!CommandLineArgs.TryParseArgs(args, out CommandLineArgType type, out string fileArg))
+                // Parse/Verify command line options
+                if (CommandLineArgs.TryParseArgs(args, out CommandLineArgType type, out string fileArg))
                 {
-                    type = CommandLineArgType.Unknown;
+                    // Execute command
+                    switch (type)
+                    {
+                        case CommandLineArgType.Help:
+                            DisplayHelp();
+                            returnCode = ReturnOK;
+                            break;
+
+                        case CommandLineArgType.Version:
+                            AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                            returnCode = ReturnOK;
+                            break;
+
+                        case CommandLineArgType.CreateConfig:
+                            returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
+                            break;
+
+                        case CommandLineArgType.ExecuteBackup:
+                            returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
+                            break;
+
+                        default:
+                            throw new NotImplementedException($"{type} option not implemented");
+                    }
                 }
-
-                // Execute command
-                switch (type)
+                else
                 {
-                    case CommandLineArgType.Help:
-                        DisplayHelp();
-                        returnCode = ReturnOK;
-                        break;
+                    // Parse failed
+                    DisplayHelp();
+                    returnCode = ReturnError;
 
-                    case CommandLineArgType.Version:
-                        AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
-                        returnCode = ReturnOK;
-                        break;
+                    if (args.Length > 0)
+                    {
+                        // Limit join to first few args (prevent abuse)
+                        string argsAsString = string.Join(' ', args.Take(5));
 
-                    case CommandLineArgType.CreateConfig:
-                        returnCode = CreateDefaultConfig(fileArg) ? ReturnOK : ReturnError;
-                        break;
-
-                    case CommandLineArgType.ExecuteBackup:
-                        returnCode = ExecuteBackupConfig(fileArg) ? ReturnOK : ReturnError;
-                        break;
-
-                    default:
-                        // Parse failed
-                        DisplayHelp();
-                        returnCode = ReturnError;
-
-                        // Unknown command
-                        if (args.Length > 0)
+                        // Add hint if missing an arg
+                        if (type.RequiresFilename() && string.IsNullOrEmpty(fileArg))
                         {
-                            // Limit to first few args (prevent abuse)
-                            AddToLog($"{Environment.NewLine}Illegal option: {string.Join(' ', args.Take(5))}");
+                            AddToLog($"{Environment.NewLine}Missing option: {argsAsString} [<filename missing>]");
                         }
-
-                        break;
+                        else if (type != CommandLineArgType.Unknown)
+                        {
+                            AddToLog($"{Environment.NewLine}Invalid option: {argsAsString}");
+                        }
+                        else
+                        {
+                            AddToLog($"{Environment.NewLine}Illegal option: {argsAsString}");
+                        }
+                    }
                 }
             }
             catch (Exception ex)
