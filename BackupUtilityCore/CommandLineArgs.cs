@@ -127,21 +127,26 @@ namespace BackupUtilityCore
 
             return new string[] {
                 "",
-                "Arguments:",
-                "  --help, -h, -?                 Displays help info for app.",
-                "  --version, -v                  Displays version info for app.",
-                "  --create, -c <filename>.yaml   Creates config file with default values.",
-                "  --run, -r <filename>.yaml      Path/name of config file to execute.",
-                "",
                 "Usage:",
+                $"  {app} [option] [<filename>]",
+                "",
+                "Options:",
+                "  --help, -h, -?   Displays help info for app.",
+                "  --version, -v    Displays version info for app.",
+                "  --create, -c     Creates config file with default values.",
+                "  --run, -r        Path/name of config file to execute.",
+                "",
+                "Filename:",
+                "  Name of config file, required for create/run options.",
+                "  Config files must be in YAML format.",
+                "",
+                "Examples:",
+                $"  {app} --help",
                 $"  {app} --version",
                 $"  {app} --create config1.yaml",
-                $"  {app} -c config1.yaml",
                 $"  {app} --run config1.yaml",
                 $"  {app} -r config1.yaml",
-                $"  {app} -r {GetExampleConfigPath()}",
-                "",
-                "Note: Config files must be in YAML format."
+                $"  {app} -r {GetExampleConfigPath()}"
             };
         }
 
