@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Version>1.1.3</Version>
-    <Copyright>Copyright © Alan Barr 2020</Copyright>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>2.0.0</Version>
+    <Copyright>Copyright © Alan Barr 2021</Copyright>
     <Authors>Alan Barr (GitHub: freedom35)</Authors>
-    <Description>Command line backup utility targeting .NET Core framework.</Description>
+    <Description>Command line backup utility targeting .NET 5.0 framework.</Description>
     <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
     <AssemblyName>backuputil</AssemblyName>
     <PackageLicenseFile></PackageLicenseFile>
