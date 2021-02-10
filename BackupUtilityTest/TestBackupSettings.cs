@@ -109,7 +109,7 @@ namespace BackupUtilityTest
         {
             BackupSettings settings = new BackupSettings()
             {
-                ExcludedDirectories = new string[0]
+                ExcludedDirectories = System.Array.Empty<string>()
             };
 
             Assert.IsFalse(settings.HasExcludedDirectories);
@@ -154,7 +154,7 @@ namespace BackupUtilityTest
         {
             BackupSettings settings = new BackupSettings()
             {
-                ExcludedFileTypes = new string[0]
+                ExcludedFileTypes = System.Array.Empty<string>()
             };
 
             Assert.IsFalse(settings.HasExcludedFileTypes);
@@ -328,7 +328,7 @@ namespace BackupUtilityTest
 
             CompareArrays(testSource, settings.SourceDirectories);
 
-            CompareArrays(new string[0], settings.ExcludedDirectories);
+            CompareArrays(System.Array.Empty<string>(), settings.ExcludedDirectories);
 
             string[] testExcludedDirs = new string[]
             {
@@ -338,7 +338,7 @@ namespace BackupUtilityTest
             CompareArrays(testExcludedDirs, settings.ExcludedFileTypes);
         }
 
-        private void CompareArrays(string[] source, string[] target)
+        private static void CompareArrays(string[] source, string[] target)
         {
             Assert.AreEqual(source.Length, target.Length);
 
