@@ -159,6 +159,14 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Raises logging event.
         /// </summary>
+        protected void AddToLog(Exception ex)
+        {
+            AddToLog("ERROR", ex.Message);
+        }
+
+        /// <summary>
+        /// Raises logging event.
+        /// </summary>
         protected void AddToLog(string message, string arg)
         {
             // Check event handled
@@ -272,28 +280,28 @@ namespace BackupUtilityCore.Tasks
                     }
                     catch (PathTooLongException pe)
                     {
-                        AddToLog("ERROR", pe.Message);
+                        AddToLog(pe);
 
                         // Max length will vary by OS and environment settings.
                         result = BackupResult.PathTooLong;
                     }
                     catch (IOException ie)
                     {
-                        AddToLog("ERROR", ie.Message);
+                        AddToLog(ie);
 
                         // File may be locked or in-use by another process
                         result = BackupResult.UnableToAccess;
                     }
                     catch (UnauthorizedAccessException ue)
                     {
-                        AddToLog("ERROR", ue.Message);
+                        AddToLog(ue);
 
                         // Access denied, possible rights access
                         result = BackupResult.UnauthorizedAccess;
                     }
                     catch (Exception ex)
                     {
-                        AddToLog("ERROR", ex.Message);
+                        AddToLog(ex);
 
                         // Unexpected error, catch so can continue
                         result = BackupResult.Exception;
@@ -323,11 +331,11 @@ namespace BackupUtilityCore.Tasks
                 }
                 catch (UnauthorizedAccessException ue)
                 {
-                    AddToLog("ERROR", ue.Message);
+                    AddToLog(ue);
                 }
                 catch (IOException ie)
                 {
-                    AddToLog("ERROR", ie.Message);
+                    AddToLog(ie);
                 }
             }
         }
@@ -352,11 +360,11 @@ namespace BackupUtilityCore.Tasks
             }
             catch (UnauthorizedAccessException ue)
             {
-                AddToLog("ERROR", ue.Message);
+                AddToLog(ue);
             }
             catch (IOException ie)
             {
-                AddToLog("ERROR", ie.Message);
+                AddToLog(ie);
             }
         }
 
