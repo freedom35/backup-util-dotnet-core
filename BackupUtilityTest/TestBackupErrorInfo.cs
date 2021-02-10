@@ -15,12 +15,24 @@ namespace BackupUtilityTest
         [DataTestMethod]
         public void TestConstructor(BackupResult result, string sourceFile, string targetDir)
         {
-            // Property read-only (set in constructor)
+            // Source/Target properties read-only (set in constructor)
             BackupErrorInfo info = new BackupErrorInfo(result, sourceFile, targetDir);
 
             Assert.AreEqual(result, info.Result);
             Assert.AreEqual(sourceFile, info.SourceFile);
             Assert.AreEqual(targetDir, info.TargetDir);
+        }
+
+        [TestMethod]
+        public void TestResultProperty()
+        {
+            BackupErrorInfo info = new BackupErrorInfo(BackupResult.WriteInProgress, "C:\\file1.txt", "C:\\backups");
+
+            Assert.AreEqual(BackupResult.WriteInProgress, info.Result);
+
+            // Change property and re-test
+            info.Result = BackupResult.OK;
+            Assert.AreEqual(BackupResult.OK, info.Result);
         }
     }
 }
