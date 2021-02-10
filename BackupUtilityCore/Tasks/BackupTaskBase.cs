@@ -282,14 +282,21 @@ namespace BackupUtilityCore.Tasks
                         AddToLog("ERROR", ie.Message);
 
                         // File may be locked or in-use by another process
-                        result = BackupResult.IOException;
+                        result = BackupResult.UnableToAccess;
                     }
                     catch (UnauthorizedAccessException ue)
                     {
                         AddToLog("ERROR", ue.Message);
 
                         // Access denied, possible rights access
-                        result = BackupResult.SecurityException;
+                        result = BackupResult.UnauthorizedAccess;
+                    }
+                    catch (Exception ex)
+                    {
+                        AddToLog("ERROR", ex.Message);
+
+                        // Unexpected error, catch so can continue
+                        result = BackupResult.Exception;
                     }
                 }
             }
