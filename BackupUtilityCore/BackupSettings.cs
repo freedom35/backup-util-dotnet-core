@@ -11,8 +11,8 @@ namespace BackupUtilityCore
     {
         #region Members
 
-        private string[] excludedDirectories = new string[0];
-        private string[] excludedFileTypes = new string[0];
+        private string[] excludedDirectories = Array.Empty<string>();
+        private string[] excludedFileTypes = Array.Empty<string>();
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace BackupUtilityCore
         {
             get;
             set;
-        } = new string[0];
+        } = Array.Empty<string>();
 
         /// <summary>
         /// Gets or sets the target directory.
@@ -54,7 +54,7 @@ namespace BackupUtilityCore
         public string[] ExcludedDirectories
         {
             // Ensure non-null returned
-            get => excludedDirectories ?? new string[0];
+            get => excludedDirectories ?? Array.Empty<string>();
 
             // Format to be consistent
             set => excludedDirectories = value.Select(dir => dir.ToLower()).ToArray();
@@ -76,7 +76,7 @@ namespace BackupUtilityCore
         public string[] ExcludedFileTypes
         {
             // Ensure non-null returned
-            get => excludedFileTypes ?? new string[0];
+            get => excludedFileTypes ?? Array.Empty<string>();
 
             // Format file types to be consistent
             set => excludedFileTypes = value.Select(file => file.TrimStart('.').ToLower()).ToArray();

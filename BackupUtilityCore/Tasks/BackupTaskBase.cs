@@ -129,7 +129,7 @@ namespace BackupUtilityCore.Tasks
         {
             if (backupSettings == null)
             {
-                throw new ArgumentNullException("backupSettings");
+                throw new ArgumentNullException(nameof(backupSettings));
             }
 
             if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
@@ -364,7 +364,7 @@ namespace BackupUtilityCore.Tasks
         /// Removes read-only attribute from directory.
         /// (Also removed from files in directory)
         /// </summary>
-        private void RemoveReadOnlyFromDirectory(DirectoryInfo di)
+        private static void RemoveReadOnlyFromDirectory(DirectoryInfo di)
         {
             // Ensure not read-only so can be deleted 
             di.Attributes = FileAttributes.Normal;
@@ -445,7 +445,7 @@ namespace BackupUtilityCore.Tasks
         /// <param name="sourceDir">Name of source directory</param>
         /// <param name="targetDir">Name of target directory</param>
         /// <returns>Part of source directory where source/target directories differ</returns>
-        protected string GetSourceSubDir(string sourceDir, string targetDir)
+        protected static string GetSourceSubDir(string sourceDir, string targetDir)
         {
             // Ensure stay within array bounds
             int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
@@ -463,7 +463,7 @@ namespace BackupUtilityCore.Tasks
             }
 
             // Return string after position where they differ
-            return sourceDir.Substring(i);
+            return sourceDir[i..];
         }
     }
 }
