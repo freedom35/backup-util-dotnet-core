@@ -19,6 +19,12 @@ namespace BackupUtilityCore
         AlreadyBackedUp,
 
         [Description("Unable to access file")]
+        UnableToAccess,
+
+        [Description("Access to file denied")]
+        UnauthorizedAccess,
+
+        [Description("Exception")]
         Exception,
 
         [Description("File busy, write in progress")]
@@ -40,7 +46,9 @@ namespace BackupUtilityCore
         /// <returns>true if an error</returns>
         public static bool IsError(this BackupResult result)
         {
-            return result == BackupResult.Exception
+            return result == BackupResult.UnableToAccess
+                || result == BackupResult.UnauthorizedAccess
+                || result == BackupResult.Exception
                 || result == BackupResult.WriteInProgress
                 || result == BackupResult.PathTooLong;
         }
@@ -53,7 +61,7 @@ namespace BackupUtilityCore
         public static bool CanBeRetried(this BackupResult result)
         {
             return result == BackupResult.WriteInProgress
-                || result == BackupResult.Exception;
+                || result == BackupResult.UnableToAccess;
         }
 
         /// <summary>

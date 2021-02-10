@@ -277,13 +277,13 @@ namespace BackupUtilityTest
             Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
-        private int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
+        private static int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
         {
             // Get all the target files
             var targetFiles = Directory.EnumerateFiles(rootTargetDir, "*.*", SearchOption.AllDirectories);
 
             // Remove target root from paths
-            var targetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/')).ToArray();
+            var targetFilesWithoutRoots = targetFiles.Select(f => f[rootTargetDir.Length..].TrimStart('\\', '/')).ToArray();
 
             // Get length of root string to be removed
             int rootSourceLength = TestDirectory.IndexOfSourceSubDir(sourceFiles.First(), rootTargetDir);
@@ -292,7 +292,7 @@ namespace BackupUtilityTest
             foreach (string file in sourceFiles)
             {
                 // Remove source root
-                string sourceFileWithoutRoot = file.Substring(rootSourceLength);
+                string sourceFileWithoutRoot = file[rootSourceLength..];
 
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));

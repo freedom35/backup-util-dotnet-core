@@ -145,7 +145,7 @@ namespace BackupUtilityCore.YAML
                 // Trim any spaces either side of ':'
                 // Convert keys to lowercase for comparison.
                 key = line.Substring(0, index).Trim().ToLower();
-                val = line.Substring(index + 1).Trim();
+                val = line[(index + 1)..].Trim();
 
                 return true;
             }

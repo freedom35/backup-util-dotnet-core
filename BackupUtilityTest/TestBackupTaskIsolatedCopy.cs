@@ -142,7 +142,7 @@ namespace BackupUtilityTest
             task.Log -= Task_Log;
         }
 
-        private string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
+        private static string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
         {
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
@@ -151,7 +151,7 @@ namespace BackupUtilityTest
             var targetFiles = Directory.EnumerateFiles(rootTargetDir, "*.*", SearchOption.AllDirectories);
 
             // Remove target root from paths
-            var isolatedTargetFilesWithoutRoots = targetFiles.Select(f => f.Substring(rootTargetDir.Length).TrimStart('\\', '/'));
+            var isolatedTargetFilesWithoutRoots = targetFiles.Select(f => f[rootTargetDir.Length..].TrimStart('\\', '/'));
 
             // Get date portion from target root
             var dirDates = isolatedTargetFilesWithoutRoots.Select(f => f.Split(Path.DirectorySeparatorChar).First()).Distinct();
@@ -163,7 +163,7 @@ namespace BackupUtilityTest
             Assert.IsTrue(BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory(dateSubDir, out DateTime dirDate));
 
             // Get latest and remove date sub-dir
-            var targetFilesWithoutRoots = isolatedTargetFilesWithoutRoots.Where(t => t.StartsWith(dateSubDir)).Select(t => t.Substring(dateSubDir.Length + 1));
+            var targetFilesWithoutRoots = isolatedTargetFilesWithoutRoots.Where(t => t.StartsWith(dateSubDir)).Select(t => t[(dateSubDir.Length + 1)..]);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetFilesWithoutRoots.Count());
@@ -175,7 +175,7 @@ namespace BackupUtilityTest
             foreach (string file in sourceFiles)
             {
                 // Remove source root
-                string sourceFileWithoutRoot = file.Substring(rootSourceLength);
+                string sourceFileWithoutRoot = file[rootSourceLength..];
 
                 // Check it was copied
                 Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));

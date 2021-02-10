@@ -36,19 +36,12 @@ namespace BackupUtilityCore
             }
 
             // Validate parse
-            switch (commandType)
+            return commandType switch
             {
-                case CommandLineArgType.CreateConfig:
-                case CommandLineArgType.ExecuteBackup:
-                    return args.Length == 2 && !string.IsNullOrEmpty(fileArg);
-
-                case CommandLineArgType.Help:
-                case CommandLineArgType.Version:
-                    return args.Length == 1;
-
-                default:
-                    return false;
-            }
+                CommandLineArgType.CreateConfig or CommandLineArgType.ExecuteBackup => args.Length == 2 && !string.IsNullOrEmpty(fileArg),
+                CommandLineArgType.Help or CommandLineArgType.Version => args.Length == 1,
+                _ => false,
+            };
         }
 
         /// <summary>

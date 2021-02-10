@@ -15,7 +15,7 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Target location of source directories
         /// </summary>
-        private string[] sourceDirsInTarget = new string[0];
+        private string[] sourceDirsInTarget = Array.Empty<string>();
 
         /// <summary>
         /// Syncs target directory with source directories.
@@ -65,7 +65,7 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Gets the sub directory where each source will be located in the target directory.
         /// </summary>
-        private string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
+        private static string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
         {
             List<string> dirs = new List<string>();
 

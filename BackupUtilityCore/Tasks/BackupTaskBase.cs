@@ -129,7 +129,7 @@ namespace BackupUtilityCore.Tasks
         {
             if (backupSettings == null)
             {
-                throw new ArgumentNullException("backupSettings");
+                throw new ArgumentNullException(nameof(backupSettings));
             }
 
             if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
@@ -154,6 +154,14 @@ namespace BackupUtilityCore.Tasks
         protected void AddToLog(string message)
         {
             AddToLog(message, string.Empty);
+        }
+
+        /// <summary>
+        /// Raises logging event.
+        /// </summary>
+        protected void AddToLog(Exception ex)
+        {
+            AddToLog("ERROR", ex.Message);
         }
 
         /// <summary>
@@ -188,6 +196,9 @@ namespace BackupUtilityCore.Tasks
                     case BackupResult.OK:
                         // Keep track of (new) files backed up
                         backupCount++;
+
+                        // Reset error count on successful copy
+                        errorCount = 0;
                         break;
 
                     case BackupResult.AlreadyBackedUp:
@@ -199,7 +210,7 @@ namespace BackupUtilityCore.Tasks
                         // Add file to list for retry
                         backupCopyErrors.Add(new BackupErrorInfo(result, file, targetDir));
 
-                        // Abort on high error count
+                        // Abort on high error count (in a row)
                         if (++errorCount > 3)
                         {
                             throw new Exception("Backup aborted due to excessive errors");
@@ -272,16 +283,30 @@ namespace BackupUtilityCore.Tasks
                     }
                     catch (PathTooLongException pe)
                     {
-                        AddToLog("ERROR", pe.Message);
+                        AddToLog(pe);
 
                         // Max length will vary by OS and environment settings.
                         result = BackupResult.PathTooLong;
                     }
                     catch (IOException ie)
                     {
-                        AddToLog("ERROR", ie.Message);
+                        AddToLog(ie);
 
                         // File may be locked or in-use by another process
+                        result = BackupResult.UnableToAccess;
+                    }
+                    catch (UnauthorizedAccessException ue)
+                    {
+                        AddToLog(ue);
+
+                        // Access denied, possible rights access
+                        result = BackupResult.UnauthorizedAccess;
+                    }
+                    catch (Exception ex)
+                    {
+                        AddToLog(ex);
+
+                        // Unexpected error, catch so can continue
                         result = BackupResult.Exception;
                     }
                 }
@@ -309,11 +334,11 @@ namespace BackupUtilityCore.Tasks
                 }
                 catch (UnauthorizedAccessException ue)
                 {
-                    AddToLog("ERROR", ue.Message);
+                    AddToLog(ue);
                 }
                 catch (IOException ie)
                 {
-                    AddToLog("ERROR", ie.Message);
+                    AddToLog(ie);
                 }
             }
         }
@@ -338,11 +363,11 @@ namespace BackupUtilityCore.Tasks
             }
             catch (UnauthorizedAccessException ue)
             {
-                AddToLog("ERROR", ue.Message);
+                AddToLog(ue);
             }
             catch (IOException ie)
             {
-                AddToLog("ERROR", ie.Message);
+                AddToLog(ie);
             }
         }
 
@@ -364,7 +389,7 @@ namespace BackupUtilityCore.Tasks
         /// Removes read-only attribute from directory.
         /// (Also removed from files in directory)
         /// </summary>
-        private void RemoveReadOnlyFromDirectory(DirectoryInfo di)
+        private static void RemoveReadOnlyFromDirectory(DirectoryInfo di)
         {
             // Ensure not read-only so can be deleted 
             di.Attributes = FileAttributes.Normal;
@@ -445,7 +470,7 @@ namespace BackupUtilityCore.Tasks
         /// <param name="sourceDir">Name of source directory</param>
         /// <param name="targetDir">Name of target directory</param>
         /// <returns>Part of source directory where source/target directories differ</returns>
-        protected string GetSourceSubDir(string sourceDir, string targetDir)
+        protected static string GetSourceSubDir(string sourceDir, string targetDir)
         {
             // Ensure stay within array bounds
             int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
@@ -463,7 +488,7 @@ namespace BackupUtilityCore.Tasks
             }
 
             // Return string after position where they differ
-            return sourceDir.Substring(i);
+            return sourceDir[i..];
         }
     }
 }
