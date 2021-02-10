@@ -196,6 +196,9 @@ namespace BackupUtilityCore.Tasks
                     case BackupResult.OK:
                         // Keep track of (new) files backed up
                         backupCount++;
+
+                        // Reset error count on successful copy
+                        errorCount = 0;
                         break;
 
                     case BackupResult.AlreadyBackedUp:
@@ -207,7 +210,7 @@ namespace BackupUtilityCore.Tasks
                         // Add file to list for retry
                         backupCopyErrors.Add(new BackupErrorInfo(result, file, targetDir));
 
-                        // Abort on high error count
+                        // Abort on high error count (in a row)
                         if (++errorCount > 3)
                         {
                             throw new Exception("Backup aborted due to excessive errors");
