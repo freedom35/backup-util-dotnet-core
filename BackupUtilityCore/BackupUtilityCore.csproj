@@ -11,6 +11,7 @@
     <AssemblyName>backuputil</AssemblyName>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,13 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Unix\backup-config.yaml" />
     <EmbeddedResource Include="Resources\Windows\backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
