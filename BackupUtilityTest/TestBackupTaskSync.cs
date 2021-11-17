@@ -15,7 +15,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskSync
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
@@ -159,7 +159,7 @@ namespace BackupUtilityTest
             settings.IgnoreHiddenFiles = true;
 
             // Return non-hidden
-            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden);
+            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)!).Attributes.HasFlag(FileAttributes.Hidden);
 
             // Refresh expected source files
             sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
@@ -209,7 +209,7 @@ namespace BackupUtilityTest
             int filesCopied = task.Run(settings);
 
             // Return non-hidden
-            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden);
+            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)!).Attributes.HasFlag(FileAttributes.Hidden);
 
             // Filter source files that should have been copied
             var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);

@@ -2,21 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-
     <Authors>Alan Barr (GitHub: freedom35)</Authors>
-
     <Copyright>Copyright © Alan Barr</Copyright>
-
     <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
-
     <Description>Unit tests for BackupUtilityCore app.</Description>
-
     <PackageLicenseFile></PackageLicenseFile>
-
     <Version>3.0.0</Version>
-
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 

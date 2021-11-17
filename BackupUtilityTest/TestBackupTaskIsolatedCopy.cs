@@ -15,7 +15,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskIsolatedCopy
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)

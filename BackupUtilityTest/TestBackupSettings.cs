@@ -11,7 +11,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupSettings
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
@@ -233,7 +233,7 @@ namespace BackupUtilityTest
 
             Assert.IsTrue(settings.Valid);
 
-            settings.SourceDirectories = null;
+            settings.SourceDirectories = System.Array.Empty<string>();
 
             Assert.IsFalse(settings.Valid);
         }
