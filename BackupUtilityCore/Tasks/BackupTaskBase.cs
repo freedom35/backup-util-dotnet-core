@@ -20,7 +20,7 @@ namespace BackupUtilityCore.Tasks
         #region Delegates / Events
 
         public delegate void MessageDelegate(object sender, MessageEventArgs e);
-        public event MessageDelegate Log;
+        public event MessageDelegate? Log;
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace BackupUtilityCore.Tasks
         {
             get;
             set;
-        }
+        } = new BackupSettings();
 
         /// <summary>
         /// Determines whether an error occurred during backup task.
@@ -139,7 +139,7 @@ namespace BackupUtilityCore.Tasks
             }
 
             // Verify all sources exist before proceeding
-            string missingSource = backupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
+            string? missingSource = backupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
 
             // Warn - maybe typo in config
             if (!string.IsNullOrEmpty(missingSource))
@@ -262,12 +262,12 @@ namespace BackupUtilityCore.Tasks
                     try
                     {
                         // Check target directory
-                        if (!targetFileInfo.Directory.Exists)
+                        if (targetFileInfo.Directory != null && !targetFileInfo.Directory.Exists)
                         {
                             targetFileInfo.Directory.Create();
 
                             // Preserve source directory attributes (hidden etc.)
-                            targetFileInfo.Directory.Attributes = sourceFileInfo.Directory.Attributes;
+                            targetFileInfo.Directory.Attributes = sourceFileInfo.Directory!.Attributes;
                         }
                         else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
                         {
@@ -475,7 +475,7 @@ namespace BackupUtilityCore.Tasks
             int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
 
             // Don't return index at root
-            int i = Path.GetPathRoot(sourceDir).Length;
+            int i = Path.GetPathRoot(sourceDir)?.Length ?? 0;
 
             // Find first char where directories differ
             for (; i < maxLen; i++)

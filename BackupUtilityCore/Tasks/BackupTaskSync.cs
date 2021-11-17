@@ -95,7 +95,7 @@ namespace BackupUtilityCore.Tasks
             foreach (DirectoryInfo targetSubInfo in targetDirectories)
             {
                 // Check for sub directory in sources
-                string targetSub = sourceSubDirs.FirstOrDefault(s => s.StartsWith(targetSubInfo.FullName, StringComparison.OrdinalIgnoreCase));
+                string? targetSub = sourceSubDirs.FirstOrDefault(s => s.StartsWith(targetSubInfo.FullName, StringComparison.OrdinalIgnoreCase));
 
                 // If directory not found, then orphaned - delete
                 // Otherwise, keep searching branch until full directories match

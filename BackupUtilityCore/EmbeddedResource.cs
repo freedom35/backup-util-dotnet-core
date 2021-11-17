@@ -36,7 +36,7 @@ namespace BackupUtilityCore
         public static bool CreateCopyFromPath(string resourcePath, string targetPath)
         {
             // Open resource as stream
-            using Stream resourceStream = System.Reflection.Assembly.GetCallingAssembly().GetManifestResourceStream(resourcePath);
+            using Stream resourceStream = System.Reflection.Assembly.GetCallingAssembly().GetManifestResourceStream(resourcePath)!;
 
             // Read bytes from stream
             if (TryGetResourceBytes(resourceStream, out byte[] resourceBytes))
@@ -47,7 +47,7 @@ namespace BackupUtilityCore
                 fs.Write(resourceBytes, 0, resourceBytes.Length);
 
                 // Verify file written
-                return (fs.Length == resourceBytes.Length);
+                return fs.Length == resourceBytes.Length;
             }
             else
             {
@@ -72,7 +72,7 @@ namespace BackupUtilityCore
             }
             else
             {
-                resourceBytes = null;
+                resourceBytes = Array.Empty<byte>();
                 return false;
             }
         }

@@ -72,12 +72,12 @@ namespace BackupUtilityCore
         public static string GetDescription(this BackupResult result)
         {
             // Query enum for info
-            FieldInfo fi = result.GetType().GetField(result.ToString());
+            FieldInfo? fi = result.GetType().GetField(result.ToString());
 
             if (fi != null)
             {
                 // Get first description attribute
-                DescriptionAttribute attr = ((DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false)).FirstOrDefault();
+                DescriptionAttribute? attr = ((DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false)).FirstOrDefault();
 
                 // Get description value (default to enum string if missing)
                 return attr?.Description ?? result.ToString();

@@ -22,9 +22,9 @@ namespace BackupUtilityCore.YAML
             // Open file for reading
             using StreamReader streamReader = new StreamReader(path);
 
-            string line;
-            string currentKey = null;
-            List<string> currentSequence = null;
+            string? line;
+            string? currentKey = null;
+            List<string>? currentSequence = null;
 
             // Read each line
             while ((line = streamReader.ReadLine()) != null)
