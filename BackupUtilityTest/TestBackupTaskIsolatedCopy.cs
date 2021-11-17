@@ -15,7 +15,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskIsolatedCopy
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
@@ -39,7 +39,7 @@ namespace BackupUtilityTest
         {
             Assert.IsTrue(BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory("2020-04-17 233102", out DateTime dirDate));
 
-            DateTime correctDate = new DateTime(2020, 04, 17, 23, 31, 2);
+            DateTime correctDate = new(2020, 04, 17, 23, 31, 2);
 
             Assert.AreEqual(correctDate.Year, dirDate.Year);
             Assert.AreEqual(correctDate.Month, dirDate.Month);
@@ -60,7 +60,7 @@ namespace BackupUtilityTest
             string rootTargetDir = dirs.Item2;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 MaxIsololationDays = 0,
                 IgnoreHiddenFiles = false,
@@ -68,7 +68,7 @@ namespace BackupUtilityTest
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskIsolatedCopy task = new BackupTaskIsolatedCopy()
+            BackupTaskIsolatedCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0

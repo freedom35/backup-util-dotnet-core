@@ -11,7 +11,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupSettings
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
@@ -26,7 +26,7 @@ namespace BackupUtilityTest
         {
             BackupType type = BackupType.Sync;
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 BackupType = type
             };
@@ -48,7 +48,7 @@ namespace BackupUtilityTest
                 "dir2"
             };
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 SourceDirectories = dirs
             };
@@ -67,7 +67,7 @@ namespace BackupUtilityTest
         {
             string dir = "directory_name1";
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 TargetDirectory = dir
             };
@@ -89,7 +89,7 @@ namespace BackupUtilityTest
                 "Dir2"
             };
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedDirectories = dirs
             };
@@ -107,7 +107,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestHasExcludedDirectoriesProp()
         {
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedDirectories = System.Array.Empty<string>()
             };
@@ -134,7 +134,7 @@ namespace BackupUtilityTest
                 ".jpg"
             };
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedFileTypes = types
             };
@@ -152,7 +152,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestHasExcludedFileTypesProp()
         {
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedFileTypes = System.Array.Empty<string>()
             };
@@ -174,7 +174,7 @@ namespace BackupUtilityTest
         {
             bool ignore = false;
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = ignore
             };
@@ -192,7 +192,7 @@ namespace BackupUtilityTest
         {
             int age = 30;
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 MaxIsololationDays = age
             };
@@ -208,7 +208,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestValidProp()
         {
-            BackupSettings settings = new BackupSettings();
+            BackupSettings settings = new();
 
             Assert.IsFalse(settings.Valid);
 
@@ -233,7 +233,7 @@ namespace BackupUtilityTest
 
             Assert.IsTrue(settings.Valid);
 
-            settings.SourceDirectories = null;
+            settings.SourceDirectories = System.Array.Empty<string>();
 
             Assert.IsFalse(settings.Valid);
         }
@@ -248,7 +248,7 @@ namespace BackupUtilityTest
                 ".jpg"
             };
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedFileTypes = types
             };
@@ -269,7 +269,7 @@ namespace BackupUtilityTest
                 "release"
             };
 
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 ExcludedDirectories = dirs
             };
@@ -283,7 +283,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestGetInvalidSettingsMethod()
         {
-            BackupSettings settings = new BackupSettings();
+            BackupSettings settings = new();
 
             // Critical settings not valid by default
             Assert.AreEqual(3, settings.GetInvalidSettings().Count);

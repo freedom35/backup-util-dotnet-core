@@ -65,7 +65,7 @@ namespace BackupUtilityCore.Tasks
             // Check for additional identifier (and remove)
             if (dir.Length > DirDateFormat.Length)
             {
-                dir = dir.Substring(0, DirDateFormat.Length);
+                dir = dir[..DirDateFormat.Length];
             }
 
             // TryParse directory names for ones with date formats
@@ -86,7 +86,7 @@ namespace BackupUtilityCore.Tasks
                 int maxAgeDays = BackupSettings.MaxIsololationDays;
                 DateTime now = DateTime.Now;
 
-                DirectoryInfo targetRoot = new DirectoryInfo(BackupSettings.TargetDirectory);
+                DirectoryInfo targetRoot = new(BackupSettings.TargetDirectory);
 
                 if (targetRoot.Exists)
                 {

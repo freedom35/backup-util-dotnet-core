@@ -2,15 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <Version>2.0.0</Version>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Version>3.0.0</Version>
     <Copyright>Copyright © Alan Barr 2021</Copyright>
     <Authors>Alan Barr (GitHub: freedom35)</Authors>
-    <Description>Command line backup utility targeting .NET 5.0 framework.</Description>
+    <Description>Command line backup utility targeting .NET 6.0</Description>
     <RepositoryUrl>https://github.com/freedom35/backup-util-dotnet-core</RepositoryUrl>
     <AssemblyName>backuputil</AssemblyName>
     <PackageLicenseFile></PackageLicenseFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,13 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Unix\backup-config.yaml" />
     <EmbeddedResource Include="Resources\Windows\backup-config.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

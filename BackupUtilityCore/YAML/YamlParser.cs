@@ -17,14 +17,14 @@ namespace BackupUtilityCore.YAML
         /// <returns>Key/Value pairs from parsed file.</returns>
         public static Dictionary<string, object> ParseFile(string path)
         {
-            Dictionary<string, object> keyValues = new Dictionary<string, object>();
+            Dictionary<string, object> keyValues = new();
 
             // Open file for reading
-            using StreamReader streamReader = new StreamReader(path);
+            using StreamReader streamReader = new(path);
 
-            string line;
-            string currentKey = null;
-            List<string> currentSequence = null;
+            string? line;
+            string? currentKey = null;
+            List<string>? currentSequence = null;
 
             // Read each line
             while ((line = streamReader.ReadLine()) != null)
@@ -144,7 +144,7 @@ namespace BackupUtilityCore.YAML
             {
                 // Trim any spaces either side of ':'
                 // Convert keys to lowercase for comparison.
-                key = line.Substring(0, index).Trim().ToLower();
+                key = line[..index].Trim().ToLower();
                 val = line[(index + 1)..].Trim();
 
                 return true;

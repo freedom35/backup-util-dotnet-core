@@ -16,7 +16,7 @@ namespace BackupUtilityTest
         public void TestConstructor(BackupResult result, string sourceFile, string targetDir)
         {
             // Source/Target properties read-only (set in constructor)
-            BackupErrorInfo info = new BackupErrorInfo(result, sourceFile, targetDir);
+            BackupErrorInfo info = new(result, sourceFile, targetDir);
 
             Assert.AreEqual(result, info.Result);
             Assert.AreEqual(sourceFile, info.SourceFile);
@@ -26,7 +26,7 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestResultProperty()
         {
-            BackupErrorInfo info = new BackupErrorInfo(BackupResult.WriteInProgress, "C:\\file1.txt", "C:\\backups");
+            BackupErrorInfo info = new(BackupResult.WriteInProgress, "C:\\file1.txt", "C:\\backups");
 
             Assert.AreEqual(BackupResult.WriteInProgress, info.Result);
 

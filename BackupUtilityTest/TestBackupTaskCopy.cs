@@ -15,7 +15,7 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestBackupTaskCopy
     {
-        private static string testRoot;
+        private static string testRoot = "";
 
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
@@ -34,14 +34,14 @@ namespace BackupUtilityTest
             string rootTargetDir = dirs.Item2;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -153,14 +153,14 @@ namespace BackupUtilityTest
             int hiddenFileCount = dirs.Item3;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = true,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -170,7 +170,7 @@ namespace BackupUtilityTest
             int filesCopied = task.Run(settings);
 
             // Return non-hidden
-            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)).Attributes.HasFlag(FileAttributes.Hidden);
+            static bool sourceFilter(string f) => !File.GetAttributes(f).HasFlag(FileAttributes.Hidden) && !new DirectoryInfo(Path.GetDirectoryName(f)!).Attributes.HasFlag(FileAttributes.Hidden);
 
             // Filter source files that should have been copied
             var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories).Where(sourceFilter);
@@ -198,7 +198,7 @@ namespace BackupUtilityTest
             string[] excludedTypes = new string[] { "md", "bmp" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -206,7 +206,7 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = excludedTypes
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -244,7 +244,7 @@ namespace BackupUtilityTest
             string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -252,7 +252,7 @@ namespace BackupUtilityTest
                 ExcludedDirectories = excludedDirs
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0

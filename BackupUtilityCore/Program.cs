@@ -40,7 +40,7 @@ namespace BackupUtilityCore
                             break;
 
                         case CommandLineArgType.Version:
-                            AddToLog(Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                            AddToLog(Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Version Unknown");
                             returnCode = ReturnOK;
                             break;
 

@@ -13,14 +13,14 @@ namespace BackupUtilityCore.Tasks
     {
         #region Members
 
-        private readonly List<BackupErrorInfo> backupCopyErrors = new List<BackupErrorInfo>();
+        private readonly List<BackupErrorInfo> backupCopyErrors = new();
 
         #endregion
 
         #region Delegates / Events
 
         public delegate void MessageDelegate(object sender, MessageEventArgs e);
-        public event MessageDelegate Log;
+        public event MessageDelegate? Log;
 
         #endregion
 
@@ -41,7 +41,7 @@ namespace BackupUtilityCore.Tasks
         {
             get;
             set;
-        }
+        } = new BackupSettings();
 
         /// <summary>
         /// Determines whether an error occurred during backup task.
@@ -139,7 +139,7 @@ namespace BackupUtilityCore.Tasks
             }
 
             // Verify all sources exist before proceeding
-            string missingSource = backupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
+            string? missingSource = backupSettings.SourceDirectories.FirstOrDefault(d => !Directory.Exists(d));
 
             // Warn - maybe typo in config
             if (!string.IsNullOrEmpty(missingSource))
@@ -233,7 +233,7 @@ namespace BackupUtilityCore.Tasks
         {
             BackupResult result;
 
-            FileInfo sourceFileInfo = new FileInfo(filename);
+            FileInfo sourceFileInfo = new(filename);
 
             // Check whether file eligible
             if (BackupSettings.IgnoreHiddenFiles && (sourceFileInfo.Attributes & FileAttributes.Hidden) != 0)
@@ -248,7 +248,7 @@ namespace BackupUtilityCore.Tasks
             {
                 string targetPath = Path.Combine(targetDir, sourceFileInfo.Name);
 
-                FileInfo targetFileInfo = new FileInfo(targetPath);
+                FileInfo targetFileInfo = new(targetPath);
 
                 // Check whether file previously backed up (and not changed)
                 if (targetFileInfo.Exists && targetFileInfo.Length == sourceFileInfo.Length && targetFileInfo.LastWriteTimeUtc.Equals(sourceFileInfo.LastWriteTimeUtc))
@@ -262,12 +262,12 @@ namespace BackupUtilityCore.Tasks
                     try
                     {
                         // Check target directory
-                        if (!targetFileInfo.Directory.Exists)
+                        if (targetFileInfo.Directory != null && !targetFileInfo.Directory.Exists)
                         {
                             targetFileInfo.Directory.Create();
 
                             // Preserve source directory attributes (hidden etc.)
-                            targetFileInfo.Directory.Attributes = sourceFileInfo.Directory.Attributes;
+                            targetFileInfo.Directory.Attributes = sourceFileInfo.Directory!.Attributes;
                         }
                         else if (targetFileInfo.Exists && targetFileInfo.IsReadOnly)
                         {
@@ -320,7 +320,7 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         protected void DeleteFile(string filename)
         {
-            FileInfo fileInfo = new FileInfo(filename);
+            FileInfo fileInfo = new(filename);
 
             if (fileInfo.Exists)
             {
@@ -421,9 +421,8 @@ namespace BackupUtilityCore.Tasks
                 const int MaxRetryTime = 3000;
                 const int RetryInterval = 500;
 
-                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-                sw.Start();
-
+                System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+                
                 // Retry while still files remaining, but eventually time-out
                 while (retryErrors.Count > 0 && sw.ElapsedMilliseconds < MaxRetryTime)
                 {
@@ -476,7 +475,7 @@ namespace BackupUtilityCore.Tasks
             int maxLen = Math.Min(sourceDir.Length, targetDir.Length);
 
             // Don't return index at root
-            int i = Path.GetPathRoot(sourceDir).Length;
+            int i = Path.GetPathRoot(sourceDir)?.Length ?? 0;
 
             // Find first char where directories differ
             for (; i < maxLen; i++)

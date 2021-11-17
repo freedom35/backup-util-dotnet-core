@@ -177,41 +177,41 @@ namespace BackupUtilityCore
             // Check key/values for expected settings
             ///////////////////////////////////////////
 
-            if (keyValuePairs.TryGetValue("backup_type", out object configBackupType) && Enum.TryParse(configBackupType.ToString(), true, out BackupType type))
+            if (keyValuePairs.TryGetValue("backup_type", out object? configBackupType) && Enum.TryParse(configBackupType.ToString(), true, out BackupType type))
             {
                 settings.BackupType = type;
             }
 
-            if (keyValuePairs.TryGetValue("target_dir", out object targetDir) && targetDir is string targetDirAsString)
+            if (keyValuePairs.TryGetValue("target_dir", out object? targetDir) && targetDir is string targetDirAsString)
             {
                 settings.TargetDirectory = targetDirAsString;
             }
 
-            if (keyValuePairs.TryGetValue("source_dirs", out object sourceDirs))
+            if (keyValuePairs.TryGetValue("source_dirs", out object? sourceDirs))
             {
-                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray();
+                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
             }
 
             // Optional
-            if (keyValuePairs.TryGetValue("excluded_dirs", out object excludedDirs))
+            if (keyValuePairs.TryGetValue("excluded_dirs", out object? excludedDirs))
             {
-                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray();
+                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
             }
 
             // Optional
-            if (keyValuePairs.TryGetValue("excluded_types", out object excludedTypes))
+            if (keyValuePairs.TryGetValue("excluded_types", out object? excludedTypes))
             {
-                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray();
+                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
             }
 
             // Optional
-            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr.ToString().ToLower(), out bool ignore))
+            if (keyValuePairs.TryGetValue("ignore_hidden_files", out object? ignoreHiddenFilesStr) && bool.TryParse(ignoreHiddenFilesStr?.ToString()?.ToLower(), out bool ignore))
             {
                 settings.IgnoreHiddenFiles = ignore;
             }
 
             // Used for isolated backup type
-            if (keyValuePairs.TryGetValue("max_isolation_days", out object daysAsString) && int.TryParse(daysAsString.ToString(), out int daysAsInt))
+            if (keyValuePairs.TryGetValue("max_isolation_days", out object? daysAsString) && int.TryParse(daysAsString.ToString(), out int daysAsInt))
             {
                 settings.MaxIsololationDays = daysAsInt;
             }
@@ -224,7 +224,7 @@ namespace BackupUtilityCore
         /// </summary>
         public Dictionary<string, string> GetInvalidSettings()
         {
-            Dictionary<string, string> invalidSettings = new Dictionary<string, string>();
+            Dictionary<string, string> invalidSettings = new();
 
             // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
             if (!Enum.IsDefined(typeof(BackupType), BackupType))

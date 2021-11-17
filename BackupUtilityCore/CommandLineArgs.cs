@@ -22,7 +22,7 @@ namespace BackupUtilityCore
             commandType = GetArgType(args.ElementAtOrDefault(0) ?? "");
 
             // Optional filename arg
-            string filename = args.ElementAtOrDefault(1);
+            string? filename = args.ElementAtOrDefault(1);
 
             // Check for value, and not a rogue command
             if (!string.IsNullOrEmpty(filename) && !filename.StartsWith('-'))
@@ -113,7 +113,7 @@ namespace BackupUtilityCore
         public static string[] GetHelpInfo()
         {
             // Get exe name of app (project output on build)
-            string name = Assembly.GetExecutingAssembly().GetName().Name;
+            string name = Assembly.GetExecutingAssembly().GetName().Name ?? "Name Unknown";
 
             // Platform agnostic call
             string app = $"dotnet {name}.dll";
