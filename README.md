@@ -1,8 +1,8 @@
-# Backup Utility (.NET 5.0)
+# Backup Utility (.NET 6.0)
 
 Backup Utility is a console app that copies files from multiple source directories to a common target directory.  
 
-The app is written as a **.NET 5.0** console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
+The app is written as a **.NET 6.0** console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
   
 Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to backup files to your own network or USB drive.  
 
@@ -15,19 +15,19 @@ Supported configuration files are in YAML format.
 You are welcome to use/update this software under the terms of the **MIT license**.  
 <br />
 
-## Microsoft .NET 5.0 in a Nutshell
-Microsoft .NET has gone through a rebranding where **.NET Core is now simply known as .NET**, and .NET 5.0 is essentially an update .NET Core 3.1. Microsoft jumped ahead to v5.0 when rebranding in order to avoid confusion with the Windows only .NET Framework 4.8 (which is now end of life).  
+## Microsoft .NET 6.0 in a Nutshell
+Microsoft .NET has gone through a rebranding where **.NET Core is now simply known as .NET**, and .NET 5.0 is essentially an update to .NET Core 3.1. Microsoft jumped ahead to v5.0 when rebranding in order to avoid confusion with the Windows only .NET Framework 4.8 (which is now end of life). Whereas .NET 5.0 has short-term support (ending May 2022), .NET 6.0 has long term support (ending November 2024).  
 <br />
   
 ## Requirements
-Executing the app requires [.NET 5.0 Runtime](https://dotnet.microsoft.com/download) to be installed.  
+Executing the app requires [.NET 6.0 Runtime](https://dotnet.microsoft.com/download) to be installed.  
 
 Config files (**YAML**) can be edited using any text editor. See section ***Creating a Default Config*** below for creating a default/starter config file.
   
-To build the project you will need the [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotnet/5.0). 
+To build the project you will need the [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0). 
 
 For development and debugging you will need an IDE:  
-- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 5.0 SDK. Versions are available for both [Windows](https://visualstudio.microsoft.com/vs/) and [Mac](https://visualstudio.microsoft.com/vs/mac/).  
+- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 6.0 SDK (from VS2022). Versions are available for both [Windows](https://visualstudio.microsoft.com/vs/) and [Mac](https://visualstudio.microsoft.com/vs/mac/).  
 - [Visual Studio Code](https://code.visualstudio.com) is a more light-weight code editor that supports development via installation of a C# extension. Visual Studio Code is cross-platform with versions available for [Windows, Linux, and Mac](https://code.visualstudio.com/Download).  
 
 <br />
