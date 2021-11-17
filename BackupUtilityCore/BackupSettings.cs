@@ -224,7 +224,7 @@ namespace BackupUtilityCore
         /// </summary>
         public Dictionary<string, string> GetInvalidSettings()
         {
-            Dictionary<string, string> invalidSettings = new Dictionary<string, string>();
+            Dictionary<string, string> invalidSettings = new();
 
             // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
             if (!Enum.IsDefined(typeof(BackupType), BackupType))

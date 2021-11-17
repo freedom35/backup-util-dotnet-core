@@ -30,7 +30,7 @@ namespace BackupUtilityCore.Tasks
 
             AddToLog("TARGET", targetDir);
 
-            DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
+            DirectoryInfo targetDirInfo = new(targetDir);
 
             // Check to create target directory
             if (!targetDirInfo.Exists)
@@ -67,7 +67,7 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private static string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
         {
-            List<string> dirs = new List<string>();
+            List<string> dirs = new();
 
             foreach (string source in sourceDirectories)
             {
@@ -117,8 +117,8 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private int SyncDirectories(string sourceDir, string targetDir)
         {
-            DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
-            DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
+            DirectoryInfo sourceDirInfo = new(sourceDir);
+            DirectoryInfo targetDirInfo = new(targetDir);
 
             // Get qualifying files only
             var sourceFiles = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileTypeExcluded(f));

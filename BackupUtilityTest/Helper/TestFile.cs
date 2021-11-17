@@ -12,7 +12,7 @@ namespace BackupUtilityTest.Helper
         /// </summary>
         public static void Create(string path)
         {
-            using FileStream f = new FileStream(path, FileMode.Create);
+            using FileStream f = new(path, FileMode.Create);
 
             byte[] testBytes = new byte[]
             {
@@ -31,7 +31,7 @@ namespace BackupUtilityTest.Helper
         /// </summary>
         public static void Modify(string path)
         {
-            using FileStream f = new FileStream(path, FileMode.Append);
+            using FileStream f = new(path, FileMode.Append);
 
             byte[] testBytes = new byte[]
             {

@@ -16,7 +16,7 @@ namespace BackupUtilityTest
             const string Arg = "ARG-TEST";
 
             // Properties readonly - assigned in constructor
-            MessageEventArgs e = new MessageEventArgs(Message, Arg);
+            MessageEventArgs e = new(Message, Arg);
 
             // Check properties match
             Assert.AreEqual(Message, e.Message);

@@ -34,14 +34,14 @@ namespace BackupUtilityTest
             string rootTargetDir = dirs.Item2;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -153,14 +153,14 @@ namespace BackupUtilityTest
             int hiddenFileCount = dirs.Item3;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = true,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -198,7 +198,7 @@ namespace BackupUtilityTest
             string[] excludedTypes = new string[] { "md", "bmp" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -206,7 +206,7 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = excludedTypes
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -244,7 +244,7 @@ namespace BackupUtilityTest
             string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -252,7 +252,7 @@ namespace BackupUtilityTest
                 ExcludedDirectories = excludedDirs
             };
 
-            BackupTaskCopy task = new BackupTaskCopy()
+            BackupTaskCopy task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0

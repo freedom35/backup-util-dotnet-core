@@ -24,7 +24,7 @@ namespace BackupUtilityCore.Tasks
             AddToLog("TARGET", targetDir);
 
             // Check target directory
-            DirectoryInfo targetDirInfo = new DirectoryInfo(targetDir);
+            DirectoryInfo targetDirInfo = new(targetDir);
 
             if (!targetDirInfo.Exists)
             {
@@ -38,7 +38,7 @@ namespace BackupUtilityCore.Tasks
             {
                 AddToLog("SOURCE", sourceDir);
 
-                DirectoryInfo sourceDirInfo = new DirectoryInfo(sourceDir);
+                DirectoryInfo sourceDirInfo = new(sourceDir);
 
                 // Backup source dir
                 backupCount += CopyFiles(sourceDirInfo, targetDirInfo);

@@ -34,14 +34,14 @@ namespace BackupUtilityTest
             string rootTargetDir = dirs.Item2;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskSync task = new BackupTaskSync()
+            BackupTaskSync task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -192,14 +192,14 @@ namespace BackupUtilityTest
             int hiddenFileCount = dirs.Item3;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = true,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir }
             };
 
-            BackupTaskSync task = new BackupTaskSync()
+            BackupTaskSync task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -237,7 +237,7 @@ namespace BackupUtilityTest
             string[] excludedTypes = new string[] { "md", "bmp" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -245,7 +245,7 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = excludedTypes
             };
 
-            BackupTaskSync task = new BackupTaskSync()
+            BackupTaskSync task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -283,7 +283,7 @@ namespace BackupUtilityTest
             string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
@@ -291,7 +291,7 @@ namespace BackupUtilityTest
                 ExcludedDirectories = excludedDirs
             };
 
-            BackupTaskSync task = new BackupTaskSync()
+            BackupTaskSync task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
@@ -331,14 +331,14 @@ namespace BackupUtilityTest
             string rootSourceDir2 = dirs2.Item1;
 
             // Create settings
-            BackupSettings settings = new BackupSettings()
+            BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
                 SourceDirectories = new string[] { rootSourceDir1, rootSourceDir2 }
             };
 
-            BackupTaskSync task = new BackupTaskSync()
+            BackupTaskSync task = new()
             {
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0

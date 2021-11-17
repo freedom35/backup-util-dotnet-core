@@ -42,7 +42,7 @@ namespace BackupUtilityCore
             if (TryGetResourceBytes(resourceStream, out byte[] resourceBytes))
             {
                 // Create stream for writing to a file
-                using FileStream fs = new FileStream(targetPath, FileMode.Create, FileAccess.Write);
+                using FileStream fs = new(targetPath, FileMode.Create, FileAccess.Write);
 
                 fs.Write(resourceBytes, 0, resourceBytes.Length);
 
