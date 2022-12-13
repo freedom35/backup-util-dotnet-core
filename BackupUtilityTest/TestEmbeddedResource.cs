@@ -1,6 +1,7 @@
 ﻿using BackupUtilityCore;
 using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
 
 namespace BackupUtilityTest
@@ -16,6 +17,12 @@ namespace BackupUtilityTest
         [ClassInitialize()]
         public static void InitializeTest(TestContext testContext)
         {
+            // Check directory valid
+            if (string.IsNullOrEmpty(testContext.TestRunDirectory))
+            {
+                throw new ArgumentException("Test run directory not specified", nameof(testContext));
+            }
+
             testRoot = Path.Combine(testContext.TestRunDirectory, "TestEmbeddedResource");
 
             Directory.CreateDirectory(testRoot);
