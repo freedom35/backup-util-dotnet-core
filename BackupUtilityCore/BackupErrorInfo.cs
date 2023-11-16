@@ -3,15 +3,8 @@
     /// <summary>
     /// Information on backup error.
     /// </summary>
-    public sealed class BackupErrorInfo
+    public sealed class BackupErrorInfo(BackupResult result, string sourceFile, string targetDir)
     {
-        public BackupErrorInfo(BackupResult result, string sourceFile, string targetDir)
-        {
-            Result = result;
-            SourceFile = sourceFile;
-            TargetDir = targetDir;
-        }
-
         /// <summary>
         /// Result of backup attempt.
         /// </summary>
@@ -19,7 +12,7 @@
         {
             get;
             set;
-        }
+        } = result;
 
         /// <summary>
         /// Name/path of source file.
@@ -28,7 +21,7 @@
         {
             get;
             private set;
-        }
+        } = sourceFile;
 
         /// <summary>
         /// Name/path of target directory.
@@ -37,6 +30,6 @@
         {
             get;
             private set;
-        }
+        } = targetDir;
     }
 }

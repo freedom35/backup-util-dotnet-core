@@ -80,7 +80,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsHelpArg(string arg)
         {
-            return arg.ToLower() == "--help" || arg == "-h" || arg == "-?";
+            return arg.Equals("--help", StringComparison.OrdinalIgnoreCase) || arg == "-h" || arg == "-?";
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsVersionArg(string arg)
         {
-            return arg.ToLower() == "--version" || arg == "-v";
+            return arg.Equals("--version", StringComparison.OrdinalIgnoreCase) || arg == "-v";
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsCreateConfigArg(string arg)
         {
-            return arg.ToLower() == "--create" || arg == "-c";
+            return arg.Equals("--create", StringComparison.OrdinalIgnoreCase) || arg == "-c";
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace BackupUtilityCore
         /// </summary>
         public static bool IsExecuteArg(string arg)
         {
-            return arg.ToLower() == "--run" || arg == "-r";
+            return arg.Equals("--run", StringComparison.OrdinalIgnoreCase) || arg == "-r";
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace BackupUtilityCore
             // Platform agnostic call
             string app = $"dotnet {name}.dll";
 
-            return new string[] {
+            return [
                 "",
                 "Usage:",
                 $"  {app} [option] [<filename>]",
@@ -140,7 +140,7 @@ namespace BackupUtilityCore
                 $"  {app} --run config1.yaml",
                 $"  {app} -r config1.yaml",
                 $"  {app} -r {GetExampleConfigPath()}"
-            };
+            ];
         }
 
         private static string GetExampleConfigPath()

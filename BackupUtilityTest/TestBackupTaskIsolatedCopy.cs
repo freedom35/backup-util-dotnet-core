@@ -71,7 +71,7 @@ namespace BackupUtilityTest
                 MaxIsololationDays = 0,
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir }
+                SourceDirectories = [rootSourceDir]
             };
 
             BackupTaskIsolatedCopy task = new()

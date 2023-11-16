@@ -11,8 +11,8 @@ namespace BackupUtilityCore
     {
         #region Members
 
-        private string[] excludedDirectories = Array.Empty<string>();
-        private string[] excludedFileTypes = Array.Empty<string>();
+        private string[] excludedDirectories = [];
+        private string[] excludedFileTypes = [];
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace BackupUtilityCore
         {
             get;
             set;
-        } = Array.Empty<string>();
+        } = [];
 
         /// <summary>
         /// Gets or sets the target directory.
@@ -54,7 +54,7 @@ namespace BackupUtilityCore
         public string[] ExcludedDirectories
         {
             // Ensure non-null returned
-            get => excludedDirectories ?? Array.Empty<string>();
+            get => excludedDirectories ?? [];
 
             // Format to be consistent
             set => excludedDirectories = value.Select(dir => dir.ToLower()).ToArray();
@@ -76,7 +76,7 @@ namespace BackupUtilityCore
         public string[] ExcludedFileTypes
         {
             // Ensure non-null returned
-            get => excludedFileTypes ?? Array.Empty<string>();
+            get => excludedFileTypes ?? [];
 
             // Format file types to be consistent
             set => excludedFileTypes = value.Select(file => file.TrimStart('.').ToLower()).ToArray();
@@ -189,19 +189,19 @@ namespace BackupUtilityCore
 
             if (keyValuePairs.TryGetValue("source_dirs", out object? sourceDirs))
             {
-                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
+                settings.SourceDirectories = (sourceDirs as IEnumerable<string>)?.ToArray() ?? [];
             }
 
             // Optional
             if (keyValuePairs.TryGetValue("excluded_dirs", out object? excludedDirs))
             {
-                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
+                settings.ExcludedDirectories = (excludedDirs as IEnumerable<string>)?.ToArray() ?? [];
             }
 
             // Optional
             if (keyValuePairs.TryGetValue("excluded_types", out object? excludedTypes))
             {
-                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray() ?? Array.Empty<string>();
+                settings.ExcludedFileTypes = (excludedTypes as IEnumerable<string>)?.ToArray() ?? [];
             }
 
             // Optional
@@ -224,7 +224,7 @@ namespace BackupUtilityCore
         /// </summary>
         public Dictionary<string, string> GetInvalidSettings()
         {
-            Dictionary<string, string> invalidSettings = new();
+            Dictionary<string, string> invalidSettings = [];
 
             // Enum parse will work for string or int, but any integer will enum parse ok, check value is valid
             if (!Enum.IsDefined(typeof(BackupType), BackupType))
