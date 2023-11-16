@@ -44,7 +44,7 @@ namespace BackupUtilityTest
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir }
+                SourceDirectories = [rootSourceDir]
             };
 
             BackupTaskSync task = new()
@@ -202,7 +202,7 @@ namespace BackupUtilityTest
             {
                 IgnoreHiddenFiles = true,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir }
+                SourceDirectories = [rootSourceDir]
             };
 
             BackupTaskSync task = new()
@@ -240,14 +240,14 @@ namespace BackupUtilityTest
             string rootSourceDir = dirs.Item1;
             string rootTargetDir = dirs.Item2;
 
-            string[] excludedTypes = new string[] { "md", "bmp" };
+            string[] excludedTypes = ["md", "bmp"];
 
             // Create settings
             BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir },
+                SourceDirectories = [rootSourceDir],
                 ExcludedFileTypes = excludedTypes
             };
 
@@ -286,14 +286,14 @@ namespace BackupUtilityTest
             string rootSourceDir = dirs.Item1;
             string rootTargetDir = dirs.Item2;
 
-            string[] excludedDirs = new string[] { "SubBeta0", "SubBeta1" };
+            string[] excludedDirs = ["SubBeta0", "SubBeta1"];
 
             // Create settings
             BackupSettings settings = new()
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir },
+                SourceDirectories = [rootSourceDir],
                 ExcludedDirectories = excludedDirs
             };
 
@@ -341,7 +341,7 @@ namespace BackupUtilityTest
             {
                 IgnoreHiddenFiles = false,
                 TargetDirectory = rootTargetDir,
-                SourceDirectories = new string[] { rootSourceDir1, rootSourceDir2 }
+                SourceDirectories = [rootSourceDir1, rootSourceDir2]
             };
 
             BackupTaskSync task = new()
@@ -373,7 +373,7 @@ namespace BackupUtilityTest
             /////////////////////////////////////
             // Remove 2nd directory
             /////////////////////////////////////
-            settings.SourceDirectories = new string[] { rootSourceDir1 }; 
+            settings.SourceDirectories = [rootSourceDir1];
 
             filesCopied = task.Run(settings);
 

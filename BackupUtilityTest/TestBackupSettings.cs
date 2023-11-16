@@ -49,11 +49,11 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestSourceDirectoriesProp()
         {
-            string[] dirs = new string[]
-            {
+            string[] dirs =
+            [
                 "dir1",
                 "dir2"
-            };
+            ];
 
             BackupSettings settings = new()
             {
@@ -90,11 +90,11 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestExcludedDirectoriesProp()
         {
-            string[] dirs = new string[]
-            {
+            string[] dirs =
+            [
                 "Dir1",
                 "Dir2"
-            };
+            ];
 
             BackupSettings settings = new()
             {
@@ -116,17 +116,17 @@ namespace BackupUtilityTest
         {
             BackupSettings settings = new()
             {
-                ExcludedDirectories = System.Array.Empty<string>()
+                ExcludedDirectories = []
             };
 
             Assert.IsFalse(settings.HasExcludedDirectories);
 
             // Assign some directories
-            settings.ExcludedDirectories = new string[]
-            {
+            settings.ExcludedDirectories =
+            [
                 "Dir1",
                 "Dir2"
-            };
+            ];
 
             Assert.IsTrue(settings.HasExcludedDirectories);
         }
@@ -134,12 +134,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestExcludedFileTypesProp()
         {
-            string[] types = new string[]
-            {
+            string[] types =
+            [
                 "txt",
                 "exe",
                 ".jpg"
-            };
+            ];
 
             BackupSettings settings = new()
             {
@@ -161,17 +161,17 @@ namespace BackupUtilityTest
         {
             BackupSettings settings = new()
             {
-                ExcludedFileTypes = System.Array.Empty<string>()
+                ExcludedFileTypes = []
             };
 
             Assert.IsFalse(settings.HasExcludedFileTypes);
 
             // Assign some files
-            settings.ExcludedFileTypes = new string[]
-            {
+            settings.ExcludedFileTypes =
+            [
                 "md",
                 "bmp"
-            };
+            ];
 
             Assert.IsTrue(settings.HasExcludedFileTypes);
         }
@@ -223,7 +223,7 @@ namespace BackupUtilityTest
 
             Assert.IsFalse(settings.Valid);
 
-            settings.SourceDirectories = new string[] { "dir2" };
+            settings.SourceDirectories = ["dir2"];
 
             Assert.IsFalse(settings.Valid);
 
@@ -240,7 +240,7 @@ namespace BackupUtilityTest
 
             Assert.IsTrue(settings.Valid);
 
-            settings.SourceDirectories = System.Array.Empty<string>();
+            settings.SourceDirectories = [];
 
             Assert.IsFalse(settings.Valid);
         }
@@ -248,12 +248,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestIsFileExcludedMethod()
         {
-            string[] types = new string[]
-            {
+            string[] types =
+            [
                 "txt",
                 "md",
                 ".jpg"
-            };
+            ];
 
             BackupSettings settings = new()
             {
@@ -269,12 +269,12 @@ namespace BackupUtilityTest
         [TestMethod]
         public void TestIsDirectoryExcludedMethod()
         {
-            string[] dirs = new string[]
-            {
+            string[] dirs =
+            [
                 "git",
                 "vs",
                 "release"
-            };
+            ];
 
             BackupSettings settings = new()
             {
@@ -301,7 +301,7 @@ namespace BackupUtilityTest
             settings.TargetDirectory = "dir1";
             Assert.AreEqual(1, settings.GetInvalidSettings().Count);
 
-            settings.SourceDirectories = new string[] { "dir2" };
+            settings.SourceDirectories = ["dir2"];
             Assert.AreEqual(0, settings.GetInvalidSettings().Count);
         }
 
@@ -327,20 +327,20 @@ namespace BackupUtilityTest
             Assert.AreEqual(14, settings.MaxIsololationDays);
             Assert.AreEqual(@"C:\Target\Test", settings.TargetDirectory);
 
-            string[] testSource = new string[]
-            {
+            string[] testSource =
+            [
                 @"C:\Source\Projects",
                 @"C:\Source\Documents"
-            };
+            ];
 
             CompareArrays(testSource, settings.SourceDirectories);
 
-            CompareArrays(System.Array.Empty<string>(), settings.ExcludedDirectories);
+            CompareArrays([], settings.ExcludedDirectories);
 
-            string[] testExcludedDirs = new string[]
-            {
+            string[] testExcludedDirs =
+            [
                 "zip"
-            };
+            ];
 
             CompareArrays(testExcludedDirs, settings.ExcludedFileTypes);
         }

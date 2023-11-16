@@ -72,7 +72,7 @@ namespace BackupUtilityCore
             }
             else
             {
-                resourceBytes = Array.Empty<byte>();
+                resourceBytes = [];
                 return false;
             }
         }

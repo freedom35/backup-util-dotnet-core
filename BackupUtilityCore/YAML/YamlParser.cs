@@ -17,7 +17,7 @@ namespace BackupUtilityCore.YAML
         /// <returns>Key/Value pairs from parsed file.</returns>
         public static Dictionary<string, object> ParseFile(string path)
         {
-            Dictionary<string, object> keyValues = new();
+            Dictionary<string, object> keyValues = [];
 
             // Open file for reading
             using StreamReader streamReader = new(path);
@@ -60,7 +60,7 @@ namespace BackupUtilityCore.YAML
                     {
                         // Start new sequence
                         currentKey = key;
-                        currentSequence = new List<string>();
+                        currentSequence = [];
 
                         // Add to dictionary
                         keyValues.Add(currentKey, currentSequence);
@@ -115,7 +115,7 @@ namespace BackupUtilityCore.YAML
         /// </summary>
         public static bool IsIgnoreLine(string line)
         {
-            return string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith("#");
+            return string.IsNullOrEmpty(line) || line.StartsWith("---") || line.StartsWith("...") || line.StartsWith('#');
         }
 
         /// <summary>

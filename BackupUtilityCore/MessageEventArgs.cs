@@ -5,14 +5,8 @@ namespace BackupUtilityCore
     /// <summary>
     /// Class definition for message event arguments.
     /// </summary>
-    public sealed class MessageEventArgs : EventArgs
+    public sealed class MessageEventArgs(string message, string messageArg) : EventArgs
     {
-        public MessageEventArgs(string message, string messageArg)
-        {
-            Message = message;
-            Arg = messageArg;
-        }
-
         /// <summary>
         /// Event message.
         /// </summary>
@@ -20,7 +14,7 @@ namespace BackupUtilityCore
         {
             get;
             private set;
-        }
+        } = message;
 
         /// <summary>
         /// Optional arg related to the message.
@@ -29,7 +23,7 @@ namespace BackupUtilityCore
         {
             get;
             private set;
-        }
+        } = messageArg;
 
         /// <summary>
         /// Returns string for class with no limit on length.

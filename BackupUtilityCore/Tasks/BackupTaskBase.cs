@@ -13,7 +13,7 @@ namespace BackupUtilityCore.Tasks
     {
         #region Members
 
-        private readonly List<BackupErrorInfo> backupCopyErrors = new();
+        private readonly List<BackupErrorInfo> backupCopyErrors = [];
 
         #endregion
 
@@ -127,10 +127,7 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private void CheckSettings(BackupSettings backupSettings)
         {
-            if (backupSettings == null)
-            {
-                throw new ArgumentNullException(nameof(backupSettings));
-            }
+            ArgumentNullException.ThrowIfNull(backupSettings);
 
             if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
             {
@@ -374,7 +371,7 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Removes read-only attribute from directories and their sub-directories. 
         /// </summary>
-        private void RemoveReadOnlyAttributes(IEnumerable<DirectoryInfo> directories)
+        private static void RemoveReadOnlyAttributes(IEnumerable<DirectoryInfo> directories)
         {
             foreach (DirectoryInfo di in directories)
             {
