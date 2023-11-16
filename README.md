@@ -1,8 +1,8 @@
-# Backup Utility (.NET 7.0)
+# Backup Utility (.NET 8.0)
 
 Backup Utility is a console app that copies files from multiple source directories to a common target directory.  
 
-The app is written as a **.NET 7.0** console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
+The app is written as a **.NET 8.0** console app rather than a service in order to remain portable between Windows, macOS, and Linux.  
   
 Typical cloud backup services only allow you to sync a single directory. Backup Utility can be used to selectively copy multiple source directories to the target directory of your chosen cloud provider. It may also be used to backup files to your own network or USB drive.  
 
@@ -20,14 +20,14 @@ Microsoft .NET has gone through a rebranding where **.NET Core is now simply kno
 <br />
   
 ## Requirements
-Executing the app requires [.NET 7.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/7.0/runtime) to be installed.  
+Executing the app requires [.NET 8.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0/runtime) to be installed.  
 
 Config files (**YAML**) can be edited using any text editor. See section ***Creating a Default Config*** below for creating a default/starter config file.
   
-To build the project you will need the [.NET 7.0 SDK](https://dotnet.microsoft.com/download/dotnet/7.0). 
+To build the project you will need the [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0). 
 
 For development and debugging you will need an IDE:  
-- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 7.0 SDK in VS2022 (newer versions may require optional install). Versions of Visual Studio are available for both [Windows](https://visualstudio.microsoft.com/vs/) and [Mac](https://visualstudio.microsoft.com/vs/mac/).  
+- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 8.0 SDK in VS2022 (newer versions may require optional install). Versions of Visual Studio are available for both [Windows](https://visualstudio.microsoft.com/vs/) and [Mac](https://visualstudio.microsoft.com/vs/mac/).  
 - [Visual Studio Code](https://code.visualstudio.com) is a more light-weight code editor that supports development via installation of a C# extension. Visual Studio Code is cross-platform with versions available for [Windows, Linux, and Mac](https://code.visualstudio.com/Download).  
 
 <br />
