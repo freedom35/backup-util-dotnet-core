@@ -65,7 +65,7 @@ namespace BackupUtilityCore
             {
                 // Read bytes from stream
                 resourceBytes = new byte[resourceStream.Length];
-                resourceStream.Read(resourceBytes, 0, resourceBytes.Length);
+                resourceStream.ReadExactly(resourceBytes);
 
                 // Verify all bytes read
                 return (resourceBytes.Length == resourceStream.Length);
