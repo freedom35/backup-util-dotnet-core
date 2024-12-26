@@ -60,7 +60,6 @@ namespace BackupUtilityTest
                 SourceDirectories = dirs
             };
 
-            Assert.IsNotNull(settings.SourceDirectories);
             Assert.AreEqual(dirs.Length, settings.SourceDirectories.Length);
 
             for (int i = 0; i < dirs.Length; i++)
@@ -101,7 +100,6 @@ namespace BackupUtilityTest
                 ExcludedDirectories = dirs
             };
 
-            Assert.IsNotNull(settings.ExcludedDirectories);
             Assert.AreEqual(dirs.Length, settings.ExcludedDirectories.Length);
 
             for (int i = 0; i < dirs.Length; i++)
@@ -146,7 +144,6 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = types
             };
 
-            Assert.IsNotNull(settings.ExcludedFileTypes);
             Assert.AreEqual(types.Length, settings.ExcludedFileTypes.Length);
 
             for (int i = 0; i < types.Length; i++)
@@ -317,13 +314,12 @@ namespace BackupUtilityTest
             Assert.IsTrue(BackupSettings.TryParseFromYaml(targetPath, out BackupSettings settings));
 
             // Verify parsed file
-            Assert.IsNotNull(settings);
             Assert.IsTrue(settings.Valid);
             Assert.AreEqual(Path.GetFileName(targetPath), settings.SettingsFilename);
 
             // Compare values to test-config.yaml (embedded resource)
             Assert.AreEqual(BackupType.Sync, settings.BackupType);
-            Assert.AreEqual(false, settings.IgnoreHiddenFiles);
+            Assert.IsFalse(settings.IgnoreHiddenFiles);
             Assert.AreEqual(14, settings.MaxIsololationDays);
             Assert.AreEqual(@"C:\Target\Test", settings.TargetDirectory);
 
