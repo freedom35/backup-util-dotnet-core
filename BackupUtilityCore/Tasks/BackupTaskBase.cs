@@ -129,7 +129,7 @@ namespace BackupUtilityCore.Tasks
         {
             ArgumentNullException.ThrowIfNull(backupSettings);
 
-            if (Enum.IsDefined(typeof(BackupType), backupSettings.BackupType) && backupSettings.BackupType != BackupType)
+            if (Enum.IsDefined(backupSettings.BackupType) && backupSettings.BackupType != BackupType)
             {
                 // Something not right
                 throw new ArgumentException($"Backup type in settings ({backupSettings.BackupType}) does not match backup task type ({BackupType})");
