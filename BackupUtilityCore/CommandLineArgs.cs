@@ -38,8 +38,13 @@ namespace BackupUtilityCore
             // Validate parse
             return commandType switch
             {
+                // Args requiring a filename
                 CommandLineArgType.CreateConfig or CommandLineArgType.ExecuteBackup => args.Length == 2 && !string.IsNullOrEmpty(fileArg),
+
+                // Info args
                 CommandLineArgType.Help or CommandLineArgType.Version => args.Length == 1,
+
+                // Default
                 _ => false,
             };
         }
