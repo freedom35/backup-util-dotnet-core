@@ -13,6 +13,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\unit-test.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Resources\test-config.yaml" />
   </ItemGroup>
