@@ -61,7 +61,7 @@ namespace BackupUtilityCore
                     if (Arg.Length > lengthToRemove)
                     {
                         // Truncate arg part
-                        arg = Arg.Remove(0, lengthToRemove);
+                        arg = Arg[lengthToRemove..];
 
                         // Replace first message char with tilde to indicate truncated
                         eventAsString = $"{paddedMessage}~{arg}";
