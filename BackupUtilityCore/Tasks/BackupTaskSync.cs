@@ -89,7 +89,7 @@ namespace BackupUtilityCore.Tasks
         private void RemoveOrphanedBranches(string[] sourceSubDirs, DirectoryInfo targetDirInfo)
         {
             // Get current target directories
-            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+            DirectoryInfo[] targetDirectories = [.. targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
 
             // Need to check for directories that exist in target but not in source
             foreach (DirectoryInfo targetSubInfo in targetDirectories)
@@ -173,7 +173,7 @@ namespace BackupUtilityCore.Tasks
         private void DeleteSourceDirectoriesFromTarget(DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
             // Get current source directories
-            DirectoryInfo[] sourceDirectories = sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+            DirectoryInfo[] sourceDirectories = [.. sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
 
             // Delete missing ones
             DeleteSourceDirectoriesFromTarget(sourceDirectories, targetDirInfo);
@@ -185,7 +185,7 @@ namespace BackupUtilityCore.Tasks
         private void DeleteSourceDirectoriesFromTarget(DirectoryInfo[] sourceDirectories, DirectoryInfo targetDirInfo)
         {
             // Get current target directories
-            DirectoryInfo[] targetDirectories = targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly).ToArray();
+            DirectoryInfo[] targetDirectories = [.. targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
 
             // Need to check for directories that exist in target but not in source
             foreach (DirectoryInfo target in targetDirectories)
@@ -212,10 +212,10 @@ namespace BackupUtilityCore.Tasks
         private void DeleteSourceFilesFromTarget(IEnumerable<string> sourceFiles, DirectoryInfo targetDirInfo)
         {
             // Get names only as lowercase for comparison
-            string[] sourceFileNames = sourceFiles.Select(f => Path.GetFileName(f).ToLower()).ToArray();
+            string[] sourceFileNames = [.. sourceFiles.Select(f => Path.GetFileName(f).ToLower())];
 
             // Get full paths to target (maintain case, UNIX names can be case sensitive.)
-            string[] targetFiles = Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).ToArray();
+            string[] targetFiles = [.. Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly)];
 
             // Need to check for files that exist in target but not in source
             foreach (string file in targetFiles)
