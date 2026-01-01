@@ -17,7 +17,7 @@ namespace BackupUtilityTest
         [DataRow(BackupResult.UnauthorizedAccess, false)]
         [DataRow(BackupResult.UnableToAccess, true)]
         [DataRow(BackupResult.WriteInProgress, true)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestCanBeRetried(BackupResult result, bool canBeRetried)
         {
             Assert.AreEqual(canBeRetried, result.CanBeRetried());
@@ -31,7 +31,7 @@ namespace BackupUtilityTest
         [DataRow(BackupResult.UnauthorizedAccess, true)]
         [DataRow(BackupResult.UnableToAccess, true)]
         [DataRow(BackupResult.WriteInProgress, true)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestIsError(BackupResult result, bool canBeRetried)
         {
             Assert.AreEqual(canBeRetried, result.IsError());
@@ -39,7 +39,7 @@ namespace BackupUtilityTest
 
         [DataRow(BackupResult.OK, "OK")]
         [DataRow(BackupResult.PathTooLong, "Target path is too long")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestGetDescription(BackupResult result, string description)
         {
             Assert.AreEqual(description, result.GetDescription());
