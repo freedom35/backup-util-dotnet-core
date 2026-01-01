@@ -408,7 +408,7 @@ namespace BackupUtilityCore.Tasks
             int backupCount = 0;
 
             // Get the errors that can be retried
-            List<BackupErrorInfo> retryErrors = backupCopyErrors.Where(err => err.Result.CanBeRetried()).ToList();
+            List<BackupErrorInfo> retryErrors = [.. backupCopyErrors.Where(err => err.Result.CanBeRetried())];
 
             if (retryErrors.Count > 0)
             {

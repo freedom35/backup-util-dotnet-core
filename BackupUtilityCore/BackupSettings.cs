@@ -57,7 +57,7 @@ namespace BackupUtilityCore
             get => excludedDirectories ?? [];
 
             // Format to be consistent
-            set => excludedDirectories = value.Select(dir => dir.ToLower()).ToArray();
+            set => excludedDirectories = [.. value.Select(dir => dir.ToLower())];
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace BackupUtilityCore
             get => excludedFileTypes ?? [];
 
             // Format file types to be consistent
-            set => excludedFileTypes = value.Select(file => file.TrimStart('.').ToLower()).ToArray();
+            set => excludedFileTypes = [.. value.Select(file => file.TrimStart('.').ToLower())];
         }
 
         /// <summary>
