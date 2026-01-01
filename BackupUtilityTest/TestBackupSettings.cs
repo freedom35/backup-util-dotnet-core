@@ -60,7 +60,7 @@ namespace BackupUtilityTest
                 SourceDirectories = dirs
             };
 
-            Assert.AreEqual(dirs.Length, settings.SourceDirectories.Length);
+            Assert.HasCount(dirs.Length, settings.SourceDirectories);
 
             for (int i = 0; i < dirs.Length; i++)
             {
@@ -100,7 +100,7 @@ namespace BackupUtilityTest
                 ExcludedDirectories = dirs
             };
 
-            Assert.AreEqual(dirs.Length, settings.ExcludedDirectories.Length);
+            Assert.HasCount(dirs.Length, settings.ExcludedDirectories);
 
             for (int i = 0; i < dirs.Length; i++)
             {
@@ -144,7 +144,7 @@ namespace BackupUtilityTest
                 ExcludedFileTypes = types
             };
 
-            Assert.AreEqual(types.Length, settings.ExcludedFileTypes.Length);
+            Assert.HasCount(types.Length, settings.ExcludedFileTypes);
 
             for (int i = 0; i < types.Length; i++)
             {
@@ -290,16 +290,16 @@ namespace BackupUtilityTest
             BackupSettings settings = new();
 
             // Critical settings not valid by default
-            Assert.AreEqual(3, settings.GetInvalidSettings().Count);
+            Assert.HasCount(3, settings.GetInvalidSettings());
 
             settings.BackupType = BackupType.Copy;
-            Assert.AreEqual(2, settings.GetInvalidSettings().Count);
+            Assert.HasCount(2, settings.GetInvalidSettings());
 
             settings.TargetDirectory = "dir1";
-            Assert.AreEqual(1, settings.GetInvalidSettings().Count);
+            Assert.HasCount(1, settings.GetInvalidSettings());
 
             settings.SourceDirectories = ["dir2"];
-            Assert.AreEqual(0, settings.GetInvalidSettings().Count);
+            Assert.IsEmpty(settings.GetInvalidSettings());
         }
 
         [TestMethod]
@@ -343,7 +343,7 @@ namespace BackupUtilityTest
 
         private static void CompareArrays(string[] source, string[] target)
         {
-            Assert.AreEqual(source.Length, target.Length);
+            Assert.HasCount(source.Length, target);
 
             for (int i = 0; i < source.Length; i++)
             {

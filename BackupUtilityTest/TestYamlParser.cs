@@ -17,7 +17,7 @@ namespace BackupUtilityTest
         [DataRow("abc\n", "abc")]
         [DataRow("abc\r", "abc")]
         [DataRow("abc \n\r", "abc")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestTrimWhiteSpaceChars(string input, string inputTrimmed)
         {
             Assert.AreEqual(inputTrimmed, YamlParser.TrimWhiteSpaceChars(input));
@@ -26,10 +26,10 @@ namespace BackupUtilityTest
 
         [DataRow(@"C:\dir1", @"C:\dir1")]
         [DataRow(@"- C:\dir1", @"C:\dir1")]
-        [DataRow(@"- C:\dir1", @"C:\dir1")]
+        [DataRow(@"- C:\dir1 ", @"C:\dir1")]
         [DataRow("- \"C:\\dir1\"", @"C:\dir1")]
         [DataRow("- \'C:\\dir1\'", @"C:\dir1")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestTrimSequenceChars(string input, string inputTrimmed)
         {
             Assert.AreEqual(inputTrimmed, YamlParser.TrimSequenceChars(input));
@@ -42,7 +42,7 @@ namespace BackupUtilityTest
         [DataRow("#", true)]
         [DataRow("abc", false)]
         [DataRow("- abc", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestIsIgnoreLine(string input, bool ignoreLine)
         {
             Assert.AreEqual(ignoreLine, YamlParser.IsIgnoreLine(input));
@@ -54,7 +54,7 @@ namespace BackupUtilityTest
         [DataRow("abc", false)]
         [DataRow("- abc", true)]
         [DataRow("-abc", true)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestIsSequenceEntry(string input, bool sequenceEntry)
         {
             Assert.AreEqual(sequenceEntry, YamlParser.IsSequenceEntry(input));
@@ -70,7 +70,7 @@ namespace BackupUtilityTest
         [DataRow("KEY: VAL", true, "key", "VAL")]
         [DataRow("key: C:\\dir1", true, "key", "C:\\dir1")]
         [DataRow("key: []", true, "key", "[]")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestTryGetKeyValue(string input, bool containsKey, string expectedKey, string expectedVal)
         {
             bool keyFound = YamlParser.TryGetKeyValue(input, out string key, out string val);

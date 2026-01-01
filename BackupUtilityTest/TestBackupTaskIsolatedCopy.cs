@@ -34,7 +34,7 @@ namespace BackupUtilityTest
         [DataRow("2019-12-23 015959-2", true)]
         [DataRow("SubDir1", false)]
         [DataRow("junk", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestTryParseDateFromIsolatedDirectory(string dir, bool shouldParse)
         {
             Assert.AreEqual(shouldParse, BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory(dir, out DateTime _));
@@ -96,7 +96,7 @@ namespace BackupUtilityTest
             string dateSubDir = VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied1);
 
             // Verify 1 backup
-            Assert.AreEqual(sourceCount, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
+            Assert.HasCount(sourceCount, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories));
 
             ///////////////////////////////////////////
             // Run again -
@@ -109,7 +109,7 @@ namespace BackupUtilityTest
             VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied2);
 
             // Verify there are 2 backups
-            Assert.AreEqual(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
+            Assert.HasCount(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories));
 
             ///////////////////////////////////////////
             // Test deleting old backups
@@ -135,7 +135,7 @@ namespace BackupUtilityTest
             VerifyLatestBackup(sourceFiles, rootTargetDir, filesCopied3);
 
             // Verify there are still 2 backups (old one deleted, and one new one)
-            Assert.AreEqual(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories).Length);
+            Assert.HasCount(sourceCount * 2, Directory.GetFiles(rootTargetDir, "*.*", SearchOption.AllDirectories));
 
             // Verify 'old' backup no longer exists
             Assert.IsFalse(Directory.Exists(newDateDir));

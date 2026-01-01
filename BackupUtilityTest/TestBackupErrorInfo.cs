@@ -12,7 +12,7 @@ namespace BackupUtilityTest
         [DataRow(BackupResult.OK, "C:\\file1.txt", "C:\\backups")]
         [DataRow(BackupResult.AlreadyBackedUp, "/users/freedom35/file1.txt", "/users/freedom35/backups")]
         [DataRow(BackupResult.Exception, "", "")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestConstructor(BackupResult result, string sourceFile, string targetDir)
         {
             // Source/Target properties read-only (set in constructor)

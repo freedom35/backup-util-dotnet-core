@@ -18,7 +18,7 @@ namespace BackupUtilityTest
         [DataRow("-c", false)]
         [DataRow("help.yaml", false)]
         [DataRow("arg!", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestIsHelpArg(string arg, bool isCorrectArg)
         {
             Assert.AreEqual(isCorrectArg, CommandLineArgs.IsHelpArg(arg));
@@ -31,7 +31,7 @@ namespace BackupUtilityTest
         [DataRow("-c", false)]
         [DataRow("--version.yaml", false)]
         [DataRow("arg!", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestIsVersionArg(string arg, bool isCorrectArg)
         {
             Assert.AreEqual(isCorrectArg, CommandLineArgs.IsVersionArg(arg));
@@ -45,7 +45,7 @@ namespace BackupUtilityTest
         [DataRow("--create.yaml", false)]
         [DataRow("-c.yaml", false)]
         [DataRow("arg!", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestCreateConfigArg(string arg, bool isCorrectArg)
         {
             Assert.AreEqual(isCorrectArg, CommandLineArgs.IsCreateConfigArg(arg));
@@ -57,7 +57,7 @@ namespace BackupUtilityTest
         [DataRow("execute.yaml", false)]
         [DataRow("-r.yaml", false)]
         [DataRow("arg!", false)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestExecuteArg(string arg, bool isCorrectArg)
         {
             Assert.AreEqual(isCorrectArg, CommandLineArgs.IsExecuteArg(arg));
@@ -76,7 +76,7 @@ namespace BackupUtilityTest
         [DataRow("execute.yaml", CommandLineArgType.Unknown)]
         [DataRow("-f", CommandLineArgType.Unknown)]
         [DataRow("arg!", CommandLineArgType.Unknown)]
-        [DataTestMethod]
+        [TestMethod]
         public void TestGetArgType(string arg, CommandLineArgType correctType)
         {
             Assert.AreEqual(correctType, CommandLineArgs.GetArgType(arg));
@@ -97,7 +97,7 @@ namespace BackupUtilityTest
         [DataRow("-u", false, CommandLineArgType.Unknown, "")]
         [DataRow("just a bunch of junk", false, CommandLineArgType.Unknown, "a")]
         [DataRow("", false, CommandLineArgType.Unknown, "")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestTryParseArgs(string argsAsString, bool parseValid, CommandLineArgType correctType, string correctFileArg)
         {
             string[] args = argsAsString.Split(' ');
