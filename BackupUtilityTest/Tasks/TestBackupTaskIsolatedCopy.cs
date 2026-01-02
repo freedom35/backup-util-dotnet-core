@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace BackupUtilityTest
+namespace BackupUtilityTest.Tasks
 {
     /// <summary>
     /// Test cases for BackupUtilityCore.Tasks.BackupTaskIsolatedCopy
