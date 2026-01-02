@@ -26,16 +26,16 @@ Config files (**YAML**) can be edited using any text editor. See section ***Crea
   
 To build the project you will need the [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). 
 
-For development and debugging you will need an IDE:  
-- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 10.0 SDK in VS2026 (other versions may require optional install). Versions of Visual Studio are available for both [Windows](https://visualstudio.microsoft.com/vs/) and [Mac](https://visualstudio.microsoft.com/vs/mac/).  
+For development and debugging you will need a code editor:  
+- [Visual Studio](https://visualstudio.microsoft.com) is a fully-featured IDE with built-in support for C# and comes pre-packaged with the .NET 10.0 SDK in VS2026. The latest version of Visual Studio is currently only available for [Windows](https://visualstudio.microsoft.com/vs/), Visual Studio for [Mac](https://devblogs.microsoft.com/visualstudio/visual-studio-for-mac-retirement-announcement/) was retired in August 2024.  
 - [Visual Studio Code](https://code.visualstudio.com) is a more light-weight code editor that supports development via installation of a C# extension. Visual Studio Code is cross-platform with versions available for [Windows, Linux, and Mac](https://code.visualstudio.com/Download).  
 
 <br />
 
 ## Building
-Building the app project will create a **cross-platform DLL** in either the **debug** or **release** directory, depending on your [build options](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options).  
+Building the app project will create a **cross-platform DLL** in either the **debug** or **release** directory, depending on your [build options](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build#options).  
 
-You can either build the app from within the IDE menu (if supported) or by running an [SDK command](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build) from the terminal when the solution or project file is in the current directory.
+You can either build the app from within the IDE menu (if supported) or by running an [SDK command](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build) from the terminal when the solution or project file is in the current directory.
 
 **Debug (default build):**
 ```sh
@@ -55,7 +55,7 @@ $ dotnet build -c release
 <br/>
 
 ## Publishing
-Once the .NET SDK has been installed, you can **publish** the app via Visual Studio or the [command line](https://docs.microsoft.com/en-us/dotnet/core/deploying/). This enables you to create an OS specific executable should you wish to do so.  
+Once the .NET SDK has been installed, you can **publish** the app via Visual Studio or the [command line](https://learn.microsoft.com/en-us/dotnet/core/deploying/). This enables you to create an OS specific executable should you wish to do so.  
 
 To publish via the command line, browse to the **BackupUtilityCore** project directory and run one of the following commands, depending on your target OS:
 
@@ -78,7 +78,7 @@ $ dotnet publish -c release -r osx-x64
 ```sh
 $ dotnet publish -c release -r linux-x64
 ```  
-For further options, refer to the [.NET publishing documentation](https://docs.microsoft.com/en-us/dotnet/core/deploying/).  
+For further options, refer to the [.NET publishing documentation](https://learn.microsoft.com/en-us/dotnet/core/deploying/).  
 <br />
 
 ## Usage
@@ -91,7 +91,7 @@ The portable app (**backuputil.dll**) can be executed via the .NET framework usi
 $ dotnet backuputil.dll [option] [<filename>]
 ```  
 
-Alternatively, if the project has been [published](https://docs.microsoft.com/en-us/dotnet/core/deploying/#publish-framework-dependent) to target the local platform, the **publish** directory will also contain a native bootstrap file for executing the app.  
+Alternatively, if the project has been [published](https://learn.microsoft.com/en-us/dotnet/core/deploying/#framework-dependent-deployment) to target the local platform, the **publish** directory will also contain a native bootstrap file for executing the app.  
 
 The specific command line to run the **executable** with vary depending on the OS:
 
