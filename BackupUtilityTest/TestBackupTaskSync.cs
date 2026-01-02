@@ -323,9 +323,9 @@ namespace BackupUtilityTest
         }
 
         [TestMethod]
-        public void TestBackupSyncDelete()
+        public void TestBackupSyncRemovedFromConfig()
         {
-            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncDelete");
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncRemovedFromConfig");
 
             var dirs = TestDirectory.Create(rootWorkingDir, "Source1");
 
@@ -383,8 +383,8 @@ namespace BackupUtilityTest
             // Compare directories
             targetCount = VerifyBackup(sourceFiles1, rootTargetDir);
 
-            // 2nd dir and contents should also have been deleted from target
-            Assert.AreEqual(sourceFiles1.Count(), targetCount);
+            // 2nd dir (no longer in config) and contents should have been preserved - not deleted from target
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
         }
 
         private static int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)

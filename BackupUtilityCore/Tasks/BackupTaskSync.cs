@@ -25,9 +25,6 @@ namespace BackupUtilityCore.Tasks
         {
             string targetDir = BackupSettings.TargetDirectory;
 
-            // Get target location of source directories
-            sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
-
             AddToLog("TARGET", targetDir);
 
             DirectoryInfo targetDirInfo = new(targetDir);
@@ -37,13 +34,11 @@ namespace BackupUtilityCore.Tasks
             {
                 targetDirInfo.Create();
             }
-            else
-            {
-                // Remove directories no longer in config
-                RemoveOrphanedBranches(sourceDirsInTarget, targetDirInfo);
-            }
 
             int backupCount = 0;
+
+            // Get target location of source directories
+            sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
 
             // Should be same, but safety check
             int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, sourceDirsInTarget.Length);
@@ -81,34 +76,6 @@ namespace BackupUtilityCore.Tasks
             }
 
             return [.. dirs];
-        }
-
-        /// <summary>
-        /// Removes directories from branches in target that are no longer in any source directories.
-        /// </summary>
-        private void RemoveOrphanedBranches(string[] sourceSubDirs, DirectoryInfo targetDirInfo)
-        {
-            // Get current target directories
-            DirectoryInfo[] targetDirectories = [.. targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
-
-            // Need to check for directories that exist in target but not in source
-            foreach (DirectoryInfo targetSubInfo in targetDirectories)
-            {
-                // Check for sub directory in sources
-                string? targetSub = sourceSubDirs.FirstOrDefault(s => s.StartsWith(targetSubInfo.FullName, StringComparison.OrdinalIgnoreCase));
-
-                // If directory not found, then orphaned - delete
-                // Otherwise, keep searching branch until full directories match
-                if (string.IsNullOrEmpty(targetSub))
-                {
-                    DeleteDirectory(targetSubInfo);
-                }
-                else if (targetSub.Length != targetSubInfo.FullName.Length)
-                {
-                    // if not the same dir as source, keep checking sub directories
-                    RemoveOrphanedBranches(sourceSubDirs, targetSubInfo);
-                }
-            }
         }
 
         /// <summary>
