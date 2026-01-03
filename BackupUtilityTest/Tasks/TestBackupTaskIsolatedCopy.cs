@@ -29,6 +29,12 @@ namespace BackupUtilityTest.Tasks
             testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupIsolatedCopy");
         }
 
+        [ClassCleanup()]
+        public static void CleanupTest()
+        {
+            Directory.Delete(testRoot, true);
+        }
+
         [DataRow("2020-04-17 233102", true)]
         [DataRow("2021-01-16 105104-1", true)]
         [DataRow("2019-12-23 015959-2", true)]
@@ -40,12 +46,14 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(shouldParse, BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory(dir, out DateTime _));
         }
 
+        [DataRow("2020-04-17 233102", 2020, 4, 17, 23, 31, 2)]
+        [DataRow("2025-11-02 121242", 2025, 11, 2, 12, 12, 42)]
         [TestMethod]
-        public void TestTryParseCorrectDate()
+        public void TestTryParseCorrectDate(string dir, int year, int month, int day, int hour, int minute, int second)
         {
-            Assert.IsTrue(BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory("2020-04-17 233102", out DateTime dirDate));
+            Assert.IsTrue(BackupTaskIsolatedCopy.TryParseDateFromIsolatedDirectory(dir, out DateTime dirDate));
 
-            DateTime correctDate = new(2020, 04, 17, 23, 31, 2);
+            DateTime correctDate = new(year, month, day, hour, minute, second);
 
             Assert.AreEqual(correctDate.Year, dirDate.Year);
             Assert.AreEqual(correctDate.Month, dirDate.Month);
@@ -79,9 +87,6 @@ namespace BackupUtilityTest.Tasks
                 RetryEnabled = false,
                 MinFileWriteWaitTime = 0
             };
-
-            // Add handler for debug
-            task.Log += Task_Log;
 
             ///////////////////////////////////////////
             // Copy files
@@ -139,13 +144,6 @@ namespace BackupUtilityTest.Tasks
 
             // Verify 'old' backup no longer exists
             Assert.IsFalse(Directory.Exists(newDateDir));
-
-            ///////////////////////////////////////////
-            // Cleanup
-            ///////////////////////////////////////////
-
-            // Remove handler
-            task.Log -= Task_Log;
         }
 
         private static string VerifyLatestBackup(IEnumerable<string> sourceFiles, string rootTargetDir, int filesCopied)
@@ -188,11 +186,6 @@ namespace BackupUtilityTest.Tasks
             }
 
             return dateSubDir;
-        }
-
-        private void Task_Log(object sender, MessageEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine($"ISO-COPY-TEST: {e}");
         }
     }
 }
