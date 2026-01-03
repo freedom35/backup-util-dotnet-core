@@ -61,11 +61,8 @@ namespace BackupUtilityCore.Tasks
             // (Files within a hidden directory are also considered hidden.)
             if (!BackupSettings.IgnoreHiddenFiles || (sourceDirInfo.Attributes & FileAttributes.Hidden) == 0)
             {
-                // Remove common root path
-                string sourceSubDir = GetSourceSubDir(sourceDirInfo.FullName, targetDirInfo.FullName);
-
                 // Get target path
-                string targetDir = Path.Combine(targetDirInfo.FullName, sourceSubDir);
+                string targetDir = GetTargetDirForSourceDir(sourceDirInfo.FullName, targetDirInfo.FullName);
 
                 // Get qualifying files only
                 var files = Directory.EnumerateFiles(sourceDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly).Where(f => !BackupSettings.IsFileTypeExcluded(f));
