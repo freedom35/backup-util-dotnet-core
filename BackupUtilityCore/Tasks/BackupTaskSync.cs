@@ -13,9 +13,9 @@ namespace BackupUtilityCore.Tasks
         protected override BackupType BackupType => BackupType.Sync;
 
         /// <summary>
-        /// Target location of source directories
+        /// Target locations of source directories
         /// </summary>
-        private string[] sourceDirsInTarget = [];
+        private string[] targetDirs = [];
 
         /// <summary>
         /// Syncs target directory with source directories.
@@ -23,11 +23,11 @@ namespace BackupUtilityCore.Tasks
         /// <returns>Number of new files backed up</returns>
         protected override int PerformBackup()
         {
-            string targetDir = BackupSettings.TargetDirectory;
+            string rootTargetDir = BackupSettings.TargetDirectory;
 
-            AddToLog("TARGET", targetDir);
+            AddToLog("TARGET", rootTargetDir);
 
-            DirectoryInfo targetDirInfo = new(targetDir);
+            DirectoryInfo targetDirInfo = new(rootTargetDir);
 
             // Check to create target directory
             if (!targetDirInfo.Exists)
@@ -38,10 +38,10 @@ namespace BackupUtilityCore.Tasks
             int backupCount = 0;
 
             // Get target location of source directories
-            sourceDirsInTarget = GetSourceSubDirs(BackupSettings.SourceDirectories, targetDir);
+            targetDirs = GetTargetDirsFromSourceDirs(BackupSettings.SourceDirectories, rootTargetDir);
 
             // Should be same, but safety check
-            int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, sourceDirsInTarget.Length);
+            int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, targetDirs.Length);
 
             // Sync each source directory
             for (int i = 0; i < maxSource; i++)
@@ -51,7 +51,7 @@ namespace BackupUtilityCore.Tasks
                 AddToLog("SOURCE", sourceDir);
 
                 // Sync within the source directories
-                backupCount += SyncDirectories(sourceDir, sourceDirsInTarget[i]);
+                backupCount += SyncDirectories(sourceDir, targetDirs[i]);
             }
 
             return backupCount;
@@ -60,17 +60,17 @@ namespace BackupUtilityCore.Tasks
         /// <summary>
         /// Gets the sub directory where each source will be located in the target directory.
         /// </summary>
-        private static string[] GetSourceSubDirs(string[] sourceDirectories, string targetDir)
+        private static string[] GetTargetDirsFromSourceDirs(string[] sourceDirectories, string rootTargetDir)
         {
             List<string> dirs = [];
 
             foreach (string source in sourceDirectories)
             {
                 // Remove common root path
-                string sourceSubDir = GetSourceSubDir(source, targetDir);
+                string sourceSubDir = GetSourceSubDir(source, rootTargetDir);
 
                 // Append source sub-dir to target
-                string sourceDirInTarget = Path.Combine(targetDir, sourceSubDir);
+                string sourceDirInTarget = Path.Combine(rootTargetDir, sourceSubDir);
 
                 dirs.Add(sourceDirInTarget);
             }
@@ -160,8 +160,9 @@ namespace BackupUtilityCore.Tasks
                 // Only sub-dir name will match (ignore case), full paths are from different locations
                 bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
 
-                // Remove if directory is now excluded, but not overridden by a source
-                remove |= BackupSettings.IsDirectoryExcluded(target.Name) && !sourceDirsInTarget.Any(s => s.StartsWith(target.FullName, StringComparison.OrdinalIgnoreCase));
+                // Remove if directory is in exclusion list,
+                // unless the dir is configured as a source directory (overriding the exclusion)
+                remove |= BackupSettings.IsDirectoryExcluded(target.Name) && !targetDirs.Any(s => s.StartsWith(target.FullName, StringComparison.OrdinalIgnoreCase));
 
                 // Remove if hidden options changed
                 remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
