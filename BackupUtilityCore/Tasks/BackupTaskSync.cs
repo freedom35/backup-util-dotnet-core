@@ -13,21 +13,14 @@ namespace BackupUtilityCore.Tasks
         protected override BackupType BackupType => BackupType.Sync;
 
         /// <summary>
-        /// Target locations of source directories
-        /// </summary>
-        private string[] targetDirs = [];
-
-        /// <summary>
         /// Syncs target directory with source directories.
         /// </summary>
         /// <returns>Number of new files backed up</returns>
         protected override int PerformBackup()
         {
-            string rootTargetDir = BackupSettings.TargetDirectory;
+            AddToLog("TARGET", BackupSettings.TargetDirectory);
 
-            AddToLog("TARGET", rootTargetDir);
-
-            DirectoryInfo targetDirInfo = new(rootTargetDir);
+            DirectoryInfo targetDirInfo = new(BackupSettings.TargetDirectory);
 
             // Check to create target directory
             if (!targetDirInfo.Exists)
@@ -37,45 +30,17 @@ namespace BackupUtilityCore.Tasks
 
             int backupCount = 0;
 
-            // Get target location of source directories
-            targetDirs = GetTargetDirsFromSourceDirs(BackupSettings.SourceDirectories, rootTargetDir);
-
-            // Should be same, but safety check
-            int maxSource = Math.Min(BackupSettings.SourceDirectories.Length, targetDirs.Length);
-
             // Sync each source directory
-            for (int i = 0; i < maxSource; i++)
+            foreach (string sourceDir in BackupSettings.SourceDirectories)
             {
-                string sourceDir = BackupSettings.SourceDirectories[i];
-
                 AddToLog("SOURCE", sourceDir);
 
-                // Sync within the source directories
-                backupCount += SyncDirectories(sourceDir, targetDirs[i]);
+                string targetDir = GetTargetDirForSourceDir(sourceDir, BackupSettings.TargetDirectory);
+
+                backupCount += SyncDirectories(sourceDir, targetDir);
             }
 
             return backupCount;
-        }
-
-        /// <summary>
-        /// Gets the sub directory where each source will be located in the target directory.
-        /// </summary>
-        private static string[] GetTargetDirsFromSourceDirs(string[] sourceDirectories, string rootTargetDir)
-        {
-            List<string> dirs = [];
-
-            foreach (string source in sourceDirectories)
-            {
-                // Remove common root path
-                string sourceSubDir = GetSourceSubDir(source, rootTargetDir);
-
-                // Append source sub-dir to target
-                string sourceDirInTarget = Path.Combine(rootTargetDir, sourceSubDir);
-
-                dirs.Add(sourceDirInTarget);
-            }
-
-            return [.. dirs];
         }
 
         /// <summary>
@@ -139,20 +104,16 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private void DeleteSourceDirectoriesFromTarget(DirectoryInfo sourceDirInfo, DirectoryInfo targetDirInfo)
         {
-            // Get current source directories
+            // Get current source sub directories
             DirectoryInfo[] sourceDirectories = [.. sourceDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
 
-            // Delete missing ones
-            DeleteSourceDirectoriesFromTarget(sourceDirectories, targetDirInfo);
-        }
-
-        /// <summary>
-        /// Deletes any directories in the target directory that are not listed in source array.
-        /// </summary>
-        private void DeleteSourceDirectoriesFromTarget(DirectoryInfo[] sourceDirectories, DirectoryInfo targetDirInfo)
-        {
-            // Get current target directories
+            // Get current target sub directories
             DirectoryInfo[] targetDirectories = [.. targetDirInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)];
+
+            // Get any source directories that are sub directories of the current source dir
+            var directoryOverrides = BackupSettings.SourceDirectories.Where(s => s.Length > sourceDirInfo.FullName.Length && s.StartsWith(sourceDirInfo.FullName, StringComparison.OrdinalIgnoreCase))
+                        // Convert to target paths for comparison
+                        .Select(s => GetTargetDirForSourceDir(s, BackupSettings.TargetDirectory));
 
             // Need to check for directories that exist in target but not in source
             foreach (DirectoryInfo target in targetDirectories)
@@ -161,8 +122,8 @@ namespace BackupUtilityCore.Tasks
                 bool remove = !sourceDirectories.Any(source => string.Compare(source.Name, target.Name, true) == 0);
 
                 // Remove if directory is in exclusion list,
-                // unless the dir is configured as a source directory (overriding the exclusion)
-                remove |= BackupSettings.IsDirectoryExcluded(target.Name) && !targetDirs.Any(s => s.StartsWith(target.FullName, StringComparison.OrdinalIgnoreCase));
+                // unless the dir is configured directly as a source directory (overriding the exclusion)
+                remove |= BackupSettings.IsDirectoryExcluded(target.Name) && !directoryOverrides.Any(s => s.StartsWith(target.FullName, StringComparison.OrdinalIgnoreCase));
 
                 // Remove if hidden options changed
                 remove |= BackupSettings.IgnoreHiddenFiles && (target.Attributes & FileAttributes.Hidden) > 0;
