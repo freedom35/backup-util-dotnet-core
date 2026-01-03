@@ -1,7 +1,7 @@
 using BackupUtilityCore.YAML;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackupUtilityTest
+namespace BackupUtilityTest.YAML
 {
     /// <summary>
     /// Test cases for BackupUtilityCore.YAML.YamlParser

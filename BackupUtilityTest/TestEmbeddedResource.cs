@@ -28,6 +28,12 @@ namespace BackupUtilityTest
             Directory.CreateDirectory(testRoot);
         }
 
+        [ClassCleanup()]
+        public static void CleanupTest()
+        {
+            Directory.Delete(testRoot, true);
+        }
+
         [TestMethod]
         public void TestCreateDefaultConfig()
         {

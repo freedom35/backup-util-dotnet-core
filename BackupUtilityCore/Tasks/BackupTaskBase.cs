@@ -461,6 +461,21 @@ namespace BackupUtilityCore.Tasks
         }
 
         /// <summary>
+        /// Gets the equivalent target directory for a source directory.
+        /// </summary>
+        /// <param name="sourceDir">Name of source directory</param>
+        /// <param name="targetDir">Name of target directory</param>
+        /// <returns>Full path of target directory</returns>
+        protected static string GetTargetDirForSourceDir(string sourceDir, string targetDir)
+        {
+            // Remove common root path between source and target
+            string subDir = GetSourceSubDir(sourceDir, targetDir);
+
+            // Append source sub-dir to target
+            return Path.Combine(targetDir, subDir);
+        }
+
+        /// <summary>
         /// Gets the directory name where the source starts.
         /// </summary>
         /// <param name="sourceDir">Name of source directory</param>

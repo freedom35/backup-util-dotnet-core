@@ -9,68 +9,52 @@ namespace BackupUtilityTest
     [TestClass]
     public sealed class TestMessageEventArgs
     {
+        [DataRow("message0", "")]
+        [DataRow("message1", "argA")]
+        [DataRow("message2", "argB")]
         [TestMethod]
-        public void TestConstructor()
+        public void TestConstructor(string message, string arg)
         {
-            const string Message = "MSG-TEST";
-            const string Arg = "ARG-TEST";
-
             // Properties readonly - assigned in constructor
-            MessageEventArgs e = new(Message, Arg);
+            MessageEventArgs e = new(message, arg);
 
             // Check properties match
-            Assert.AreEqual(Message, e.Message);
-            Assert.AreEqual(Arg, e.Arg);
+            Assert.AreEqual(message, e.Message);
+            Assert.AreEqual(arg, e.Arg);
         }
 
+        [DataRow("message0", "", "message0")]
+        [DataRow("min", "padding", "min      - padding")]
+        [DataRow("message", "arg", "message  - arg")]
+        [DataRow("message1", "argA", "message1 - argA")]
+        [DataRow("message2", "argB", "message2 - argB")]
+        [DataRow("message3", "argSomethingLonger", "message3 - argSomethingLonger")]
         [TestMethod]
-        public void TestToString()
+        public void TestToString(string message, string arg, string expectedString)
         {
-            // Property readonly - assigned in constructor
-            MessageEventArgs e;
+            MessageEventArgs e = new(message, arg);
 
-            // Check not truncated for base to string
-            e = new MessageEventArgs("Message", "ARG");
-            Assert.AreEqual("Message  - ARG", e.ToString());
-
-            // Check not truncated
-            e = new MessageEventArgs("Message", "###############");
-            Assert.AreEqual("Message  - ###############", e.ToString());
+            // Check string not truncated by default
+            Assert.AreEqual(expectedString, e.ToString());
         }
 
+        [DataRow("message0", "", 5, "message0")]
+        [DataRow("message12", "12", 30, "message12 - 12")]
+        [DataRow("message", "1234567890", 20, "message  - ~34567890")]
+        [DataRow("message1", "1234567890", 20, "message1 - ~34567890")]
+        [DataRow("message10", "1234567890", 20, "message10 - ~4567890")]
+        [DataRow("message", "arg", 0, "message  - arg")]
+        [DataRow("message", "arg", 1, "message  - arg")]
+        [DataRow("message", "arg", -1, "message  - arg")]
+        [DataRow("message", "arg", int.MaxValue - 1, "message  - arg")]
+        [DataRow("message", "arg", int.MaxValue, "message  - arg")]
         [TestMethod]
-        public void TestToStringWithMaxLength()
+        public void TestToStringWithMaxLength(string message, string arg, int maxLength, string expectedString)
         {
-            // Property readonly - assigned in constructor
-            MessageEventArgs e;
+            MessageEventArgs e = new(message, arg);
 
-            // Check not truncated when no arg
-            e = new MessageEventArgs("Message", "");
-            Assert.AreEqual("Message", e.ToString(5));
-
-            // Check truncated from start
-            e = new MessageEventArgs("Message", "1234567890");
-            Assert.AreEqual("Message  - ~34567890", e.ToString(20));
-
-            // Check not truncated When below max
-            e = new MessageEventArgs("Message", "12");
-            Assert.AreEqual("Message  - 12", e.ToString(30));
-
-            // Check edge cases
-            e = new MessageEventArgs("Message", "Arg");
-            Assert.AreEqual("Message  - Arg", e.ToString(0));
-
-            e = new MessageEventArgs("Message", "Arg");
-            Assert.AreEqual("Message  - Arg", e.ToString(1));
-
-            e = new MessageEventArgs("Message", "Arg");
-            Assert.AreEqual("Message  - Arg", e.ToString(-1));
-
-            e = new MessageEventArgs("Message", "Arg");
-            Assert.AreEqual("Message  - Arg", e.ToString(int.MaxValue - 1));
-
-            e = new MessageEventArgs("Message", "Arg");
-            Assert.AreEqual("Message  - Arg", e.ToString(int.MaxValue));
+            // Check truncated from start when length exceeded
+            Assert.AreEqual(expectedString, e.ToString(maxLength));
         }
     }
 }
