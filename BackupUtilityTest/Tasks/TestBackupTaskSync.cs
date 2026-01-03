@@ -3,7 +3,6 @@ using BackupUtilityCore.Tasks;
 using BackupUtilityTest.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -27,6 +26,12 @@ namespace BackupUtilityTest.Tasks
             }
 
             testRoot = Path.Combine(testContext.TestRunDirectory, "TestBackupTaskSync");
+        }
+
+        [ClassCleanup()]
+        public static void CleanupTest()
+        {
+            Directory.Delete(testRoot, true);
         }
 
         [TestMethod]
@@ -53,9 +58,6 @@ namespace BackupUtilityTest.Tasks
                 MinFileWriteWaitTime = 0
             };
 
-            // Add handler to main copy test for debugging output
-            task.Log += Task_Log;
-
             /////////////////////////////////////
             // Copy files
             /////////////////////////////////////
@@ -68,13 +70,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Run copy again
+            // Run sync again
             /////////////////////////////////////
             filesCopied = task.Run(settings);
 
@@ -82,13 +84,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Add files, run copy again
+            // Add files, run sync again
             /////////////////////////////////////
             // Add first file to root
             string addedFile1 = Path.Combine(rootSourceDir, "added-file1.txt");
@@ -106,13 +108,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(2, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Modify file, run copy again
+            // Modify file, run sync again
             /////////////////////////////////////
             TestFile.Modify(addedFile1);
 
@@ -122,13 +124,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(1, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Delete file, run copy again
+            // Delete file, run sync again
             /////////////////////////////////////
             File.Delete(addedFile1);
 
@@ -138,13 +140,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // File should also have been deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Delete directory, run copy again
+            // Delete directory, run sync again
             /////////////////////////////////////
             addedDirInfo.Delete(true);
 
@@ -154,13 +156,13 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Dir and contents should also have been deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
 
             /////////////////////////////////////
-            // Change hidden files, run copy again
+            // Change hidden files, run sync again
             /////////////////////////////////////
             settings.IgnoreHiddenFiles = true;
 
@@ -177,13 +179,10 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Dir and contents should also have been deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
-
-            // Remove handler
-            task.Log -= Task_Log;
         }
 
         [TestMethod]
@@ -224,7 +223,7 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
@@ -270,7 +269,7 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
@@ -316,7 +315,82 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+        }
+
+        /// <summary>
+        /// Tests excluded directories in config are overridden from direct source directories.
+        /// </summary>
+        [TestMethod]
+        public void TestBackupSyncExcludeDirectoryOverride()
+        {
+            string rootWorkingDir = Path.Combine(testRoot, "BackupSyncExcludeDirOverride");
+
+            var dirs = TestDirectory.Create(rootWorkingDir);
+
+            string rootSourceDir = dirs.Item1;
+            string rootTargetDir = dirs.Item2;
+
+            // Create file in root of bin
+            string rootSourceDirBin = Path.Combine(rootSourceDir, "bin");
+            Directory.CreateDirectory(rootSourceDirBin);
+            TestFile.Create(Path.Combine(rootSourceDirBin, $"bin-file.txt"));
+
+            // Create sub folder/file deeper within bin
+            string rootSourceDirBinDebug = Path.Combine(rootSourceDirBin, "debug");
+            Directory.CreateDirectory(rootSourceDirBinDebug);
+            TestFile.Create(Path.Combine(rootSourceDirBinDebug, $"debug-file.txt"));
+
+            // Create settings
+            BackupSettings settings = new()
+            {
+                IgnoreHiddenFiles = false,
+                TargetDirectory = rootTargetDir,
+                SourceDirectories = [rootSourceDir],
+                ExcludedDirectories = []
+            };
+
+            BackupTaskSync task = new()
+            {
+                RetryEnabled = false,
+                MinFileWriteWaitTime = 0
+            };
+
+            // Copy files
+            int filesCopied = task.Run(settings);
+
+            // All source files should have been copied
+            var sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(sourceFiles.Count(), filesCopied);
+
+            // Compare directories
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
+
+            // Check expected number of files were copied
+            Assert.AreEqual(sourceFiles.Count(), targetCount);
+
+            ////////////////////////////////////////////////////////////
+            // Exclude bin, but override with source dir to retain it
+            ////////////////////////////////////////////////////////////
+            settings.ExcludedDirectories = ["bin"];
+            settings.SourceDirectories = [rootSourceDir, rootSourceDirBin];
+
+            // Shoould be 0, as all files already copied
+            filesCopied = task.Run(settings);
+
+            // All source files should have been copied
+            sourceFiles = Directory.EnumerateFiles(rootSourceDir, "*.*", SearchOption.AllDirectories);
+
+            // Check task returned expected number of files
+            Assert.AreEqual(0, filesCopied);
+
+            // Compare directories
+            targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
@@ -365,7 +439,7 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(sourceFiles.Count(), filesCopied);
 
             // Compare directories
-            int targetCount = VerifyBackup(sourceFiles, rootTargetDir);
+            int targetCount = TestBackup.Verify(sourceFiles, rootTargetDir);
 
             // Check expected number of files were copied
             Assert.AreEqual(sourceFiles.Count(), targetCount);
@@ -381,39 +455,10 @@ namespace BackupUtilityTest.Tasks
             Assert.AreEqual(0, filesCopied);
 
             // Compare directories
-            targetCount = VerifyBackup(sourceFiles1, rootTargetDir);
+            targetCount = TestBackup.Verify(sourceFiles1, rootTargetDir);
 
             // 2nd dir (no longer in config) and contents should have been preserved - not deleted from target
             Assert.AreEqual(sourceFiles.Count(), targetCount);
-        }
-
-        private static int VerifyBackup(IEnumerable<string> sourceFiles, string rootTargetDir)
-        {
-            // Get all the target files
-            var targetFiles = Directory.EnumerateFiles(rootTargetDir, "*.*", SearchOption.AllDirectories);
-
-            // Remove target root from paths
-            var targetFilesWithoutRoots = targetFiles.Select(f => f[rootTargetDir.Length..].TrimStart('\\', '/')).ToArray();
-
-            // Get length of root string to be removed
-            int rootSourceLength = TestDirectory.IndexOfSourceSubDir(sourceFiles.First(), rootTargetDir);
-
-            // Compare directories
-            foreach (string file in sourceFiles)
-            {
-                // Remove source root
-                string sourceFileWithoutRoot = file[rootSourceLength..];
-
-                // Check it was copied
-                Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
-            }
-
-            return targetFiles.Count();
-        }
-
-        private void Task_Log(object sender, MessageEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine($"SYNC-TEST: {e}");
         }
     }
 }
