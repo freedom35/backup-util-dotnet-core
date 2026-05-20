@@ -273,7 +273,12 @@ namespace BackupUtilityCore.Tasks
                         }
 
                         // Backup file
-                        sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
+                        FileInfo copyFileInfo = sourceFileInfo.CopyTo(targetFileInfo.FullName, true);
+
+                        // Preserve original attributes
+                        // (Last write time automatically preserved by CopyTo, but need to set others manually)
+                        copyFileInfo.Attributes = sourceFileInfo.Attributes;
+                        copyFileInfo.CreationTimeUtc = sourceFileInfo.CreationTimeUtc;
 
                         // Confirm backed up
                         result = BackupResult.OK;
