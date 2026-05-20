@@ -140,8 +140,8 @@ namespace BackupUtilityCore.Tasks
         /// </summary>
         private void DeleteSourceFilesFromTarget(IEnumerable<string> sourceFiles, DirectoryInfo targetDirInfo)
         {
-            // Get names only as lowercase for comparison
-            string[] sourceFileNames = [.. sourceFiles.Select(f => Path.GetFileName(f).ToLower())];
+            // Get file names for comparison
+            string[] sourceFileNames = [.. sourceFiles.Select(f => Path.GetFileName(f))];
 
             // Get full paths to target (maintain case, UNIX names can be case sensitive.)
             string[] targetFiles = [.. Directory.EnumerateFiles(targetDirInfo.FullName, "*.*", SearchOption.TopDirectoryOnly)];
@@ -150,7 +150,7 @@ namespace BackupUtilityCore.Tasks
             foreach (string file in targetFiles)
             {
                 // Compare names as lowercase
-                string nameOnly = Path.GetFileName(file).ToLower();
+                string nameOnly = Path.GetFileName(file);
 
                 // Only name will match, full paths are from different locations
                 bool remove = !sourceFileNames.Contains(nameOnly);
@@ -158,8 +158,19 @@ namespace BackupUtilityCore.Tasks
                 // Remove if ext is now excluded
                 remove |= BackupSettings.IsFileTypeExcluded(file);
 
-                // Remove if hidden options changed
-                remove |= BackupSettings.IgnoreHiddenFiles && (File.GetAttributes(file) & FileAttributes.Hidden) > 0;
+                // Remove file if hidden options changed and should now be ignored
+                if (!remove && BackupSettings.IgnoreHiddenFiles)
+                {
+                    // Check with path separator to avoid partial name matches (e.g. "file1.txt" matching "myfile1.txt")
+                    string nameWithPathChar = Path.DirectorySeparatorChar + nameOnly;
+
+                    // Check flag on source file, as target file may be automatically flagged as hidden by UNIX file systems when copied, even if source file is not hidden.
+                    // (i.e. if file is prefixed with a dot)
+                    if (sourceFiles.FirstOrDefault(f => f.EndsWith(nameWithPathChar)) is string sourcePath)
+                    {
+                        remove = (File.GetAttributes(sourcePath) & FileAttributes.Hidden) > 0;
+                    }
+                }
 
                 if (remove)
                 {
