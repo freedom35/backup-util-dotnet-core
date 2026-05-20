@@ -170,7 +170,7 @@ namespace BackupUtilityTest.Tasks
             var targetFilesWithoutRoots = isolatedTargetFilesWithoutRoots.Where(t => t.StartsWith(dateSubDir)).Select(t => t[(dateSubDir.Length + 1)..]);
 
             // Check expected number of files were copied
-            Assert.AreEqual(sourceFiles.Count(), targetFilesWithoutRoots.Count());
+            Assert.HasCount(sourceFiles.Count(), targetFilesWithoutRoots);
 
             // Get length of root string to be removed
             int rootSourceLength = TestDirectory.IndexOfSourceSubDir(sourceFiles.First(), rootTargetDir);
@@ -182,7 +182,7 @@ namespace BackupUtilityTest.Tasks
                 string sourceFileWithoutRoot = file[rootSourceLength..];
 
                 // Check it was copied
-                Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
+                Assert.Contains(sourceFileWithoutRoot, targetFilesWithoutRoots);
             }
 
             return dateSubDir;

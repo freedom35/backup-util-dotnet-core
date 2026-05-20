@@ -28,7 +28,7 @@ namespace BackupUtilityTest.Helper
                 string sourceFileWithoutRoot = file[rootSourceLength..];
 
                 // Check it was copied
-                Assert.IsTrue(targetFilesWithoutRoots.Contains(sourceFileWithoutRoot));
+                Assert.Contains(sourceFileWithoutRoot, targetFilesWithoutRoots);
             }
 
             return targetFiles.Count();
